@@ -1,0 +1,28 @@
+Package: RSASEG
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.0.9000
+Author: Romain Lesur
+Maintainer: Romain Lesur <romain.lesur@justice.gouv.fr>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Imports:
+  data.table,
+  DBI (>= 0.3.0),
+  dplyr,
+  fasttime,
+  methods,
+  rClr,
+  runr
+Suggests:
+  DBItest, 
+  testthat
+Collate: 
+    'SASEGS4.R'
+    'RSASEGDriver.R'
+    'dplyr.R'
+    'runr.R'
+RoxygenNote: 6.0.1

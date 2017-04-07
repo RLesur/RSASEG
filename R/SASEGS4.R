@@ -366,6 +366,11 @@ setMethod("getName", "SASEGDataset", function(object) {
   clrGet(object, "Name")
 })
 
+setGeneric("getFileName", function(object, ...) standardGeneric("getFileName"))
+setMethod("getFileName", "SASEGDataset", function(object) {
+  clrGet(object, "FileName")
+})
+
 setMethod("saveAs", "SASEGDataset", function(object, dir = NULL, name = NULL, type = "csv", fsep = "\\") {
   if(is.null(dir)) {
     dir <- normalizePath(tempdir())

@@ -264,7 +264,7 @@ setMethod("dbDataType", "SASEGDriver", function(dbObj, obj, ...) {
   if(class(obj) %in% names(SASEGDataType)) {
     return(SASEGDataType[[class(obj)]])
   } else {
-    return(dbDataType(ANSI(), obj, ...))
+    return(dbDataType(DBI::ANSI(), obj, ...))
   }
 })
 
@@ -274,27 +274,27 @@ setMethod("dbDataType", "SASEGConnection", function(dbObj, obj, ...) {
 
 setMethod("dbQuoteString", c("SASEGConnection", "character"), function(conn, x, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  dbQuoteString(ANSI(), x, ...)
+  dbQuoteString(DBI::ANSI(), x, ...)
 })
 
 setMethod("dbQuoteString", c("SASEGConnection", "SQL"), function(conn, x, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  dbQuoteString(ANSI(), x, ...)
+  dbQuoteString(DBI::ANSI(), x, ...)
 })
 
 setMethod("dbQuoteIdentifier", c("SASEGConnection", "character"), function(conn, x, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  dbQuoteIdentifier(ANSI(), x, ...)
+  dbQuoteIdentifier(DBI::ANSI(), x, ...)
 })
 
 setMethod("dbQuoteIdentifier", c("SASEGConnection", "SQL"), function(conn, x, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  dbQuoteIdentifier(ANSI(), x, ...)
+  dbQuoteIdentifier(DBI::ANSI(), x, ...)
 })
 
 setMethod("dbQuoteIdentifier", c("SASEGConnection", "Table"), function(conn, x, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  dbQuoteIdentifier(ANSI(), x, ...)
+  dbQuoteIdentifier(DBI::ANSI(), x, ...)
 })
 
 setMethod("dbWriteTable", "SASEGConnection", function(conn, name, value, ...) {

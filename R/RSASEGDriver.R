@@ -260,6 +260,8 @@ setMethod("sqlAppendTable", "SASEGConnection", function(con, table, values, row.
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
   code <- sqlAppendTable(DBI::ANSI(), table, values, row.names, ...)
   # SAS PROC SQL INSERT INTO statement has non ANSI rules. 
+  # One row is inserted for each VALUES clause.
+  # Multiple VALUES clauses are not separated by commas.
   code <- gsub("),\n  (", ")\nVALUES\n  (", code, fixed = TRUE)
   code <- gsub("VALUES\n  ", "  VALUES", code, fixed = TRUE)
   return(code)

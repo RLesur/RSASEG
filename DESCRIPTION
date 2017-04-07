@@ -21,6 +21,7 @@ Suggests:
   DBItest, 
   testthat
 Collate: 
+    'utils.R'
     'SASEGDataType.R'
     'SASEGS4.R'
     'RSASEGDriver.R'

@@ -1,6 +1,7 @@
 #' @import DBI
 #' @import methods
 #' @include SASEGS4.R
+#' @include SASEGDataType.R
 NULL
 
 #' Driver class for SAS Enterprise Guide.
@@ -260,12 +261,15 @@ setMethod("dbGetLog", "SASEGResult", function(res, ...) {
 
 setMethod("dbDataType", "SASEGDriver", function(dbObj, obj, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  dbDataType(ANSI(), obj, ...)
+  if(class(obj) %in% names(SASEGDataType)) {
+    return(SASEGDataType[[class(obj)]])
+  } else {
+    return(dbDataType(ANSI(), obj, ...))
+  }
 })
 
 setMethod("dbDataType", "SASEGConnection", function(dbObj, obj, ...) {
-  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  dbDataType(ANSI(), obj, ...)
+  dbDataType(SASEG(), obj)
 })
 
 setMethod("dbQuoteString", c("SASEGConnection", "character"), function(conn, x, ...) {
@@ -292,3 +296,13 @@ setMethod("dbQuoteIdentifier", c("SASEGConnection", "Table"), function(conn, x, 
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
   dbQuoteIdentifier(ANSI(), x, ...)
 })
+
+setMethod("dbWriteTable", "SASEGConnection", function(conn, name, value, ...) {
+  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
+  program <- SAS(sqlCreateTable(conn, name, value))
+  # Create a new SAS EG Code object with server and SAS program:
+  SASCode <- newCode(conn@SASProject, server = conn@server, program = program, name = paste("Create Table", name))
+  run(SASCode)
+})
+
+

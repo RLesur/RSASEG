@@ -356,6 +356,7 @@ setMethod("getListDatasets", "SASEGCode", function(code) {
   i <- 1
   while(i <= n) {
     l[[i]] <- new("SASEGDataset", clrGet(enum, "Current"))
+    clrCall(enum, "MoveNext")
     i <- i+1
   }
   return(l)

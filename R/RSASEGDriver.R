@@ -211,7 +211,7 @@ setMethod("dbSendQuery", "SASEGConnection", function(conn, statement, codeName =
 #' @export
 setMethod("dbClearResult", "SASEGResult", function(res, ...) {
   l <- getListDatasets(res@SASResult)
-  drop_char <- paste("DROP TABLE ", lapply(l, getFileName), ";", sep ="")
+  drop_char <- paste("DROP TABLE", lapply(l, getFileName))
   drop_sql <- lapply(drop_char, SQL)
   drop_sas <- paste(noteUtil, lapply(drop_sql, SAS))
   SASUtil <- res@SASUtil

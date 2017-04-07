@@ -256,9 +256,21 @@ setMethod("dbQuoteIdentifier", c("SASEGConnection", "Table"), function(conn, x, 
   dbQuoteIdentifier(DBI::ANSI(), x, ...)
 })
 
-setMethod("dbWriteTable", "SASEGConnection", function(conn, name, value, ...) {
+setMethod("sqlAppendTable", "SASEGConnection", function(con, table, values, row.names = NA, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  program <- SAS(sqlCreateTable(conn, name, value))
+  code <- sqlAppendTable(DBI::ANSI(), table, values, row.names, ...)
+  code <- gsub("),\n  (", ")\nVALUES\n  (", code, fixed = TRUE)
+  code <- gsub("VALUES\n  ", "  VALUES", code, fixed = TRUE)
+  return(code)
+})
+
+setMethod("dbWriteTable", "SASEGConnection", function(conn, name, value, row.names = NA, ...) {
+  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
+  program <- SAS(SQL(paste0(
+    sqlCreateTable(con = conn, table = name, fields = value, row.names = row.names, temporary = FALSE),
+    ";\n",
+    sqlAppendTable(con = conn, table = name, values = value, row.names = row.names, ...)
+    )))
   # Create a new SAS EG Code object with server and SAS program:
   SASCode <- newCode(conn@SASProject, server = conn@server, program = program, name = paste("Create Table", name))
   run(SASCode)

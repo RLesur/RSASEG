@@ -272,7 +272,11 @@ setMethod("dbWriteTable", "SASEGConnection", function(conn, name, value, row.nam
     sqlAppendTable(con = conn, table = name, values = value, row.names = row.names, ...)
     )))
   # Create a new SAS EG Code object with server and SAS program:
-  SASCode <- newCode(conn@SASProject, server = conn@server, program = program, name = paste("Create Table", name))
+  SASCode <- newCode(conn@SASProject, 
+                     server = conn@server, 
+                     program = program, 
+                     name = paste("Create dataset", name, "from", deparse(substitute(value)))
+                     )
   run(SASCode)
 })
 

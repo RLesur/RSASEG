@@ -5,14 +5,14 @@
 #' @include utils.R
 NULL
 
+
 #' Driver class for SAS Enterprise Guide.
 #'
 #' @keywords internal
-#' @export
+#' @exportClass SASEGDriver
 setClass("SASEGDriver", contains = "DBIDriver")
 
-#' @export
-#' @rdname SASEG-class
+#' @rdname SASEGDriver-class
 setMethod("dbUnloadDriver", "SASEGDriver", function(drv, ...) {
   TRUE
 })
@@ -30,19 +30,20 @@ SASEG <- function() {
 
 #' SAS class.
 #'
-#' @export
+#' @exportClass SAS
 setClass("SAS", contains = "character")
 
+#' @exportMethod SAS
 setGeneric("SAS", function(x, ...) standardGeneric("SAS"))
-
+#' @export
 setMethod("SAS", "character", function(x, ...) {
   new("SAS", x)
 })
-
+#' @export
 setMethod("SAS", "SAS", function(x, ...) {
   return(x)
 })
-
+#' @export
 setMethod("SAS", "SQL", function(x, ...) {
   new("SAS",
       paste0("PROC SQL DQUOTE=ANSI;\n",
@@ -58,7 +59,7 @@ setMethod("show", "SAS", function(object) {
 
 #' SAS EG connection class.
 #'
-#' @export
+#' @exportClass SASEGConnection
 #' @keywords internal
 setClass("SASEGConnection",
          contains = "DBIConnection",
@@ -75,7 +76,7 @@ setClass("SASEGConnection",
 )
 
 #' @param drv An object created by \code{SASEG()}
-#' @rdname SASEG
+#' @rdname SASEGDriver-class
 #' @export
 #' @examples
 #' \dontrun{
@@ -119,13 +120,13 @@ setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, 
 #' SASEG results class.
 #'
 #' @keywords internal
-#' @export
+#' @exportClass SASEGResult
 setClass("SASEGResult",
          contains = "DBIResult",
          slots = list(SASResult = "SASEGCode", SASUtil = "SASEGCode", fetched = "function", rowsFetched = "function")
          )
 
-
+#' @exportMethod setFetched
 setGeneric("setFetched", function(res, value) standardGeneric("setFetched"))
 setMethod("setFetched", "SASEGResult", function(res, value) {
   res@fetched(set = value)
@@ -197,7 +198,9 @@ setMethod("dbFetch", "SASEGResult", function(res, n = -1, ...) {
   return(d)
 })
 
+#' @exportMethod dbFetchAll
 setGeneric("dbFetchAll", function(res, ...) standardGeneric("dbFetchAll"))
+#' @export
 setMethod("dbFetchAll", "SASEGResult", function(res, ...) {
   l <- getListDatasets(res@SASResult)
   n <- length(l)
@@ -213,7 +216,9 @@ setMethod("dbFetchAll", "SASEGResult", function(res, ...) {
   return(d)
 })
 
+#' @exportMethod dbGetLog
 setGeneric("dbGetLog", function(res, ...) standardGeneric("dbGetLog"))
+#' @export
 setMethod("dbGetLog", "SASEGResult", function(res, ...) {
   getLog(res@SASResult)
 })

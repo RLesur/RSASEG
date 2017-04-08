@@ -64,3 +64,4 @@ clrGet(app_sasobj, "Name")
 clrCall(app_sasobj, "Quit")
 }
 }
+\keyword{internal}

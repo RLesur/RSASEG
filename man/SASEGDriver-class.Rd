@@ -3,8 +3,25 @@
 \docType{class}
 \name{SASEGDriver-class}
 \alias{SASEGDriver-class}
+\alias{dbUnloadDriver,SASEGDriver-method}
+\alias{dbConnect,SASEGDriver-method}
 \title{Driver class for SAS Enterprise Guide.}
+\usage{
+\S4method{dbUnloadDriver}{SASEGDriver}(drv, ...)
+
+\S4method{dbConnect}{SASEGDriver}(drv, DLLFilePath, profile, server, dbms, ...)
+}
+\arguments{
+\item{drv}{An object created by \code{SASEG()}}
+}
 \description{
 Driver class for SAS Enterprise Guide.
+}
+\examples{
+\dontrun{
+db <- dbConnect(RSASEG::SASEG(), DLLFilePath, profile, server, dbms)
+dbWriteTable(db, "mtcars", mtcars)
+dbGetQuery(db, "SELECT * FROM mtcars WHERE cyl == 4")
+}
 }
 \keyword{internal}

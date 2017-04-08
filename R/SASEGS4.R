@@ -38,7 +38,8 @@ loadSASEGScripting <- function(DLLFilePath) {
 #' a \code{cobjRef} object. For more information about \code{CLR} objects and methods, see the \code{rClr} package
 #' documentation.
 #' @slot ptr A \code{cobjRef} object.
-#' @exportClass
+#' @exportClass SASObjRef
+#' @keywords internal
 setClass("SASObjRef", slots = list(ptr = "cobjRef"))
 
 #' @rdname SASObjRef-class
@@ -63,6 +64,7 @@ setClass("SASObjRef", slots = list(ptr = "cobjRef"))
 #' clrCall(app_sasobj, "Quit")
 #' }
 #' @export
+#' @keywords internal
 SASObjRef <- function(obj) {
   if(class(obj) == "cobjRef") {
     out <- new("SASObjRef", ptr = obj)
@@ -72,34 +74,46 @@ SASObjRef <- function(obj) {
   return(out)
 }
 
+#' @exportMethod ptr
+#' @keywords internal
 setGeneric("ptr", function(SASObj) standardGeneric("ptr"))
 
 #' @rdname SASObjRef-class
 #' @param SASObj A \code{SASObjRef} object.
 #' @return \code{ptr()} returns a \code{cobjRef} object.
-#' @exportMethod
+#' @export
+#' @keywords internal
 setMethod("ptr", "SASObjRef", function(SASObj) {return(SASObj@ptr)})
 
+#' @exportMethod clrCall
+#' @keywords internal
 setGeneric("clrCall", package = "rClr")
 
 #' @rdname SASObjRef-class
-#' @exportMethod
+#' @export
+#' @keywords internal
 setMethod("clrCall", "SASObjRef", function(obj, methodName, ...) {
   SASObjRef(rClr::clrCall(ptr(obj), methodName, ...))
 })
 
+#' @exportMethod clrGet
+#' @keywords internal
 setGeneric("clrGet", package = "rClr")
 
 #' @rdname SASObjRef-class
-#' @exportMethod
+#' @export
+#' @keywords internal
 setMethod("clrGet", "SASObjRef", function(objOrType, name) {
   SASObjRef(rClr::clrGet(ptr(objOrType), name))
 })
 
+#' @exportMethod clrSet
+#' @keywords internal
 setGeneric("clrSet", package = "rClr")
 
 #' @rdname SASObjRef-class
-#' @exportMethod
+#' @export
+#' @keywords internal
 setMethod("clrSet", "SASObjRef", function(objOrType, name, value) {
   rClr::clrSet(ptr(objOrType), name, value)
 })
@@ -108,7 +122,7 @@ setMethod("clrSet", "SASObjRef", function(objOrType, name, value) {
 #' An S4 class to represent a SAS EG Application object
 #'
 #' The \code{SASEGApplication} class is an S4 class to represent a \code{SAS EG Scripting Application} object.
-#' @exportClass
+#' @exportClass SASEGApplication
 setClass("SASEGApplication", contains = "SASObjRef")
 
 #' @rdname SASEGApplication-class
@@ -140,7 +154,6 @@ SASEGApplication <- function() {
 }
 
 #' @rdname SASEGApplication-class
-#' @exportMethod
 setMethod("show", "SASEGApplication", function(object) {
   cat(clrGet(object, "Name"),
       ", Version: ",
@@ -161,19 +174,19 @@ setMethod("show", "SASEGApplication", function(object) {
 })
 
 
+#' @exportMethod setProfile
 setGeneric("setProfile",
            function(application, profile) standardGeneric("setProfile"))
 
 #' @rdname SASEGApplication-class
-#' @exportMethod
 setMethod("setProfile", "SASEGApplication", function(application, profile) {
   clrCall(application, "SetActiveProfile", profile)
 })
 
+#' @exportMethod terminate
 setGeneric("terminate", function(application) standardGeneric("terminate"))
 
 #' @rdname SASEGApplication-class
-#' @exportMethod
 setMethod("terminate", "SASEGApplication", function(application) {
   clrCall(application, "Quit")
   return(TRUE)
@@ -211,9 +224,10 @@ setMethod("terminate", "SASEGApplication", function(application) {
 #' terminate(app)
 #' }
 #' @seealso \code{\linkS4class{SASEGApplication}}, \code{\linkS4class{SASEGCode}}
-#' @exportClass
+#' @exportClass SASEGProject
 setClass("SASEGProject", contains = "SASObjRef")
 
+#' @exportMethod newProject
 setGeneric("newProject", function(application) standardGeneric("newProject"))
 
 #' @rdname SASEGApplication-class
@@ -221,12 +235,12 @@ setMethod("newProject", "SASEGApplication", function(application) {
   new("SASEGProject", clrCall(application, "New"))
 })
 
+#' @exportMethod saveAs
 setGeneric("saveAs", function(object, ...) standardGeneric("saveAs"))
 
 #' @rdname SASEGProject-class
 #' @param filepath A character string with the path to the file project, \code{NULL} by default.
 #'   \strong{Be careful: \code{saveAs()} method overwrites existing files without confirmation.}
-#' @exportMethod
 setMethod("saveAs", "SASEGProject", function(object, filepath, ...) {
   clrCall(object, "SaveAs", filepath)
   message("SAS Enterprise Guide Project saved to: ", filepath)
@@ -264,9 +278,10 @@ setMethod("saveAs", "SASEGProject", function(object, filepath, ...) {
 #' terminate(app)
 #' }
 #' @seealso \code{\linkS4class{SASEGProject}}, \code{\linkS4class{SASEGDataset}}
-#' @exportClass
+#' @exportClass SASEGCode
 setClass("SASEGCode", contains = "SASObjRef")
 
+#' @exportMethod setServer
 setGeneric("setServer", function(object, server, ...) standardGeneric("setServer"))
 
 #' @rdname SASEGCode-class
@@ -277,6 +292,7 @@ setMethod("setServer", "SASEGCode", function(object, server, ...) {
   clrSet(object, "Server", server)
 })
 
+#' @exportMethod setText
 setGeneric("setText", function(object, text, ...) standardGeneric("setText"))
 
 #' @rdname SASEGCode-class
@@ -285,6 +301,7 @@ setMethod("setText", "SASEGCode", function(object, text, ...) {
   clrSet(object, "Text", text)
 })
 
+#' @exportMethod setName
 setGeneric("setName", function(object, name, ...) standardGeneric("setName"))
 
 #' @rdname SASEGCode-class
@@ -293,6 +310,7 @@ setMethod("setName", "SASEGCode", function(object, name, ...) {
   clrSet(object, "Name", name)
 })
 
+#' @exportMethod newCode
 setGeneric("newCode", function(project, ...) standardGeneric("newCode"))
 
 #' @rdname SASEGProject-class
@@ -309,6 +327,7 @@ setMethod("newCode", "SASEGProject", function(project, server = NULL, program = 
   return(code)
 })
 
+#' @exportMethod run
 setGeneric("run", function(code) standardGeneric("run"))
 
 #' @rdname SASEGCode-class
@@ -317,6 +336,7 @@ setMethod("run", "SASEGCode", function(code) {
   clrCall(code, "Run")
 })
 
+#' @exportMethod getLog
 setGeneric("getLog", function(code) standardGeneric("getLog"))
 
 #' @rdname SASEGCode-class
@@ -324,6 +344,7 @@ setMethod("getLog", "SASEGCode", function(code) {
   return(clrGet(clrGet(code, "Log"), "Text"))
 })
 
+#' @exportMethod countOutputDatasets
 setGeneric("countOutputDatasets", function(code) standardGeneric("countOutputDatasets"))
 
 #' @rdname SASEGCode-class
@@ -331,6 +352,7 @@ setMethod("countOutputDatasets", "SASEGCode", function(code) {
   return(clrGet(clrGet(code, "OutputDatasets"), "Count"))
 })
 
+#' @exportMethod getSourceCode
 setGeneric("getSourceCode", function(code) standardGeneric("getSourceCode"))
 
 #' @rdname SASEGCode-class
@@ -341,9 +363,10 @@ setMethod("getSourceCode", "SASEGCode", function(code) {
 
 #' An S4 class to represent a SAS EG Dataset object
 #'
-#' @export
+#' @exportClass SASEGDataset
 setClass("SASEGDataset", contains = "SASObjRef")
 
+#' @exportMethod getListDatasets
 setGeneric("getListDatasets", function(code) standardGeneric("getListDatasets"))
 
 #' @rdname SASEGCode-class
@@ -362,11 +385,13 @@ setMethod("getListDatasets", "SASEGCode", function(code) {
   return(l)
 })
 
+#' @exportMethod getName
 setGeneric("getName", function(object, ...) standardGeneric("getName"))
 setMethod("getName", "SASEGDataset", function(object) {
   clrGet(object, "Name")
 })
 
+#' @exportMethod getFileName
 setGeneric("getFileName", function(object, ...) standardGeneric("getFileName"))
 setMethod("getFileName", "SASEGDataset", function(object) {
   clrGet(object, "FileName")

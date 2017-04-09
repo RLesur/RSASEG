@@ -3,29 +3,53 @@
 \docType{class}
 \name{SASEGCode-class}
 \alias{SASEGCode-class}
+\alias{setServer}
 \alias{setServer,SASEGCode-method}
+\alias{setText}
 \alias{setText,SASEGCode-method}
+\alias{setName}
 \alias{setName,SASEGCode-method}
+\alias{run}
 \alias{run,SASEGCode-method}
+\alias{getLog}
 \alias{getLog,SASEGCode-method}
+\alias{countOutputDatasets}
 \alias{countOutputDatasets,SASEGCode-method}
+\alias{getSourceCode}
 \alias{getSourceCode,SASEGCode-method}
+\alias{getListDatasets}
 \alias{getListDatasets,SASEGCode-method}
 \title{An S4 class to represent a SAS EG Code object}
 \usage{
+setServer(object, server, ...)
+
 \S4method{setServer}{SASEGCode}(object, server, ...)
+
+setText(object, text, ...)
 
 \S4method{setText}{SASEGCode}(object, text, ...)
 
+setName(object, name, ...)
+
 \S4method{setName}{SASEGCode}(object, name, ...)
+
+run(code)
 
 \S4method{run}{SASEGCode}(code)
 
+getLog(code)
+
 \S4method{getLog}{SASEGCode}(code)
+
+countOutputDatasets(code)
 
 \S4method{countOutputDatasets}{SASEGCode}(code)
 
+getSourceCode(code)
+
 \S4method{getSourceCode}{SASEGCode}(code)
+
+getListDatasets(code)
 
 \S4method{getListDatasets}{SASEGCode}(code)
 }
@@ -43,21 +67,46 @@
 \item{code}{A \code{SASEGCode} object.}
 }
 \value{
-\code{getListDatasets} returns a list of \code{SASEGDataset} objects.
+\code{getLog} returns a character string containing the log.
+
+\code{countOutputDatasets} returns a numeric.
+
+\code{getSourceCode} returns a character string.
+
+\code{getListDatasets} returns a list of \code{\linkS4class{SASEGDataset}} objects.
 }
 \description{
 The \code{SASEGCode} class is an S4 class to represent a \code{SAS EG Scripting Code} object.
+
+\code{setServer} method is used to set the server.
+
+\code{setText} method is used to set the text.
+
+\code{setName} method is used to set the name of the object.
+
+\code{run} method is used to run (or execute) the code.
+
+\code{getLog} method is used to retrieve the log after the code execution.
+
+\code{countOutputDatasets} method is used to get the number of datasets 
+    created by the code execution.
+
+\code{getSourceCode} method is used to retrieve the source code after execution.
+
+\code{getListsDatasets} method is used to retrieve a list of the dataset(s) 
+    created by the code execution.
 }
 \section{Constructor}{
 
 There is no constructor. To generate a \code{SASEGCode} object,
-you have to call the \code{SASEGProject} method \code{newCode()}.
+you have to call the \code{\linkS4class{SASEGProject}} method 
+\code{\link{newCode}}.
 }
 
 \examples{
 \dontrun{
 # Modify the path below following your install:
-path <- "C:/Program Files/SAS94/SASEnterpriseGuide/7.1/SASEGScripting.dll"
+path <- "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScripting.dll"
 loadSASEGScripting(path)
 app <- SASEGApplication()
 setProfile(app, "PROFILE")
@@ -70,10 +119,10 @@ setName(my_new_code, "Test RSASEG")
 run(my_new_code)
 log <- getLog(my_new_code)
 cat(log)
-a <- getListDatasets(my_new_code)
 n <- countOutputDatasets(my_new_code)
 check_my_code <- getSourceCode(my_new_code)
 cat(check_my_code)
+a <- getListDatasets(my_new_code)
 
 # Important: you have to quit SAS EG Application
 terminate(app)

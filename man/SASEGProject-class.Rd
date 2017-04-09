@@ -4,39 +4,60 @@
 \name{SASEGProject-class}
 \alias{SASEGProject-class}
 \alias{saveAs,SASEGProject-method}
+\alias{newCode}
 \alias{newCode,SASEGProject-method}
 \title{An S4 class to represent a SAS EG Project object}
 \usage{
 \S4method{saveAs}{SASEGProject}(object, filepath, ...)
 
+newCode(project, ...)
+
 \S4method{newCode}{SASEGProject}(project, server = NULL, program = NULL,
   name = NULL, ...)
 }
 \arguments{
-\item{filepath}{A character string with the path to the file project, \code{NULL} by default.
-\strong{Be careful: \code{saveAs()} method overwrites existing files without confirmation.}}
+\item{object}{A \code{SASEGProject} object.}
+
+\item{filepath}{A character string with a valid path.
+\strong{Be careful: \code{saveAs} method overwrites existing files without confirmation.}}
+
+\item{...}{Other parameters passed to method (not used).}
 
 \item{project}{A \code{SASEGProject} object.}
 
-\item{server}{A character string with the server name.}
+\item{server}{A character string with the server name. Optional, \code{NULL} by default.}
 
 \item{program}{A character string with the \code{SAS} code of the program.
 Optional, \code{NULL} by default.}
 
-\item{name}{A character string with the name of the program. Optional, \code{NULL} by default.}
+\item{name}{A character string with the name of the program. Optional, 
+\code{NULL} by default.}
+}
+\value{
+\code{newCode} method returns a \code{\linkS4class{SASEGCode}}.
 }
 \description{
-The \code{SASEGProject} class is an S4 class to represent a \code{SAS EG Scripting Project} object.
+The \code{SASEGProject} class is an S4 class to represent a 
+    \code{SAS EG Scripting Project} object.
+
+\code{saveAs} method saves the project to a file.
+
+\code{newCode} method creates a new code object in an existing project.
+}
+\details{
+\code{saveAs} method print a message after saving the file.
 }
 \section{Constructor}{
 
-There is no constructor. To generate a \code{SASEGProject} object, you have to call the \code{SASEGApplication} method \code{newProject()}.
+There is no constructor. To generate a \code{SASEGProject} object, you have 
+    to call the \code{\linkS4class{SASEGApplication}} method 
+    \code{\link{newProject}}.
 }
 
 \examples{
 \dontrun{
 # Modify the path below following your install:
-path <- "C:/Program Files/SAS94/SASEnterpriseGuide/7.1/SASEGScripting.dll"
+path <- "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScripting.dll"
 loadSASEGScripting(path)
 app <- SASEGApplication()
 
@@ -52,7 +73,9 @@ my_new_code <- newCode(my_new_project,
                        my_server,
                        sas_program,
                        program_name)
-saveAs(my_new_project, "~/RSASEG.egp")
+                       
+path <- paste(normalizePath("~"), "RSASEG.egp", sep = "\\\\")
+saveAs(my_new_project, path)
 
 # Important: you have to quit SAS EG Application
 terminate(app)

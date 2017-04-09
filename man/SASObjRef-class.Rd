@@ -10,7 +10,7 @@
 \alias{clrSet,SASObjRef-method}
 \title{An S4 virtual class to represent any SAS EG Scripting object}
 \usage{
-SASObjRef(obj)
+SASObjRef(ptr)
 
 \S4method{ptr}{SASObjRef}(SASObj)
 
@@ -21,23 +21,44 @@ SASObjRef(obj)
 \S4method{clrSet}{SASObjRef}(objOrType, name, value)
 }
 \arguments{
-\item{obj}{A \code{CLR} object. Any other \code{R} object can be passed on argument.}
+\item{ptr}{A \code{CLR} object. Any other \code{R} object can be passed on argument.}
 
 \item{SASObj}{A \code{SASObjRef} object.}
+
+\item{obj}{A \code{SASObjRef} object.}
+
+\item{methodName}{A character string with the name of a method of the object.}
+
+\item{...}{Additional method arguments.}
+
+\item{objOrType}{A \code{SASObjRef} object.}
+
+\item{name}{The name of a field/property of the object.}
+
+\item{value}{The value to set the field with.}
 }
 \value{
-\code{SASObjRef(obj)} returns a \code{SASObjRef} object if \code{obj} is a \code{CLR} object; returns \code{obj} otherwise.
+\code{SASObjRef(ptr)} returns a \code{SASObjRef} object if \code{ptr} is a \code{CLR} object; returns \code{ptr} otherwise.
 
-\code{ptr()} returns a \code{cobjRef} object.
+\code{ptr(SASObj)} returns a \code{cobjRef} object from a \code{SASObjRef} object.
+
+\code{clrCall} returns an object from the call. May be a 
+    \code{SASObjRef} object, or a native \code{R} object for common types.
+    Can be \code{NULL}.
+
+\code{clrGet} returns an object from the call. May be a 
+    \code{SASObjRef} object, or a native \code{R} object for common types. 
+    Can be \code{NULL}.
 }
 \description{
 The \code{SASObjRef} S4 class represents any \code{SAS EG Scripting} object.
-This class and its methods are devoted to developers.
+This is a virtual class.
+This class and its methods are internals.
 }
 \details{
-A \code{SASObjRef} object has one slot, named \code{ptr}, where \code{ptr} is
-a \code{cobjRef} object. For more information about \code{CLR} objects and methods, see the \code{rClr} package
-documentation.
+A \code{SASObjRef} object has only one slot, named \code{ptr}, where \code{ptr} is
+a \code{cobjRef} object. For more information about \code{CLR} objects and methods,
+see the \code{rClr} package documentation.
 }
 \section{Slots}{
 
@@ -49,7 +70,7 @@ documentation.
 \dontrun{
 
 # Modify the path below following your install:
-path <- "C:/Program Files/SAS94/SASEnterpriseGuide/7.1/SASEGScripting.dll"
+path <- "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScripting.dll"
 
 loadSASEGScripting(path)
 
@@ -63,5 +84,10 @@ clrGet(app_sasobj, "Name")
 
 clrCall(app_sasobj, "Quit")
 }
+}
+\seealso{
+Package \code{rClr}: \code{\link[rClr]{clrCall}}, \code{\link[rClr]{clrGet}}, \code{\link[rClr]{clrSet}}
+
+Generics:  \code{\link{clrCall}}, \code{\link{clrGet}}, \code{\link{clrSet}}
 }
 \keyword{internal}

@@ -3,7 +3,92 @@
 \docType{class}
 \name{SASEGDataset-class}
 \alias{SASEGDataset-class}
-\title{An S4 class to represent a SAS EG Dataset object}
+\alias{getName,SASEGDataset-method}
+\alias{getFileName}
+\alias{getFileName,SASEGDataset-method}
+\alias{saveAs,SASEGDataset-method}
+\title{An S4 class to represent a SAS EG OutputDataset object}
+\usage{
+\S4method{getName}{SASEGDataset}(object)
+
+getFileName(object, ...)
+
+\S4method{getFileName}{SASEGDataset}(object)
+
+\S4method{saveAs}{SASEGDataset}(object, dir = NULL, name = NULL,
+  type = "csv", fsep = "\\\\")
+}
+\arguments{
+\item{object}{A \code{SASEGDataset} object.}
+
+\item{...}{Other parameters passed to method.}
+
+\item{dir}{Optional, a character string with the path of a directory. If \code{NULL}, the 
+temporary directory of the session is used.}
+
+\item{name}{Optional, a character string with the name of the file (without extension). If 
+\code{NULL}, the name of the dataset is used.}
+
+\item{type}{Optional, a character with the file format. \code{csv} is used by default.}
+
+\item{fsep}{Optional, a character with a path separator passed to 
+\code{\link[base]{file.path}}. As \code{SAS EG} is a \code{Windows} 
+application, "\\" is used by default.}
+}
+\value{
+\code{getName} returns a character string with the name of the dataset 
+    (ie. \emph{without} libname).
+
+\code{getFileName} returns a character string with the filename of the dataset 
+    (ie. \emph{with} libname).
+
+\code{saveAs} method returns a character string containing the filepath.
+}
 \description{
-An S4 class to represent a SAS EG Dataset object
+The \code{SASEGDataset} object is an S4 class to represent a 
+    \code{SAS EG Scripting OutputDataset} object.
+
+\code{getName} method is used to get the name of the \code{SAS} dataset.
+
+\code{getFileName} method is used to get the filename of an object.
+
+\code{saveAs} method is used to save a dataset in a local file.
+}
+\section{Constructor}{
+
+There is no constructor. \code{SASEGDataset} objects result from a 
+\code{\linkS4class{SASEGCode}} execution, after calling the 
+\code{\linkS4class{SASEGCode}} method 
+\code{\link{getListDatasets}}.
+}
+
+\examples{
+\dontrun{
+# Modify the path below following your install:
+path <- "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScripting.dll"
+loadSASEGScripting(path)
+app <- SASEGApplication()
+setProfile(app, "PROFILE")
+my_new_project <- newProject(app)
+my_server <- "SASPROD"
+sas_program <- "data a; set sashelp.class; run;"
+program_name <- "Test RSASEG"
+my_new_code <- newCode(my_new_project,
+                       my_server,
+                       sas_program,
+                       program_name)
+run(my_new_code)
+a <- getListDatasets(my_new_code)
+
+getName(a[[1]])
+getFileName(a[[1]])
+path_to_csv <- saveAs(a[[1]], normalizePath("~"))
+a.df <- data.table::fread(path_to_csv)                           
+
+# Important: you have to quit SAS EG Application
+terminate(app)
+}
+}
+\seealso{
+\code{\linkS4class{SASEGCode}}
 }

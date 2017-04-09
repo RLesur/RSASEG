@@ -5,8 +5,11 @@
 \alias{SASEGApplication-class}
 \alias{SASEGApplication}
 \alias{show,SASEGApplication-method}
+\alias{setProfile}
 \alias{setProfile,SASEGApplication-method}
+\alias{terminate}
 \alias{terminate,SASEGApplication-method}
+\alias{newProject}
 \alias{newProject,SASEGApplication-method}
 \title{An S4 class to represent a SAS EG Application object}
 \usage{
@@ -14,27 +17,48 @@ SASEGApplication()
 
 \S4method{show}{SASEGApplication}(object)
 
+setProfile(application, profile)
+
 \S4method{setProfile}{SASEGApplication}(application, profile)
 
+terminate(application)
+
 \S4method{terminate}{SASEGApplication}(application)
+
+newProject(application)
 
 \S4method{newProject}{SASEGApplication}(application)
 }
 \arguments{
+\item{object}{A \code{SASEGApplication} object.}
+
 \item{application}{A \code{SASEGApplication} object.}
 
-\item{profile}{A character string with the SAS profile name.}
+\item{profile}{A character string with the \code{SAS EG} profile name.}
 }
 \value{
-A \code{SASEGApplication} object.
+\code{SASEGApplication()} is the constructor; it returns a \code{SASEGApplication} object.
+
+\code{terminate} method returns \code{TRUE}.
+
+\code{newProject} returns a \code{\linkS4class{SASEGProject}} object.
 }
 \description{
 The \code{SASEGApplication} class is an S4 class to represent a \code{SAS EG Scripting Application} object.
+
+\code{show} method provides useful informations including 
+    \code{SAS EG} version and available profiles.
+
+\code{setProfile} method is used to set the profile in an application object.
+
+\code{terminate} method is used to quit an application.
+
+\code{newProject} method creates a new project in an application.
 }
 \examples{
 \dontrun{
 # Modify the path below following your install:
-path <- "C:/Program Files/SAS94/SASEnterpriseGuide/7.1/SASEGScripting.dll"
+path <- "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScripting.dll"
 loadSASEGScripting(path)
 
 app <- SASEGApplication()

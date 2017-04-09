@@ -10,7 +10,8 @@ NULL
 #' Load SAS EG Scripting API
 #'
 #' Load \code{SAS Enterprise Guide Scripting} DLL.
-#' You have to provide the path to the file \code{SASEGScripting.dll} that comes with your installation.
+#' You have to provide the path to the file \code{SASEGScripting.dll} that comes 
+#' with your installation.
 #'
 #' This function is a simple wrapper over \code{\link[rClr]{clrLoadAssembly}}.
 #'
@@ -26,6 +27,9 @@ NULL
 loadSASEGScripting <- function(DLLFilePath) {
   rClr::clrLoadAssembly(DLLFilePath)
 }
+
+
+# SASObjRef Class and Methods ---------------------------------------------
 
 
 #' An S4 virtual class to represent any SAS EG Scripting object
@@ -44,7 +48,8 @@ setClass("SASObjRef", slots = list(ptr = "cobjRef"))
 
 #' @rdname SASObjRef-class
 #' @param ptr A \code{CLR} object. Any other \code{R} object can be passed on argument.
-#' @return \code{SASObjRef(ptr)} returns a \code{SASObjRef} object if \code{ptr} is a \code{CLR} object; returns \code{ptr} otherwise.
+#' @return \code{SASObjRef(ptr)} returns a \code{SASObjRef} object if \code{ptr} is a 
+#'     \code{CLR} object; returns \code{ptr} otherwise.
 #' @examples
 #' \dontrun{
 #'
@@ -63,7 +68,8 @@ setClass("SASObjRef", slots = list(ptr = "cobjRef"))
 #'
 #' clrCall(app_sasobj, "Quit")
 #' }
-#' @seealso Package \code{rClr}: \code{\link[rClr]{clrCall}}, \code{\link[rClr]{clrGet}}, \code{\link[rClr]{clrSet}}
+#' @seealso Package \code{rClr}: \code{\link[rClr]{clrCall}}, \code{\link[rClr]{clrGet}}, 
+#'     \code{\link[rClr]{clrSet}}
 #' @seealso Generics:  \code{\link{clrCall}}, \code{\link{clrGet}}, \code{\link{clrSet}}
 #' @export
 #' @keywords internal
@@ -93,7 +99,8 @@ setMethod("ptr", "SASObjRef", function(SASObj) {return(SASObj@ptr)})
 
 #' Call a method on an object (generic)
 #' 
-#' This is a generic version of the \code{\link[rClr]{clrCall}} function of the \code{rClr} package.
+#' This is a generic version of the \code{\link[rClr]{clrCall}} function of the \code{rClr} 
+#' package.
 #' @param obj An object.
 #' @param methodName A character string with the name of a method of the object.
 #' @param ... Additional method arguments.
@@ -117,8 +124,10 @@ setMethod("clrCall", "SASObjRef", function(obj, methodName, ...) {
 
 #' Gets the value of a field or property of an object or class (generic)
 #' 
-#' This is a generic version of the \code{\link[rClr]{clrGet}} function of the \code{rClr} package.
-#' @param objOrType An object, or type name, possibly namespace and assembly qualified type name.
+#' This is a generic version of the \code{\link[rClr]{clrGet}} function of the \code{rClr} 
+#' package.
+#' @param objOrType An object, or type name, possibly namespace and assembly 
+#'     qualified type name.
 #' @param name The name of a field/property of the object.
 #' @seealso \code{cobjRef} method: \code{\link[rClr]{clrGet}}
 #' @seealso \code{SASObjRef} method: \code{\link[=clrGet,SASObjRef-method]{clrGet}}
@@ -140,7 +149,8 @@ setMethod("clrGet", "SASObjRef", function(objOrType, name) {
 
 #' Sets the value of a field or property of an object or class (generic)
 #' 
-#' This is a generic version of the \code{\link[rClr]{clrSet}} function of the \code{rClr} package.
+#' This is a generic version of the \code{\link[rClr]{clrSet}} function of the 
+#' \code{rClr} package.
 #' @param value The value to set the field with.
 #' @inheritParams clrGet
 #' @seealso \code{cobjRef} method: \code{\link[rClr]{clrSet}}
@@ -158,13 +168,18 @@ setMethod("clrSet", "SASObjRef", function(objOrType, name, value) {
 })
 
 
+# SASEGApplication Class and Methods --------------------------------------
+
+
 #' An S4 class to represent a SAS EG Application object
 #'
-#' The \code{SASEGApplication} class is an S4 class to represent a \code{SAS EG Scripting Application} object.
+#' The \code{SASEGApplication} class is an S4 class to represent a 
+#' \code{SAS EG Scripting Application} object.
 setClass("SASEGApplication", contains = "SASObjRef")
 
 #' @rdname SASEGApplication-class
-#' @return \code{SASEGApplication()} is the constructor; it returns a \code{SASEGApplication} object.
+#' @return \code{SASEGApplication()} is the constructor; it returns a 
+#'     \code{SASEGApplication} object.
 #' @examples
 #' \dontrun{
 #' # Modify the path below following your install:
@@ -246,6 +261,9 @@ setMethod("terminate", "SASEGApplication", function(application) {
 })
 
 
+# SASEGProject Class and Methods ------------------------------------------
+
+
 #' An S4 class to represent a SAS EG Project object
 #'
 #' The \code{SASEGProject} class is an S4 class to represent a 
@@ -322,9 +340,13 @@ setMethod("saveAs", "SASEGProject", function(object, filepath, ...) {
 })
 
 
+# SASEGCode Class and Methods ---------------------------------------------
+
+
 #' An S4 class to represent a SAS EG Code object
 #'
-#' The \code{SASEGCode} class is an S4 class to represent a \code{SAS EG Scripting Code} object.
+#' The \code{SASEGCode} class is an S4 class to represent a 
+#' \code{SAS EG Scripting Code} object.
 #' @section Constructor:
 #' There is no constructor. To generate a \code{SASEGCode} object,
 #' you have to call the \code{\linkS4class{SASEGProject}} method 
@@ -411,7 +433,8 @@ setGeneric("newCode", function(project, ...) standardGeneric("newCode"))
 
 #' @rdname SASEGProject-class
 #' @param project A \code{SASEGProject} object.
-#' @param server A character string with the server name. Optional, \code{NULL} by default.
+#' @param server A character string with the server name. Optional, 
+#'     \code{NULL} by default.
 #' @param program A character string with the \code{SAS} code of the program.
 #'   Optional, \code{NULL} by default.
 #' @param name A character string with the name of the program. Optional, 
@@ -419,13 +442,16 @@ setGeneric("newCode", function(project, ...) standardGeneric("newCode"))
 #' @inheritParams saveAs-method
 #' @return \code{newCode} method returns a \code{\linkS4class{SASEGCode}}.
 #' @export
-setMethod("newCode", "SASEGProject", function(project, server = NULL, program = NULL, name = NULL, ...) {
-  code <- new("SASEGCode", clrCall(clrGet(project, "CodeCollection"), "Add"))
-  if(!is.null(server)) setServer(object = code, server = server)
-  if(!is.null(program)) setText(object = code, text = program)
-  if(!is.null(name)) setName(object = code, name = name)
-  return(code)
-})
+setMethod("newCode", 
+          "SASEGProject", 
+          function(project, server = NULL, program = NULL, name = NULL, ...) {
+            code <- new("SASEGCode", clrCall(clrGet(project, "CodeCollection"), "Add"))
+            if(!is.null(server)) setServer(object = code, server = server)
+            if(!is.null(program)) setText(object = code, text = program)
+            if(!is.null(name)) setName(object = code, name = name)
+            return(code)
+            }
+)
 
 #' Run the code
 #' 
@@ -488,15 +514,16 @@ setMethod("getSourceCode", "SASEGCode", function(code) {
 })
 
 
+# SASEGDataset Class and Methods ------------------------------------------
+
+
 #' An S4 class to represent a SAS EG OutputDataset object
-#'
-#' The \code{SASEGDataset} object is an S4 class to represent a 
-#'     \code{SAS EG Scripting OutputDataset} object.
-#' @section Constructor:
-#' There is no constructor. \code{SASEGDataset} objects result from a 
-#' \code{\linkS4class{SASEGCode}} execution, after calling the 
-#' \code{\linkS4class{SASEGCode}} method 
-#' \code{\link{getListDatasets}}.
+#' 
+#' The \code{SASEGDataset} object is an S4 class to represent a \code{SAS EG
+#' Scripting OutputDataset} object.
+#' @section Constructor: There is no constructor. \code{SASEGDataset} objects
+#'   result from a \code{\linkS4class{SASEGCode}} execution, after calling the 
+#'   \code{\linkS4class{SASEGCode}} method \code{\link{getListDatasets}}.
 #' @examples
 #' \dontrun{
 #' # Modify the path below following your install:
@@ -519,7 +546,7 @@ setMethod("getSourceCode", "SASEGCode", function(code) {
 #' getFileName(a[[1]])
 #' path_to_csv <- saveAs(a[[1]], normalizePath("~"))
 #' a.df <- data.table::fread(path_to_csv)                           
-#'
+#' 
 #' # Important: you have to quit SAS EG Application
 #' terminate(app)
 #' }
@@ -602,14 +629,13 @@ setMethod("getFileName", "SASEGDataset", function(object) {
 #' @return \code{saveAs} method returns a character string containing the filepath.
 #' @rdname SASEGDataset-class
 #' @export
-setMethod("saveAs", "SASEGDataset", function(object, dir = NULL, name = NULL, type = "csv", fsep = "\\") {
-  if(is.null(dir)) {
-    dir <- normalizePath(tempdir())
-  }
-  if(is.null(name)) {
-    name <- getName(object)
-  }
-  path <- file.path(dir, paste0(name, ".", type), fsep = fsep)
-  clrCall(object, "SaveAs", path)
-  return(path)
-})
+setMethod("saveAs", 
+          "SASEGDataset", 
+          function(object, dir = NULL, name = NULL, type = "csv", fsep = "\\") {
+            if(is.null(dir)) {dir <- normalizePath(tempdir())}
+            if(is.null(name)) {name <- getName(object)}
+            path <- file.path(dir, paste0(name, ".", type), fsep = fsep)
+            clrCall(object, "SaveAs", path)
+            return(path)
+            }
+          )

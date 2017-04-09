@@ -20,7 +20,7 @@ NULL
 #' \dontrun{
 #'
 #' # Modify the path below following your install:
-#' path <- "C:/Program Files/SAS94/SASEnterpriseGuide/7.1/SASEGScripting.dll"
+#' path <- "C:\\Program Files\\SAS94\\SASEnterpriseGuide\\7.1\\SASEGScripting.dll"
 #' loadSASEGScripting(path)
 #' }
 #' @export

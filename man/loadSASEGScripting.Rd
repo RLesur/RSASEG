@@ -20,7 +20,7 @@ This function is a simple wrapper over \code{\link[rClr]{clrLoadAssembly}}.
 \dontrun{
 
 # Modify the path below following your install:
-path <- "C:/Program Files/SAS94/SASEnterpriseGuide/7.1/SASEGScripting.dll"
+path <- "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScripting.dll"
 loadSASEGScripting(path)
 }
 }

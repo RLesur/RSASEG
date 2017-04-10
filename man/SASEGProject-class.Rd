@@ -25,7 +25,8 @@ newCode(project, ...)
 
 \item{project}{A \code{SASEGProject} object.}
 
-\item{server}{A character string with the server name. Optional, \code{NULL} by default.}
+\item{server}{A character string with the server name. Optional, 
+\code{NULL} by default.}
 
 \item{program}{A character string with the \code{SAS} code of the program.
 Optional, \code{NULL} by default.}

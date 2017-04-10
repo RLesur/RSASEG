@@ -14,7 +14,8 @@ clrCall(obj, methodName, ...)
 \item{...}{Additional method arguments.}
 }
 \description{
-This is a generic version of the \code{\link[rClr]{clrCall}} function of the \code{rClr} package.
+This is a generic version of the \code{\link[rClr]{clrCall}} function of the \code{rClr} 
+package.
 }
 \seealso{
 \code{cobjRef} method: \code{\link[rClr]{clrCall}}

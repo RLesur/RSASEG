@@ -7,12 +7,14 @@
 clrGet(objOrType, name)
 }
 \arguments{
-\item{objOrType}{An object, or type name, possibly namespace and assembly qualified type name.}
+\item{objOrType}{An object, or type name, possibly namespace and assembly 
+qualified type name.}
 
 \item{name}{The name of a field/property of the object.}
 }
 \description{
-This is a generic version of the \code{\link[rClr]{clrGet}} function of the \code{rClr} package.
+This is a generic version of the \code{\link[rClr]{clrGet}} function of the \code{rClr} 
+package.
 }
 \seealso{
 \code{cobjRef} method: \code{\link[rClr]{clrGet}}

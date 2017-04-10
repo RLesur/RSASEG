@@ -208,7 +208,6 @@ SASEGApplication <- function() {
 #' @description \code{show} method provides useful informations including 
 #'     \code{SAS EG} version and available profiles.
 #' @param  object A \code{SASEGApplication} object.
-#' @export
 setMethod("show", "SASEGApplication", function(object) {
   cat(clrGet(object, "Name"),
       ", Version: ",

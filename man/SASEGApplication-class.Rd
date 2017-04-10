@@ -37,14 +37,16 @@ newProject(application)
 \item{profile}{A character string with the \code{SAS EG} profile name.}
 }
 \value{
-\code{SASEGApplication()} is the constructor; it returns a \code{SASEGApplication} object.
+\code{SASEGApplication()} is the constructor; it returns a 
+    \code{SASEGApplication} object.
 
 \code{terminate} method returns \code{TRUE}.
 
 \code{newProject} returns a \code{\linkS4class{SASEGProject}} object.
 }
 \description{
-The \code{SASEGApplication} class is an S4 class to represent a \code{SAS EG Scripting Application} object.
+The \code{SASEGApplication} class is an S4 class to represent a 
+\code{SAS EG Scripting Application} object.
 
 \code{show} method provides useful informations including 
     \code{SAS EG} version and available profiles.

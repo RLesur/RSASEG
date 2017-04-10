@@ -76,7 +76,8 @@ getListDatasets(code)
 \code{getListDatasets} returns a list of \code{\linkS4class{SASEGDataset}} objects.
 }
 \description{
-The \code{SASEGCode} class is an S4 class to represent a \code{SAS EG Scripting Code} object.
+The \code{SASEGCode} class is an S4 class to represent a 
+\code{SAS EG Scripting Code} object.
 
 \code{setServer} method is used to set the server.
 

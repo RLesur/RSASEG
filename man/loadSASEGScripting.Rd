@@ -11,7 +11,8 @@ loadSASEGScripting(DLLFilePath)
 }
 \description{
 Load \code{SAS Enterprise Guide Scripting} DLL.
-You have to provide the path to the file \code{SASEGScripting.dll} that comes with your installation.
+You have to provide the path to the file \code{SASEGScripting.dll} that comes 
+with your installation.
 }
 \details{
 This function is a simple wrapper over \code{\link[rClr]{clrLoadAssembly}}.

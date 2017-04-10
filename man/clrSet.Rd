@@ -7,14 +7,16 @@
 clrSet(objOrType, name, value)
 }
 \arguments{
-\item{objOrType}{An object, or type name, possibly namespace and assembly qualified type name.}
+\item{objOrType}{An object, or type name, possibly namespace and assembly 
+qualified type name.}
 
 \item{name}{The name of a field/property of the object.}
 
 \item{value}{The value to set the field with.}
 }
 \description{
-This is a generic version of the \code{\link[rClr]{clrSet}} function of the \code{rClr} package.
+This is a generic version of the \code{\link[rClr]{clrSet}} function of the 
+\code{rClr} package.
 }
 \seealso{
 \code{cobjRef} method: \code{\link[rClr]{clrSet}}

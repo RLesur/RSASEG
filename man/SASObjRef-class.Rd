@@ -38,7 +38,8 @@ SASObjRef(ptr)
 \item{value}{The value to set the field with.}
 }
 \value{
-\code{SASObjRef(ptr)} returns a \code{SASObjRef} object if \code{ptr} is a \code{CLR} object; returns \code{ptr} otherwise.
+\code{SASObjRef(ptr)} returns a \code{SASObjRef} object if \code{ptr} is a 
+    \code{CLR} object; returns \code{ptr} otherwise.
 
 \code{ptr(SASObj)} returns a \code{cobjRef} object from a \code{SASObjRef} object.
 
@@ -86,7 +87,8 @@ clrCall(app_sasobj, "Quit")
 }
 }
 \seealso{
-Package \code{rClr}: \code{\link[rClr]{clrCall}}, \code{\link[rClr]{clrGet}}, \code{\link[rClr]{clrSet}}
+Package \code{rClr}: \code{\link[rClr]{clrCall}}, \code{\link[rClr]{clrGet}}, 
+    \code{\link[rClr]{clrSet}}
 
 Generics:  \code{\link{clrCall}}, \code{\link{clrGet}}, \code{\link{clrSet}}
 }

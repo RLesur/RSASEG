@@ -6,6 +6,9 @@
 NULL
 
 
+# Driver Class ------------------------------------------------------------
+
+
 #' Driver class for SAS Enterprise Guide.
 #'
 #' @keywords internal
@@ -13,6 +16,7 @@ NULL
 setClass("SASEGDriver", contains = "DBIDriver")
 
 #' @rdname SASEGDriver-class
+#' @export
 setMethod("dbUnloadDriver", "SASEGDriver", function(drv, ...) {
   TRUE
 })
@@ -21,28 +25,31 @@ setMethod("show", "SASEGDriver", function(object) {
   cat("<SASEGDriver>\n")
 })
 
-# SAS EG Class
 #' @export
 SASEG <- function() {
   new("SASEGDriver")
 }
 
 
+# SAS Class and Methods ---------------------------------------------------
+
+
 #' SAS class.
-#'
-#' @exportClass SAS
 setClass("SAS", contains = "character")
 
 #' @exportMethod SAS
 setGeneric("SAS", function(x, ...) standardGeneric("SAS"))
+
 #' @export
 setMethod("SAS", "character", function(x, ...) {
   new("SAS", x)
 })
+
 #' @export
 setMethod("SAS", "SAS", function(x, ...) {
   return(x)
 })
+
 #' @export
 setMethod("SAS", "SQL", function(x, ...) {
   new("SAS",
@@ -55,6 +62,9 @@ setMethod("SAS", "SQL", function(x, ...) {
 setMethod("show", "SAS", function(object) {
   cat(paste0("<SAS> ", object@.Data, collapse = "\n"))
 })
+
+
+# Connection Class and Methods --------------------------------------------
 
 
 #' SAS EG connection class.
@@ -100,6 +110,7 @@ setMethod("dbConnect", "SASEGDriver", function(drv, DLLFilePath, profile, server
   new("SASEGConnection", profile = profile, server = server, application = application, SASProject = SASProject, SASUtil = SASUtil, dbms = dbms)
 })
 
+#' @export
 setMethod("show", "SASEGConnection", function(object) {
   show(object@application)
   cat(
@@ -110,11 +121,15 @@ setMethod("show", "SASEGConnection", function(object) {
     )
 })
 
+#' @export
 setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, ...) {
   if(!is.null(projectPath))  saveAs(conn@SASProject, projectPath)
   terminate(conn@application)
   return(TRUE)
   })
+
+
+# Results class and Methods -----------------------------------------------
 
 
 #' SASEG results class.
@@ -126,12 +141,12 @@ setClass("SASEGResult",
          slots = list(SASResult = "SASEGCode", SASUtil = "SASEGCode", fetched = "function", rowsFetched = "function")
          )
 
-#' @exportMethod setFetched
 setGeneric("setFetched", function(res, value) standardGeneric("setFetched"))
 setMethod("setFetched", "SASEGResult", function(res, value) {
   res@fetched(set = value)
 })
 
+#' @export
 setMethod("dbHasCompleted", "SASEGResult", function(res, ...) {
   res@fetched()
 })
@@ -198,8 +213,8 @@ setMethod("dbFetch", "SASEGResult", function(res, n = -1, ...) {
   return(d)
 })
 
-#' @exportMethod dbFetchAll
 setGeneric("dbFetchAll", function(res, ...) standardGeneric("dbFetchAll"))
+
 #' @export
 setMethod("dbFetchAll", "SASEGResult", function(res, ...) {
   l <- getListDatasets(res@SASResult)
@@ -216,51 +231,72 @@ setMethod("dbFetchAll", "SASEGResult", function(res, ...) {
   return(d)
 })
 
-#' @exportMethod dbGetLog
+
 setGeneric("dbGetLog", function(res, ...) standardGeneric("dbGetLog"))
+
 #' @export
 setMethod("dbGetLog", "SASEGResult", function(res, ...) {
   getLog(res@SASResult)
 })
 
+#' Find the database data type associated with an R object
+#' @export
 setMethod("dbDataType", "SASEGDriver", function(dbObj, obj, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  if(class(obj) %in% names(SASEGDataType)) {
-    return(SASEGDataType[[class(obj)]])
+  if(class(obj) == "character") {
+    return(paste0("VARCHAR", max(nchar(obj), na.rm = TRUE)))
   } else {
-    return(dbDataType(DBI::ANSI(), obj, ...))
+    if(class(obj) %in% names(SASEGDataType)) {
+      return(SASEGDataType[[class(obj)]])
+    } else {
+      return(dbDataType(DBI::ANSI(), obj, ...))
+    }
   }
+  
+  
+  
 })
 
+#' @export
 setMethod("dbDataType", "SASEGConnection", function(dbObj, obj, ...) {
   dbDataType(SASEG(), obj)
 })
 
+
+# SQL Methods -------------------------------------------------------------
+
+
+#' @export
 setMethod("dbQuoteString", c("SASEGConnection", "character"), function(conn, x, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
   dbQuoteString(DBI::ANSI(), x, ...)
 })
 
+#' @export
 setMethod("dbQuoteString", c("SASEGConnection", "SQL"), function(conn, x, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
   dbQuoteString(DBI::ANSI(), x, ...)
 })
 
+#' @export
 setMethod("dbQuoteIdentifier", c("SASEGConnection", "character"), function(conn, x, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
   dbQuoteIdentifier(DBI::ANSI(), x, ...)
 })
 
+#' @export
 setMethod("dbQuoteIdentifier", c("SASEGConnection", "SQL"), function(conn, x, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
   dbQuoteIdentifier(DBI::ANSI(), x, ...)
 })
 
+#' @export
 setMethod("dbQuoteIdentifier", c("SASEGConnection", "Table"), function(conn, x, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
   dbQuoteIdentifier(DBI::ANSI(), x, ...)
 })
 
+#' @export
 setMethod("sqlAppendTable", "SASEGConnection", function(con, table, values, row.names = NA, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
   code <- sqlAppendTable(DBI::ANSI(), table, values, row.names, ...)
@@ -272,6 +308,7 @@ setMethod("sqlAppendTable", "SASEGConnection", function(con, table, values, row.
   return(code)
 })
 
+#' @export
 setMethod("dbWriteTable", "SASEGConnection", function(conn, name, value, row.names = NA, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
   program <- SAS(SQL(paste0(

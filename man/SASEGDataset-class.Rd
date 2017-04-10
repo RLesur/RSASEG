@@ -45,8 +45,8 @@ application, "\\" is used by default.}
 \code{saveAs} method returns a character string containing the filepath.
 }
 \description{
-The \code{SASEGDataset} object is an S4 class to represent a 
-    \code{SAS EG Scripting OutputDataset} object.
+The \code{SASEGDataset} object is an S4 class to represent a \code{SAS EG
+Scripting OutputDataset} object.
 
 \code{getName} method is used to get the name of the \code{SAS} dataset.
 
@@ -55,11 +55,9 @@ The \code{SASEGDataset} object is an S4 class to represent a
 \code{saveAs} method is used to save a dataset in a local file.
 }
 \section{Constructor}{
-
-There is no constructor. \code{SASEGDataset} objects result from a 
-\code{\linkS4class{SASEGCode}} execution, after calling the 
-\code{\linkS4class{SASEGCode}} method 
-\code{\link{getListDatasets}}.
+ There is no constructor. \code{SASEGDataset} objects
+  result from a \code{\linkS4class{SASEGCode}} execution, after calling the 
+  \code{\linkS4class{SASEGCode}} method \code{\link{getListDatasets}}.
 }
 
 \examples{

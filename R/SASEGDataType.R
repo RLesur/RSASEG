@@ -1,5 +1,5 @@
 SASEGDataType <- list(
   # R type    = SAS column data-type
-  "character" = "CHARACTER",
+  "character" = "VARCHAR(32767)",
   "numeric"   = "REAL"
 )

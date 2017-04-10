@@ -243,18 +243,11 @@ setMethod("dbGetLog", "SASEGResult", function(res, ...) {
 #' @export
 setMethod("dbDataType", "SASEGDriver", function(dbObj, obj, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  if(class(obj) == "character") {
-    return(paste0("VARCHAR", max(nchar(obj), na.rm = TRUE)))
-  } else {
-    if(class(obj) %in% names(SASEGDataType)) {
-      return(SASEGDataType[[class(obj)]])
+  if(class(obj) %in% names(SASEGDataType)) {
+    return(SASEGDataType[[class(obj)]])
     } else {
-      return(dbDataType(DBI::ANSI(), obj, ...))
+    return(dbDataType(DBI::ANSI(), obj, ...))
     }
-  }
-  
-  
-  
 })
 
 #' @export

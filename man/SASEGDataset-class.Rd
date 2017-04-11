@@ -3,17 +3,17 @@
 \docType{class}
 \name{SASEGDataset-class}
 \alias{SASEGDataset-class}
-\alias{getName,SASEGDataset-method}
 \alias{getFileName}
 \alias{getFileName,SASEGDataset-method}
+\alias{getName,SASEGDataset-method}
 \alias{saveAs,SASEGDataset-method}
 \title{An S4 class to represent a SAS EG OutputDataset object}
 \usage{
-\S4method{getName}{SASEGDataset}(object)
-
 getFileName(object, ...)
 
 \S4method{getFileName}{SASEGDataset}(object)
+
+\S4method{getName}{SASEGDataset}(object)
 
 \S4method{saveAs}{SASEGDataset}(object, dir = NULL, name = NULL,
   type = "csv", fsep = "\\\\")
@@ -36,11 +36,11 @@ temporary directory of the session is used.}
 application, "\\" is used by default.}
 }
 \value{
-\code{getName} returns a character string with the name of the dataset 
-    (ie. \emph{without} libname).
-
 \code{getFileName} returns a character string with the filename of the dataset 
     (ie. \emph{with} libname).
+
+\code{getName} returns a character string with the name of the dataset 
+    (ie. \emph{without} libname).
 
 \code{saveAs} method returns a character string containing the filepath.
 }
@@ -48,9 +48,9 @@ application, "\\" is used by default.}
 The \code{SASEGDataset} object is an S4 class to represent a \code{SAS EG
 Scripting OutputDataset} object.
 
-\code{getName} method is used to get the name of the \code{SAS} dataset.
-
 \code{getFileName} method is used to get the filename of an object.
+
+\code{getName} method is used to get the name of the \code{SAS} dataset.
 
 \code{saveAs} method is used to save a dataset in a local file.
 }

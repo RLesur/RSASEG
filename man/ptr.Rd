@@ -10,6 +10,6 @@ ptr(SASObj)
 \item{SASObj}{An object with a \code{ptr} slot.}
 }
 \description{
-A generic. Get the \code{ptr} slot of an object.
+Get the \code{ptr} slot of an object.
 }
 \keyword{internal}

@@ -84,7 +84,7 @@ SASObjRef <- function(ptr) {
 
 #' Get the ptr slot of an object
 #' 
-#' A generic. Get the \code{ptr} slot of an object.
+#' Get the \code{ptr} slot of an object.
 #' @param SASObj An object with a \code{ptr} slot.
 #' @keywords internal
 #' @exportMethod ptr
@@ -552,6 +552,23 @@ setMethod("getSourceCode", "SASEGCode", function(code) {
 #' @seealso \code{\linkS4class{SASEGCode}}
 setClass("SASEGDataset", contains = "SASObjRef")
 
+#' Get the filename of an object
+#' 
+#' \code{getFileName} method is used to get the filename of an object.
+#' @param ... Other parameters passed to method.
+#' @rdname SASEGDataset-class
+#' @exportMethod getFileName
+setGeneric("getFileName", function(object, ...) standardGeneric("getFileName"))
+
+#' @rdname SASEGDataset-class
+#' @inheritParams getName-method
+#' @return \code{getFileName} returns a character string with the filename of the dataset 
+#'     (ie. \emph{with} libname).
+#' @export
+setMethod("getFileName", "SASEGDataset", function(object) {
+  clrGet(object, "FileName")
+})
+
 #' Get the list of the datasets
 #' 
 #' \code{getListsDatasets} method is used to retrieve a list of the dataset(s) 
@@ -572,6 +589,7 @@ setMethod("getListDatasets", "SASEGCode", function(code) {
   i <- 1
   while(i <= n) {
     l[[i]] <- new("SASEGDataset", clrGet(enum, "Current"))
+    names(l)[i] <- getFileName(l[[i]])
     clrCall(enum, "MoveNext")
     i <- i+1
   }
@@ -594,23 +612,6 @@ setGeneric("getName", function(object, ...) standardGeneric("getName"))
 #' @export
 setMethod("getName", "SASEGDataset", function(object) {
   clrGet(object, "Name")
-})
-
-#' Get the filename of an object
-#' 
-#' \code{getFileName} method is used to get the filename of an object.
-#' @param ... Other parameters passed to method.
-#' @rdname SASEGDataset-class
-#' @exportMethod getFileName
-setGeneric("getFileName", function(object, ...) standardGeneric("getFileName"))
-
-#' @rdname SASEGDataset-class
-#' @inheritParams getName-method
-#' @return \code{getFileName} returns a character string with the filename of the dataset 
-#'     (ie. \emph{with} libname).
-#' @export
-setMethod("getFileName", "SASEGDataset", function(object) {
-  clrGet(object, "FileName")
 })
 
 #' Save a dataset as...

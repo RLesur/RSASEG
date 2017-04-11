@@ -205,10 +205,8 @@ setMethod("dbClearResult", "SASEGResult", function(res, ...) {
 #' @export
 setMethod("dbFetch", "SASEGResult", function(res, n = -1, ...) {
   l <- getListDatasets(res@SASResult)
-  if(length(l)>1) stop("Query results contain multiple datasets; cannot execute dbFetch() method.\n  Please run:\n  res <- dbSendQuery(statement)\n  datalist <- dbFetchAll(res)")
-  l <- l[[1]]
-  path <- saveAs(object = l)
-  d <- data.table::fread(path)
+  if(length(l)>1) stop("Query results contain multiple datasets; cannot execute dbFetch() method.\n  Please run:\n  datalist <- dbFetchAll(res)")
+  d <- read(l[[1]])
   setFetched(res = res, value = TRUE)
   return(d)
 })
@@ -222,10 +220,10 @@ setMethod("dbFetchAll", "SASEGResult", function(res, ...) {
   d <- vector("list", n)
   i <- 1
   while(i <= length(l)) {
-    path <- saveAs(object = l[[i]])
-    d[[i]] <- data.table::fread(path)
+    d[[i]] <- read(l[[i]])
     i <- i+1
   }
+  names(d) <- names(l)
   setFetched(res = res, value = TRUE)
   if(n == 1) {d <- d[[1]]}
   return(d)

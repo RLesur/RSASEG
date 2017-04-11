@@ -7,6 +7,7 @@
 \alias{getFileName,SASEGDataset-method}
 \alias{getName,SASEGDataset-method}
 \alias{saveAs,SASEGDataset-method}
+\alias{read,SASEGDataset-method}
 \title{An S4 class to represent a SAS EG OutputDataset object}
 \usage{
 getFileName(object, ...)
@@ -16,7 +17,9 @@ getFileName(object, ...)
 \S4method{getName}{SASEGDataset}(object)
 
 \S4method{saveAs}{SASEGDataset}(object, dir = NULL, name = NULL,
-  type = "csv", fsep = "\\\\")
+  type = "tab", fsep = "\\\\")
+
+\S4method{read}{SASEGDataset}(object)
 }
 \arguments{
 \item{object}{A \code{SASEGDataset} object.}
@@ -29,11 +32,14 @@ temporary directory of the session is used.}
 \item{name}{Optional, a character string with the name of the file (without extension). If 
 \code{NULL}, the name of the dataset is used.}
 
-\item{type}{Optional, a character with the file format. \code{csv} is used by default.}
+\item{type}{Optional, a character with the file format (\code{"csv"}, 
+\code{"tab"} or \code{"txt"}. \code{tab} is used by default.}
 
 \item{fsep}{Optional, a character with a path separator passed to 
 \code{\link[base]{file.path}}. As \code{SAS EG} is a \code{Windows} 
 application, "\\" is used by default.}
+
+\item{object}{A \code{SASEGDataset} object.}
 }
 \value{
 \code{getFileName} returns a character string with the filename of the dataset 
@@ -43,6 +49,8 @@ application, "\\" is used by default.}
     (ie. \emph{without} libname).
 
 \code{saveAs} method returns a character string containing the filepath.
+
+\code{read} returns a \code{data.table}.
 }
 \description{
 The \code{SASEGDataset} object is an S4 class to represent a \code{SAS EG
@@ -53,6 +61,13 @@ Scripting OutputDataset} object.
 \code{getName} method is used to get the name of the \code{SAS} dataset.
 
 \code{saveAs} method is used to save a dataset in a local file.
+
+\code{read} method is used to read a \code{SASEGDataset} and 
+    retrieve data in a \code{data.table}.
+}
+\details{
+Data are first saved in a local temporary file and then imported 
+    with \code{\link[data.table]{fread}}.
 }
 \section{Constructor}{
  There is no constructor. \code{SASEGDataset} objects

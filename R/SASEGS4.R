@@ -622,7 +622,8 @@ setMethod("getName", "SASEGDataset", function(object) {
 #'     temporary directory of the session is used.
 #' @param name Optional, a character string with the name of the file (without extension). If 
 #'     \code{NULL}, the name of the dataset is used.
-#' @param type Optional, a character with the file format. \code{csv} is used by default.
+#' @param type Optional, a character with the file format (\code{"csv"}, 
+#'     \code{"tab"} or \code{"txt"}. \code{tab} is used by default.
 #' @param fsep Optional, a character with a path separator passed to 
 #'     \code{\link[base]{file.path}}. As \code{SAS EG} is a \code{Windows} 
 #'     application, "\\" is used by default.
@@ -632,7 +633,7 @@ setMethod("getName", "SASEGDataset", function(object) {
 #' @export
 setMethod("saveAs", 
           "SASEGDataset", 
-          function(object, dir = NULL, name = NULL, type = "csv", fsep = "\\") {
+          function(object, dir = NULL, name = NULL, type = "tab", fsep = "\\") {
             if(is.null(dir)) {dir <- normalizePath(tempdir())}
             if(is.null(name)) {name <- getName(object)}
             path <- file.path(dir, paste0(name, ".", type), fsep = fsep)
@@ -640,3 +641,24 @@ setMethod("saveAs",
             return(path)
             }
           )
+
+#' Read an object
+#' 
+#' Read an object.
+#' @param object An object.
+#' @param ... Other parameters passed to method.
+setGeneric("read", function(object, ...) standardGeneric("read"))
+
+#' @rdname SASEGDataset-class
+#' @description \code{read} method is used to read a \code{SASEGDataset} and 
+#'     retrieve data in a \code{data.table}.
+#' @details Data are first saved in a local temporary file and then imported 
+#'     with \code{\link[data.table]{fread}}.
+#' @param object A \code{SASEGDataset} object.
+#' @return \code{read} returns a \code{data.table}.
+#' @export
+setMethod("read", "SASEGDataset", function(object) {
+  path <- saveAs(object)
+  d <- data.table::fread(path, sep = "\t")
+  return(d)
+})

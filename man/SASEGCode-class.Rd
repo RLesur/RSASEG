@@ -73,7 +73,8 @@ getListDatasets(code)
 
 \code{getSourceCode} returns a character string.
 
-\code{getListDatasets} returns a list of \code{\linkS4class{SASEGDataset}} objects.
+\code{getListDatasets} returns a list of \code{\linkS4class{SASEGDataset}} 
+    objects named with their filenames (ie. "LIBNAME.NAME").
 }
 \description{
 The \code{SASEGCode} class is an S4 class to represent a 

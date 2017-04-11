@@ -579,7 +579,8 @@ setGeneric("getListDatasets", function(code) standardGeneric("getListDatasets"))
 
 #' @rdname SASEGCode-class
 #' @inheritParams run-method
-#' @return \code{getListDatasets} returns a list of \code{\linkS4class{SASEGDataset}} objects.
+#' @return \code{getListDatasets} returns a list of \code{\linkS4class{SASEGDataset}} 
+#'     objects named with their filenames (ie. "LIBNAME.NAME").
 #' @export
 setMethod("getListDatasets", "SASEGCode", function(code) {
   n <- countOutputDatasets(code)

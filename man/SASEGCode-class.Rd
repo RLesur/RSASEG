@@ -3,53 +3,29 @@
 \docType{class}
 \name{SASEGCode-class}
 \alias{SASEGCode-class}
-\alias{setServer}
 \alias{setServer,SASEGCode-method}
-\alias{setText}
 \alias{setText,SASEGCode-method}
-\alias{setName}
 \alias{setName,SASEGCode-method}
-\alias{run}
 \alias{run,SASEGCode-method}
-\alias{getLog}
 \alias{getLog,SASEGCode-method}
-\alias{countOutputDatasets}
 \alias{countOutputDatasets,SASEGCode-method}
-\alias{getSourceCode}
 \alias{getSourceCode,SASEGCode-method}
-\alias{getListDatasets}
 \alias{getListDatasets,SASEGCode-method}
 \title{An S4 class to represent a SAS EG Code object}
 \usage{
-setServer(object, server, ...)
-
 \S4method{setServer}{SASEGCode}(object, server, ...)
-
-setText(object, text, ...)
 
 \S4method{setText}{SASEGCode}(object, text, ...)
 
-setName(object, name, ...)
-
 \S4method{setName}{SASEGCode}(object, name, ...)
-
-run(code)
 
 \S4method{run}{SASEGCode}(code)
 
-getLog(code)
-
 \S4method{getLog}{SASEGCode}(code)
-
-countOutputDatasets(code)
 
 \S4method{countOutputDatasets}{SASEGCode}(code)
 
-getSourceCode(code)
-
 \S4method{getSourceCode}{SASEGCode}(code)
-
-getListDatasets(code)
 
 \S4method{getListDatasets}{SASEGCode}(code)
 }
@@ -62,7 +38,7 @@ getListDatasets(code)
 
 \item{text}{A character string with the code of the \code{SAS} program.}
 
-\item{name}{A character string to set the name of the program.}
+\item{name}{A character string with the name of the program.}
 
 \item{code}{A \code{SASEGCode} object.}
 }
@@ -80,27 +56,29 @@ getListDatasets(code)
 The \code{SASEGCode} class is an S4 class to represent a 
 \code{SAS EG Scripting Code} object.
 
-\code{setServer} method is used to set the server.
+\code{setServer} method is used to set the \code{SAS} server that will be 
+   used to execute the program contained in the \code{SASEGCode} object.
 
-\code{setText} method is used to set the text.
+\code{setText} method is used to put a \code{SAS} program in a \code{SASEGCode} object.
 
-\code{setName} method is used to set the name of the object.
+\code{setName} method is used to give a name to a \code{SASEGCode} object.
 
-\code{run} method is used to run (or execute) the code.
+\code{run} method is used to run (or execute) the \code{SAS} program of a 
+    \code{SASEGCode} object.
 
-\code{getLog} method is used to retrieve the log after the code execution.
+\code{getLog} method is used to retrieve the log after an execution.
 
 \code{countOutputDatasets} method is used to get the number of datasets 
     created by the code execution.
 
-\code{getSourceCode} method is used to retrieve the source code after execution.
+\code{getSourceCode} method is used to retrieve the source code that was executed.
 
-\code{getListsDatasets} method is used to retrieve a list of the dataset(s) 
-    created by the code execution.
+\code{getListsDatasets} method is used to retrieve a named list of 
+    \code{SASEGDataset} objects created by the code execution.
 }
 \section{Constructor}{
 
-There is no constructor. To generate a \code{SASEGCode} object,
+There is no constructor. To create a new \code{SASEGCode} object,
 you have to call the \code{\linkS4class{SASEGProject}} method 
 \code{\link{newCode}}.
 }

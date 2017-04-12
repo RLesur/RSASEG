@@ -5,11 +5,8 @@
 \alias{SASEGApplication-class}
 \alias{SASEGApplication}
 \alias{show,SASEGApplication-method}
-\alias{setProfile}
 \alias{setProfile,SASEGApplication-method}
-\alias{terminate}
 \alias{terminate,SASEGApplication-method}
-\alias{newProject}
 \alias{newProject,SASEGApplication-method}
 \title{An S4 class to represent a SAS EG Application object}
 \usage{
@@ -17,15 +14,9 @@ SASEGApplication()
 
 \S4method{show}{SASEGApplication}(object)
 
-setProfile(application, profile)
-
 \S4method{setProfile}{SASEGApplication}(application, profile)
 
-terminate(application)
-
 \S4method{terminate}{SASEGApplication}(application)
-
-newProject(application)
 
 \S4method{newProject}{SASEGApplication}(application)
 }
@@ -51,11 +42,12 @@ The \code{SASEGApplication} class is an S4 class to represent a
 \code{show} method provides useful informations including 
     \code{SAS EG} version and available profiles.
 
-\code{setProfile} method is used to set the profile in an application object.
+\code{setProfile} method is used to set the profile in a \code{SASEGApplication} object.
 
-\code{terminate} method is used to quit an application.
+\code{terminate} method is used to quit a \code{SASEGApplication}.
 
-\code{newProject} method creates a new project in an application.
+\code{newProject} method opens a new \code{SASEGProject} in a given 
+    \code{SASEGApplication}.
 }
 \examples{
 \dontrun{

@@ -4,13 +4,10 @@
 \name{SASEGProject-class}
 \alias{SASEGProject-class}
 \alias{saveAs,SASEGProject-method}
-\alias{newCode}
 \alias{newCode,SASEGProject-method}
 \title{An S4 class to represent a SAS EG Project object}
 \usage{
 \S4method{saveAs}{SASEGProject}(object, filepath, ...)
-
-newCode(project, ...)
 
 \S4method{newCode}{SASEGProject}(project, server = NULL, program = NULL,
   name = NULL, ...)
@@ -19,7 +16,8 @@ newCode(project, ...)
 \item{object}{A \code{SASEGProject} object.}
 
 \item{filepath}{A character string with a valid path.
-\strong{Be careful: \code{saveAs} method overwrites existing files without confirmation.}}
+\strong{Be careful: \code{saveAs} method overwrites existing files 
+without confirmation.}}
 
 \item{...}{Other parameters passed to method (not used).}
 
@@ -41,16 +39,17 @@ Optional, \code{NULL} by default.}
 The \code{SASEGProject} class is an S4 class to represent a 
     \code{SAS EG Scripting Project} object.
 
-\code{saveAs} method saves the project to a file.
+\code{saveAs} method saves a \code{SASEGProject} to a file.
 
-\code{newCode} method creates a new code object in an existing project.
+\code{newCode} method is used to create a new \code{SASEGCode} object in a 
+    \code{SASEGProject} object.
 }
 \details{
-\code{saveAs} method print a message after saving the file.
+\code{saveAs} method shows a message after saving the file.
 }
 \section{Constructor}{
 
-There is no constructor. To generate a \code{SASEGProject} object, you have 
+There is no constructor. To create a new \code{SASEGProject} object, you have 
     to call the \code{\linkS4class{SASEGApplication}} method 
     \code{\link{newProject}}.
 }

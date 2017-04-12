@@ -14,3 +14,4 @@ getName(object, ...)
 \description{
 Get the name of an object.
 }
+\keyword{internal}

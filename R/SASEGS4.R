@@ -229,15 +229,20 @@ setMethod("show", "SASEGApplication", function(object) {
 
 #' Set the profile in an application
 #' 
-#' @description \code{setProfile} method is used to set the profile in an application object.
-#' @rdname SASEGApplication-class
+#' \code{setProfile} method is used to set the profile in an application.
+#' @param application An application object.
+#' @param profile A profile. 
+#' @keywords internal
 #' @exportMethod setProfile
 setGeneric("setProfile",
            function(application, profile) standardGeneric("setProfile"))
 
-#' @rdname SASEGApplication-class
+#' Set the profile in a SASEGApplication object
+#' 
+#' \code{setProfile} method is used to set the profile in a \code{SASEGApplication} object.
 #' @param application A \code{SASEGApplication} object.
 #' @param profile A character string with the \code{SAS EG} profile name.
+#' @rdname SASEGApplication-class
 #' @export
 setMethod("setProfile", "SASEGApplication", function(application, profile) {
   clrCall(application, "SetActiveProfile", profile)
@@ -245,11 +250,16 @@ setMethod("setProfile", "SASEGApplication", function(application, profile) {
 
 #' Terminate (or quit) an application
 #' 
-#' @description \code{terminate} method is used to quit an application.
-#' @rdname SASEGApplication-class
+#' \code{terminate} method is used to quit an application.
+#' 
+#' @param application An application object.
+#' @keywords internal
 #' @exportMethod terminate
 setGeneric("terminate", function(application) standardGeneric("terminate"))
 
+#' Quit a SASEGApplication
+#' 
+#' \code{terminate} method is used to quit a \code{SASEGApplication}.
 #' @inheritParams setProfile-method
 #' @return \code{terminate} method returns \code{TRUE}. 
 #' @rdname SASEGApplication-class
@@ -269,7 +279,7 @@ setMethod("terminate", "SASEGApplication", function(application) {
 #'     \code{SAS EG Scripting Project} object.
 #'
 #' @section Constructor:
-#' There is no constructor. To generate a \code{SASEGProject} object, you have 
+#' There is no constructor. To create a new \code{SASEGProject} object, you have 
 #'     to call the \code{\linkS4class{SASEGApplication}} method 
 #'     \code{\link{newProject}}.
 #' @examples
@@ -303,11 +313,16 @@ setClass("SASEGProject", contains = "SASObjRef")
 
 #' Create a new project in an application
 #' 
-#' @description \code{newProject} method creates a new project in an application.
-#' @rdname SASEGApplication-class
+#' \code{newProject} method creates a new project in an application.
+#' @param application An application object.
+#' @keywords internal
 #' @exportMethod newProject
 setGeneric("newProject", function(application) standardGeneric("newProject"))
 
+#' Create a new SASEGProject
+#' 
+#' \code{newProject} method opens a new \code{SASEGProject} in a given 
+#'     \code{SASEGApplication}.
 #' @inheritParams setProfile-method
 #' @return \code{newProject} returns a \code{\linkS4class{SASEGProject}} object.
 #' @rdname SASEGApplication-class
@@ -322,16 +337,21 @@ setMethod("newProject", "SASEGApplication", function(application) {
 #' A generic that save an object as...
 #' @param object An object to save.
 #' @param ... Other parameters passed to method, including filepath.
+#' @keywords internal
 #' @exportMethod saveAs
 setGeneric("saveAs", function(object, ...) standardGeneric("saveAs"))
 
-#' @rdname SASEGProject-class
-#' @description \code{saveAs} method saves the project to a file.
-#' @details \code{saveAs} method print a message after saving the file.
+#' Save a SASEGProject
+#' 
+#' \code{saveAs} method saves a \code{SASEGProject} to a file.
+#' 
+#' \code{saveAs} method shows a message after saving the file.
 #' @param object A \code{SASEGProject} object.
 #' @param filepath A character string with a valid path.
-#'   \strong{Be careful: \code{saveAs} method overwrites existing files without confirmation.}
+#'   \strong{Be careful: \code{saveAs} method overwrites existing files 
+#'   without confirmation.}
 #' @param ... Other parameters passed to method (not used).
+#' @rdname SASEGProject-class
 #' @export
 setMethod("saveAs", "SASEGProject", function(object, filepath, ...) {
   clrCall(object, "SaveAs", filepath)
@@ -347,7 +367,7 @@ setMethod("saveAs", "SASEGProject", function(object, filepath, ...) {
 #' The \code{SASEGCode} class is an S4 class to represent a 
 #' \code{SAS EG Scripting Code} object.
 #' @section Constructor:
-#' There is no constructor. To generate a \code{SASEGCode} object,
+#' There is no constructor. To create a new \code{SASEGCode} object,
 #' you have to call the \code{\linkS4class{SASEGProject}} method 
 #' \code{\link{newCode}}.
 #' @examples
@@ -380,14 +400,20 @@ setClass("SASEGCode", contains = "SASObjRef")
 #' Set the server
 #' 
 #' \code{setServer} method is used to set the server.
-#' @rdname SASEGCode-class
+#' @param object An object with a server parameter.
+#' @param server A server name.
+#' @keywords internal
 #' @exportMethod setServer
 setGeneric("setServer", function(object, server, ...) standardGeneric("setServer"))
 
-#' @rdname SASEGCode-class
+#' Set the SAS server for a SASEGCode
+#' 
+#' \code{setServer} method is used to set the \code{SAS} server that will be 
+#'    used to execute the program contained in the \code{SASEGCode} object. 
 #' @param object A \code{SASEGCode} object.
 #' @param server A character string with the \code{SAS} server name.
 #' @param ... Other parameters. Not used.
+#' @rdname SASEGCode-class
 #' @export
 setMethod("setServer", "SASEGCode", function(object, server, ...) {
   clrSet(object, "Server", server)
@@ -396,28 +422,38 @@ setMethod("setServer", "SASEGCode", function(object, server, ...) {
 #' Set the text
 #' 
 #' \code{setText} method is used to set the text.
-#' @rdname SASEGCode-class
+#' @param object An object.
+#' @param text A text.
+#' @keywords internal
 #' @exportMethod setText
 setGeneric("setText", function(object, text, ...) standardGeneric("setText"))
 
-#' @rdname SASEGCode-class
+#' Put a SAS program in a SASEGCode object
+#' 
+#' \code{setText} method is used to put a \code{SAS} program in a \code{SASEGCode} object.
 #' @param text A character string with the code of the \code{SAS} program.
 #' @inheritParams setServer-method
+#' @rdname SASEGCode-class
 #' @export
 setMethod("setText", "SASEGCode", function(object, text, ...) {
   clrSet(object, "Text", text)
 })
 
-#' Set the name
+#' Set the name of an object
 #' 
 #' \code{setName} method is used to set the name of the object.
-#' @rdname SASEGCode-class
+#' @param object An object to be named.
+#' @param name A name.
+#' @keywords internal
 #' @exportMethod setName
 setGeneric("setName", function(object, name, ...) standardGeneric("setName"))
 
-#' @rdname SASEGCode-class
-#' @param name A character string to set the name of the program.
+#' Name a SASEGCode object
+#' 
+#' \code{setName} method is used to give a name to a \code{SASEGCode} object.
+#' @param name A character string with the name of the program.
 #' @inheritParams setServer-method
+#' @rdname SASEGCode-class
 #' @export
 setMethod("setName", "SASEGCode", function(object, name, ...) {
   clrSet(object, "Name", name)
@@ -426,10 +462,15 @@ setMethod("setName", "SASEGCode", function(object, name, ...) {
 #' Create a new code
 #' 
 #' \code{newCode} method creates a new code object in an existing project.
-#' @rdname SASEGProject-class
+#' @param project A project object.
+#' @keywords internal
 #' @exportMethod newCode
 setGeneric("newCode", function(project, ...) standardGeneric("newCode"))
 
+#' Create a new SASEGCode object
+#' 
+#' \code{newCode} method is used to create a new \code{SASEGCode} object in a 
+#'     \code{SASEGProject} object.
 #' @rdname SASEGProject-class
 #' @param project A \code{SASEGProject} object.
 #' @param server A character string with the server name. Optional, 
@@ -455,12 +496,17 @@ setMethod("newCode",
 #' Run the code
 #' 
 #' \code{run} method is used to run (or execute) the code.
-#' @rdname SASEGCode-class
+#' @param code A code object.
+#' @keywords internal
 #' @exportMethod run
 setGeneric("run", function(code) standardGeneric("run"))
 
-#' @rdname SASEGCode-class
+#' Run the program of a SASEGCode object
+#' 
+#' \code{run} method is used to run (or execute) the \code{SAS} program of a 
+#'     \code{SASEGCode} object.
 #' @param code A \code{SASEGCode} object.
+#' @rdname SASEGCode-class
 #' @export
 setMethod("run", "SASEGCode", function(code) {
   clrCall(code, "Run")
@@ -469,13 +515,17 @@ setMethod("run", "SASEGCode", function(code) {
 #' Get the log
 #' 
 #' \code{getLog} method is used to retrieve the log after the code execution.
-#' @rdname SASEGCode-class
+#' @param code A code object.
+#' @keywords internal
 #' @exportMethod getLog
 setGeneric("getLog", function(code) standardGeneric("getLog"))
 
-#' @rdname SASEGCode-class
+#' Get the log of a program execution
+#' 
+#' \code{getLog} method is used to retrieve the log after an execution.
 #' @inheritParams run-method
 #' @return \code{getLog} returns a character string containing the log.
+#' @rdname SASEGCode-class
 #' @export
 setMethod("getLog", "SASEGCode", function(code) {
   return(clrGet(clrGet(code, "Log"), "Text"))
@@ -485,13 +535,17 @@ setMethod("getLog", "SASEGCode", function(code) {
 #' 
 #' \code{countOutputDatasets} method is used to get the number of datasets 
 #'     created by the code execution.
-#' @rdname SASEGCode-class
+#' @keywords internal
 #' @exportMethod countOutputDatasets
 setGeneric("countOutputDatasets", function(code) standardGeneric("countOutputDatasets"))
 
-#' @rdname SASEGCode-class
+#' Get the number of datasets created by a program
+#' 
+#' \code{countOutputDatasets} method is used to get the number of datasets 
+#'     created by the code execution.
 #' @inheritParams run-method
 #' @return \code{countOutputDatasets} returns a numeric.
+#' @rdname SASEGCode-class
 #' @export
 setMethod("countOutputDatasets", "SASEGCode", function(code) {
   return(clrGet(clrGet(code, "OutputDatasets"), "Count"))
@@ -500,13 +554,17 @@ setMethod("countOutputDatasets", "SASEGCode", function(code) {
 #' Get the source code
 #' 
 #' \code{getSourceCode} method is used to retrieve the source code after execution.
-#' @rdname SASEGCode-class
+#' @param code A code object.
+#' @keywords internal
 #' @exportMethod getSourceCode
 setGeneric("getSourceCode", function(code) standardGeneric("getSourceCode"))
 
-#' @rdname SASEGCode-class
+#' Get the source code
+#' 
+#' \code{getSourceCode} method is used to retrieve the source code that was executed.
 #' @inheritParams run-method
 #' @return \code{getSourceCode} returns a character string.
+#' @rdname SASEGCode-class
 #' @export
 setMethod("getSourceCode", "SASEGCode", function(code) {
   return(clrGet(code, "Text"))
@@ -556,14 +614,17 @@ setClass("SASEGDataset", contains = "SASObjRef")
 #' 
 #' \code{getFileName} method is used to get the filename of an object.
 #' @param ... Other parameters passed to method.
-#' @rdname SASEGDataset-class
+#' @keywords internal
 #' @exportMethod getFileName
 setGeneric("getFileName", function(object, ...) standardGeneric("getFileName"))
 
-#' @rdname SASEGDataset-class
+#' Get the filename of a SASEGDataset
+#' 
+#' \code{getFileName} method is used to get the filename of a \code{SASEGDataset}.
 #' @inheritParams getName-method
 #' @return \code{getFileName} returns a character string with the filename of the dataset 
 #'     (ie. \emph{with} libname).
+#' @rdname SASEGDataset-class
 #' @export
 setMethod("getFileName", "SASEGDataset", function(object) {
   clrGet(object, "FileName")
@@ -573,14 +634,18 @@ setMethod("getFileName", "SASEGDataset", function(object) {
 #' 
 #' \code{getListsDatasets} method is used to retrieve a list of the dataset(s) 
 #'     created by the code execution.
-#' @rdname SASEGCode-class
+#' @keywords internal
 #' @exportMethod getListDatasets
 setGeneric("getListDatasets", function(code) standardGeneric("getListDatasets"))
 
-#' @rdname SASEGCode-class
+#' Get the list of the datasets resulting from execution
+#' 
+#' \code{getListsDatasets} method is used to retrieve a named list of 
+#'     \code{SASEGDataset} objects created by the code execution.
 #' @inheritParams run-method
 #' @return \code{getListDatasets} returns a list of \code{\linkS4class{SASEGDataset}} 
 #'     objects named with their filenames (ie. "LIBNAME.NAME").
+#' @rdname SASEGCode-class
 #' @export
 setMethod("getListDatasets", "SASEGCode", function(code) {
   n <- countOutputDatasets(code)
@@ -602,14 +667,17 @@ setMethod("getListDatasets", "SASEGCode", function(code) {
 #' Get the name of an object.
 #' @param object An object.
 #' @param ... Other parameters passed to method.
+#' @keywords internal
 #' @exportMethod getName
 setGeneric("getName", function(object, ...) standardGeneric("getName"))
 
-#' @rdname SASEGDataset-class
-#' @description \code{getName} method is used to get the name of the \code{SAS} dataset.
+#' Get the name of a SASEGDataset
+#' 
+#' \code{getName} method is used to get the name of a \code{SAS} dataset.
 #' @param object A \code{SASEGDataset} object.
 #' @return \code{getName} returns a character string with the name of the dataset 
 #'     (ie. \emph{without} libname).
+#' @rdname SASEGDataset-class
 #' @export
 setMethod("getName", "SASEGDataset", function(object) {
   clrGet(object, "Name")
@@ -623,7 +691,7 @@ setMethod("getName", "SASEGDataset", function(object) {
 #' @param name Optional, a character string with the name of the file (without extension). If 
 #'     \code{NULL}, the name of the dataset is used.
 #' @param type Optional, a character with the file format (\code{"csv"}, 
-#'     \code{"tab"} or \code{"txt"}. \code{tab} is used by default.
+#'     \code{"tab"} or \code{"txt"}). \code{tab} is used by default.
 #' @param fsep Optional, a character with a path separator passed to 
 #'     \code{\link[base]{file.path}}. As \code{SAS EG} is a \code{Windows} 
 #'     application, "\\" is used by default.
@@ -647,15 +715,18 @@ setMethod("saveAs",
 #' Read an object.
 #' @param object An object.
 #' @param ... Other parameters passed to method.
+#' @keywords internal
 setGeneric("read", function(object, ...) standardGeneric("read"))
 
-#' @rdname SASEGDataset-class
-#' @description \code{read} method is used to read a \code{SASEGDataset} and 
-#'     retrieve data in a \code{data.table}.
+#' Read a SASEGDataset object in R
+#' 
+#' \code{read} method is used to read a \code{SASEGDataset} and retrieve data 
+#'     in a \code{data.table}.
 #' @details Data are first saved in a local temporary file and then imported 
 #'     with \code{\link[data.table]{fread}}.
 #' @param object A \code{SASEGDataset} object.
 #' @return \code{read} returns a \code{data.table}.
+#' @rdname SASEGDataset-class
 #' @export
 setMethod("read", "SASEGDataset", function(object) {
   path <- saveAs(object)

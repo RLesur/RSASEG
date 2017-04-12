@@ -3,15 +3,12 @@
 \docType{class}
 \name{SASEGDataset-class}
 \alias{SASEGDataset-class}
-\alias{getFileName}
 \alias{getFileName,SASEGDataset-method}
 \alias{getName,SASEGDataset-method}
 \alias{saveAs,SASEGDataset-method}
 \alias{read,SASEGDataset-method}
 \title{An S4 class to represent a SAS EG OutputDataset object}
 \usage{
-getFileName(object, ...)
-
 \S4method{getFileName}{SASEGDataset}(object)
 
 \S4method{getName}{SASEGDataset}(object)
@@ -23,8 +20,6 @@ getFileName(object, ...)
 }
 \arguments{
 \item{object}{A \code{SASEGDataset} object.}
-
-\item{...}{Other parameters passed to method.}
 
 \item{dir}{Optional, a character string with the path of a directory. If \code{NULL}, the 
 temporary directory of the session is used.}
@@ -56,14 +51,14 @@ application, "\\" is used by default.}
 The \code{SASEGDataset} object is an S4 class to represent a \code{SAS EG
 Scripting OutputDataset} object.
 
-\code{getFileName} method is used to get the filename of an object.
+\code{getFileName} method is used to get the filename of a \code{SASEGDataset}.
 
-\code{getName} method is used to get the name of the \code{SAS} dataset.
+\code{getName} method is used to get the name of a \code{SAS} dataset.
 
 \code{saveAs} method is used to save a dataset in a local file.
 
-\code{read} method is used to read a \code{SASEGDataset} and 
-    retrieve data in a \code{data.table}.
+\code{read} method is used to read a \code{SASEGDataset} and retrieve data 
+    in a \code{data.table}.
 }
 \details{
 Data are first saved in a local temporary file and then imported 

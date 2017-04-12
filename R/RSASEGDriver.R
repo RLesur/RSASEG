@@ -241,11 +241,7 @@ setMethod("dbGetLog", "SASEGResult", function(res, ...) {
 #' @export
 setMethod("dbDataType", "SASEGDriver", function(dbObj, obj, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  if(class(obj) %in% names(SASEGDataType)) {
-    return(SASEGDataType[[class(obj)]])
-    } else {
-    return(dbDataType(DBI::ANSI(), obj, ...))
-    }
+  getSASType(obj)
 })
 
 #' @export
@@ -288,16 +284,61 @@ setMethod("dbQuoteIdentifier", c("SASEGConnection", "Table"), function(conn, x, 
 })
 
 #' @export
+setMethod("sqlData", "SASEGConnection", function(con, value, row.names = NA, ...) {
+  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
+  value <- sqlRownamesToColumn(value, row.names)
+
+  # Convert factors to strings
+  is_factor <- vapply(value, is.factor, logical(1))
+  value[is_factor] <- lapply(value[is_factor], as.character)
+  
+  # Quote all strings
+  is_char <- vapply(value, is.character, logical(1))
+  value[is_char] <- lapply(value[is_char], function(x) {
+    enc2utf8(dbQuoteString(con, x))
+  })  
+  
+  # Convert logical 
+  is_logical <- vapply(value, is.logical, logical(1))
+  value[is_logical] <- lapply(value[is_logical], SASFormat)
+  
+  # Convert dates as SAS DATE9. format
+  is_Date <- vapply(value, is.Date, logical(1))
+  value[is_Date] <- lapply(value[is_Date], SASFormat)
+  
+  # Convert datetimes as SAS DATETIME18. format
+  is_DateTime <- vapply(value, is.DateTime, logical(1))
+  value[is_DateTime] <- lapply(value[is_DateTime], SASFormat)
+  
+  # Convert everything to character and turn NAs into NULL
+  value[] <- lapply(value, as.character)
+  value[is.na(value)] <- "NULL"
+  
+  return(value)
+})
+
+#' @export
 setMethod("sqlAppendTable", "SASEGConnection", function(con, table, values, row.names = NA, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  code <- sqlAppendTable(DBI::ANSI(), table, values, row.names, ...)
+  stopifnot(is.data.frame(values))
+  
+  sql_values <- sqlData(con, values, row.names)
+  table <- dbQuoteIdentifier(con, table)
+  fields <- dbQuoteIdentifier(con, names(sql_values))
+            
+  # Convert fields into a character matrix
+  rows <- do.call(paste, c(sql_values, sep = ", "))
+  
   # SAS PROC SQL INSERT INTO statement has its own syntax. 
   # One row is inserted for each VALUES clause.
   # Multiple VALUES clauses are not separated by commas.
-  code <- gsub("),\n  (", ")\nVALUES\n  (", code, fixed = TRUE)
-  code <- gsub("VALUES\n  ", "  VALUES", code, fixed = TRUE)
-  return(code)
-})
+  SQL(paste0(
+    "INSERT INTO ", table, "\n",
+    "  (", paste(fields, collapse = ", "), ")\n",
+    paste0("  VALUES(", rows, ")", collapse = "\n")
+    ))
+  }
+)
 
 #' @export
 setMethod("dbWriteTable", "SASEGConnection", function(conn, name, value, row.names = NA, ...) {
@@ -306,14 +347,12 @@ setMethod("dbWriteTable", "SASEGConnection", function(conn, name, value, row.nam
     sqlCreateTable(con = conn, table = name, fields = value, row.names = row.names, temporary = FALSE),
     ";\n",
     sqlAppendTable(con = conn, table = name, values = value, row.names = row.names, ...)
-    )))
+  )))
   # Create a new SAS EG Code object with server and SAS program:
   SASCode <- newCode(conn@SASProject, 
                      server = conn@server, 
                      program = program, 
-                     name = paste("Create dataset", name, "from", deparse(substitute(value)))
+                     name = paste("Create dataset", name)
                      )
   run(SASCode)
 })
-
-

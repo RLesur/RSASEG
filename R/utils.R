@@ -3,6 +3,42 @@ noteUtil <- paste0(
   "/* You can delete it. */\n\n"
 )
 
+SASMonth <- c("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC")
+
+is.Date <- function(x) {
+  if("AsIs" %in% class(x)) {x <- unclass(x)}
+  return("Date" %in% class(x))
+}
+
+is.DateTime <- function(x) {
+  if("AsIs" %in% class(x)) {x <- unclass(x)}
+  return("POSIXt" %in% class(x))
+}
+
+# Return a SAS Date constant from a Date
+SASDateConstant <- function(x) {
+  if(is.null(x)) return(NULL)
+  if(is.na(x)) return(NA_character_)
+  paste0("'", format(x, "%d"), SASMonth[as.integer(format(x, "%m"))], format(x, "%Y"), "'d")
+}
+
+# Return a SAS Datetime constant from a POSIXct
+SASDateTimeConstant <- function(x) {
+  if(is.null(x)) return(NULL)
+  if(is.na(x)) return(NA_character_)
+  paste0("'", 
+         format(x, "%d"), 
+         SASMonth[as.integer(format(x, "%m"))], 
+         format(x, "%Y"),
+         ":",
+         format(x, "%H"),
+         ":",
+         format(x, "%M"),
+         ":",
+         format(x, "%S"),
+         "'dt")
+}
+
 # A closure creator
 # Example :
 # Initialisation:

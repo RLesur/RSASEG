@@ -90,8 +90,8 @@ setMethod("SAS", "SAS", function(x, ...) {
 #' The \code{ODS} option permits to create a \code{SAS} dataset when a 
 #'     \code{SELECT} statement is submitted (thx @@ François Malet).
 #' @param x An object of class \code{\link[DBI]{SQL}}.
-#' @param SQL_Results A character string with the name of a dataset to store 
-#'     the \code{SAS/ODS} output. If \code{SQL_Results} is \code{NA_character_} 
+#' @param SQLResult A character string with the name of a dataset to store 
+#'     the \code{SAS/ODS} output. If \code{SQLResult} is \code{NA_character_} 
 #'     or \code{""}, the \code{ODS} option is not used.
 #' @return An object of class \code{SAS}.
 #' @examples 
@@ -101,11 +101,11 @@ setMethod("SAS", "SAS", function(x, ...) {
 #' @keywords internal
 #' @family SAS-methods
 #' @export
-setMethod("SAS", "SQL", function(x, SQL_Results = "WORK.SQLOUT", ...) {
-  if(is.na(SQL_Results)|(SQL_Results == "")) {
+setMethod("SAS", "SQL", function(x, SQLResult = "WORK.SQLOUT", ...) {
+  if(is.na(SQLResult)|(SQLResult == "")) {
     ods_string <- ""
   } else {
-    ods_string <- paste0("ods output SQL_Results=", SQL_Results, ";\n")
+    ods_string <- paste0("ods output SQL_Results=", SQLResult, ";\n")
   }
   new("SAS",
       paste0("PROC SQL DQUOTE=ANSI;\n",
@@ -260,6 +260,8 @@ setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, 
 #' 
 #' @slot SASResult An object of class \code{\linkS4class{SASEGCode}}.
 #' @slot SASUtil An object of class \code{\linkS4class{SASEGCode}}.
+#' @slot SQLResult A character string. This slot contains the filename of the 
+#'     dataset created by the \code{ODS} during a \code{PROC SQL}.
 #' @slot fetch A closure.
 #' @slot rowsFetched A closure.
 #' @keywords internal
@@ -267,7 +269,8 @@ setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, 
 setClass("SASEGResult",
          contains = "DBIResult",
          slots = list(SASResult = "SASEGCode", 
-                      SASUtil = "SASEGCode", 
+                      SASUtil = "SASEGCode",
+                      SQLResult = "character",
                       fetched = "function", 
                       rowsFetched = "function"
                       )
@@ -296,36 +299,81 @@ setMethod("dbHasCompleted", "SASEGResult", function(res, ...) {
   res@fetched()
 })
 
-#' Send a query to SAS EG.
-#'
+#' Send a SAS query to SAS EG
+#' 
+#' This method sends a \code{SAS} query to \code{SAS EG}.
+#' 
+#' Statements with class \code{\linkS4class{SAS}} are directly sent to the 
+#'     \code{SAS} server through \code{SAS EG} escaping any code transformations. 
+#' @param conn A \code{SASEGConnection} object.
+#' @param statement A \code{\linkS4class{SAS}} object.
+#' @param persistent A logical. If \code{TRUE}, a new \code{SASEGCode} object 
+#'      is created. If \code{FALSE}, \code{garbage} code is used.
+#' @param codeName A character string to name the new \code{\linkS4class{SASEGCode}} object.
+#' @return A \code{SASEGResult} object.
+#' @keywords internal
 #' @export
-#' @examples
-#' # This is another good place to put examples
-setMethod("dbSendQuery", "SASEGConnection", function(conn, statement, codeName = NULL, ...) {
-  if(class(statement) %in% c("SAS", "SQL")) {
-    program <- SAS(statement)
-    # Create a new SAS EG Code object with server and SAS program:
-    SASCode <- newCode(conn@SASProject, server = conn@server, program = program, name = codeName)
+setMethod(
+  "dbSendQuery", 
+  c("SASEGConnection", "SAS"), 
+  function(conn, statement, persistent = TRUE, codeName = NULL, ...) {
+    if(persistent) {
+      # Create a new SAS EG Code object with server and SAS program: 
+      SASCode <- newCode(conn@SASProject, 
+                         server = conn@server, 
+                         program = statement, 
+                         name = codeName
+                         )
+    } else {
+        SASCode <- conn@SASUtil
+        setText(SASCode, paste0(noteUtil, statement))
+      }
     # Execute SAS program:
     run(SASCode)
     # Only for debugging:
-    #cat(getSourceCode(SASCode))
+    # cat(getSourceCode(SASCode))
     res <- new("SASEGResult",
                SASResult = SASCode,
                SASUtil = conn@SASUtil,
+               SQLResult = NULL,
                fetched = state_generator(),
                rowsFetched = count_generator())
     if(countOutputDatasets(SASCode) == 0) setFetched(res, value = TRUE)
     return(res)
-  } else {
-    message("Statement:\n", statement,
-            "\nClass: ", class(statement),
-            "\nNo query sent to SAS: the query must be an SQL or a SAS class object.",
-            "\nTry SAS(", statement, ") or\n",
-            "SQL(", statement, ")")
-    return(NULL)
-    }
-})
+  }
+)
+
+
+#' Send an SQL query to SAS EG.
+#'
+#' \code{dbSendQuery} sends an \code{SQL} query to \code{SAS}. The query is 
+#'     first embedded in a \code{PROC SQL} and sent to \code{SAS}.
+#'     
+#' \code{dbSendQuery} can also send a \code{SAS} program: you have to escape it 
+#'     first with \code{SAS()}.
+#' @param statement A character string containing a \code{SQL} code or an 
+#'     \code{\link[DBI]{SQL}} class object.
+#' @inheritParams dbSendQuery,SASEGConnection,SAS-method 
+#' @return A \code{SASEGResult} object.
+#' @export
+#' @examples
+#' # This is another good place to put examples
+setMethod(
+  "dbSendQuery", 
+  c("SASEGConnection", "character"), 
+  function(conn, statement, persistent = TRUE, codeName = NULL, ...) {
+    # Choose a new dataset name to store the result of SQL statement:
+    SQLResult <- paste0("WORK.", random_table_name())
+    # Transform SQL statement into a SAS statement:
+    statement <- SAS(SQL(statement), SQLResult = SQLResult)
+    # Retrieve SAS execution results:
+    res <- dbSendQuery(conn, statement, persistent, codeName)
+    # Set the name of the dataset where SQL results are stored:
+    res@SQLResult <- SQLResult
+    #SQLResult %in% names(getListDatasets(res@SASResult))
+    return(res)
+  }
+)
 
 
 #' @export

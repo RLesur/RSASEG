@@ -5,13 +5,13 @@
 \alias{SAS,SQL-method}
 \title{Transform an SQL statement into a SAS statement}
 \usage{
-\S4method{SAS}{SQL}(x, SQL_Results = "WORK.SQLOUT", ...)
+\S4method{SAS}{SQL}(x, SQLResult = "WORK.SQLOUT", ...)
 }
 \arguments{
 \item{x}{An object of class \code{\link[DBI]{SQL}}.}
 
-\item{SQL_Results}{A character string with the name of a dataset to store 
-the \code{SAS/ODS} output. If \code{SQL_Results} is \code{NA_character_} 
+\item{SQLResult}{A character string with the name of a dataset to store 
+the \code{SAS/ODS} output. If \code{SQLResult} is \code{NA_character_} 
 or \code{""}, the \code{ODS} option is not used.}
 }
 \value{

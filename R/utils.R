@@ -76,3 +76,6 @@ count_generator <- function(init = 0) {
   }
 }
 
+random_table_name <- function(n = 28) {
+  paste0(LETTERS[ceiling(runif(n, min = 0, max = 26))], collapse = "")
+  }

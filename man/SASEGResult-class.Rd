@@ -14,6 +14,9 @@
 
 \item{\code{SASUtil}}{An object of class \code{\linkS4class{SASEGCode}}.}
 
+\item{\code{SQLResult}}{A character string. This slot contains the filename of the 
+dataset created by the \code{ODS} during a \code{PROC SQL}.}
+
 \item{\code{fetch}}{A closure.}
 
 \item{\code{rowsFetched}}{A closure.}

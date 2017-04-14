@@ -109,7 +109,6 @@ setMethod("SAS", "SQL", function(x, SQL_Results = "WORK.SQLOUT", ...) {
   }
   new("SAS",
       paste0("PROC SQL DQUOTE=ANSI;\n",
-             #"ods output SQL_Results=", SQL_Results, ";\n",
              ods_string,
              x, ";\n",
              "QUIT;\n"))

@@ -9,7 +9,7 @@ This class inherits from \code{\link[DBI]{DBIConnection-class}}.
 An object of class \code{SASEGConnection} can be understood a \code{SAS EG} project.
 }
 \details{
-The \code{SASUtil} slot is used to run utils codes, as fetch programs.
+The \code{SASUtil} slot is used to run codes in a non persistent way, as fetch programs.
 }
 \section{Slots}{
 

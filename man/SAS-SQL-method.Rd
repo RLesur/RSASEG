@@ -18,7 +18,7 @@ or \code{""}, the \code{ODS} option is not used.}
 An object of class \code{SAS}.
 }
 \description{
-This method wraps an \code{SQL} statement into a \code{PROC SQL}. For instance,
+This method wraps an \code{SQL} statement in a \code{PROC SQL}. For instance,
 \code{SAS(SQL("SELECT * FROM SASHELP.CLASS"))} returns:
 \tabular{l}{
    \code{PROC SQL DQUOTE=ANSI;} \cr

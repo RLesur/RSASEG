@@ -127,7 +127,7 @@ setMethod("show", "SAS", function(object) {
 #' This class inherits from \code{\link[DBI]{DBIConnection-class}}.
 #' An object of class \code{SASEGConnection} can be understood a \code{SAS EG} project.
 #' 
-#' The \code{SASUtil} slot is used to run utils codes, as fetch programs.
+#' The \code{SASUtil} slot is used to run codes in a non persistent way, as fetch programs.
 #' @exportClass SASEGConnection
 #' @slot profile A character string with the profile name.
 #' @slot server A character string with the server name used to run \code{SAS} 
@@ -192,8 +192,7 @@ setMethod("dbConnect", "SASEGDriver", function(drv, DLLFilePath, profile, server
   SASProject <- newProject(application)
   # Create a new SAS EG Code project to run utils tasks (e.g. fetch programs):
   SASUtil <- newCode(project = SASProject, server = server, program = noteUtil, name = "garbage")
-  dbms <- NULL
-  class(dbms) <- "character"
+  dbms <- character(0)
   new("SASEGConnection", profile = profile, server = server, application = application, SASProject = SASProject, SASUtil = SASUtil, dbms = dbms)
 })
 
@@ -214,9 +213,29 @@ setMethod("show", "SASEGConnection", function(object) {
 #'    \code{SAS EG} in memory. You also can save your work in a \code{SAS EG} project.
 #' @param conn An object created by \code{\link[=dbConnect,SASEGDriver-method]{dbConnect}}.
 #' @param projectPath A character string with the path to save the project 
-#'     created by \code{RSASEG}. \strong{Be careful: \code{saveAs} method 
-#'     overwrites existing files without confirmation.}
+#'     created by \code{RSASEG}. \strong{Be careful: \code{dbDisconnect} method 
+#'     overwrites existing files without confirmation}. If \code{NULL}, no project is saved.
 #' @return \code{dbDisconnect} returns \code{TRUE}.
+#' @examples
+#' \dontrun{
+#' # Modify the path below following your install:
+#' path <- "C:\\Program Files\\SAS94\\SASEnterpriseGuide\\7.1\\SASEGScripting.dll"
+#' my_profile <- "PROFILE"
+#' my_server <- "SASPROD"
+#' conn <- dbConnect(RSASEG::SASEG(), 
+#'                   DLLFilePath = path, 
+#'                   profile = my_profile, 
+#'                   server = my_server)
+#' show(conn)
+#' dbWriteTable(conn, "mtcars", mtcars)
+#' dbGetQuery(conn, "SELECT * FROM mtcars WHERE cyl = 4")
+#' 
+#' # Important: you have to disconnect from SAS EG
+#' # When disconnecting, you also can save your work
+#' RSASEG_project <- paste(normalizePath("~"), "RSASEG.egp", sep = "\\")
+#' dbDisconnect(conn, projectPath = RSASEG_project)
+#' }
+#' @seealso \code{\link[=dbConnect,SASEGDriver-method]{dbConnect}}
 #' @export
 setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, ...) {
   if(!is.null(projectPath))  saveAs(conn@SASProject, projectPath)

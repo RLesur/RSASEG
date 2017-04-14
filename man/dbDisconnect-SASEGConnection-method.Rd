@@ -11,8 +11,8 @@
 \item{conn}{An object created by \code{\link[=dbConnect,SASEGDriver-method]{dbConnect}}.}
 
 \item{projectPath}{A character string with the path to save the project 
-created by \code{RSASEG}. \strong{Be careful: \code{saveAs} method 
-overwrites existing files without confirmation.}}
+created by \code{RSASEG}. \strong{Be careful: \code{dbDisconnect} method 
+overwrites existing files without confirmation}. If \code{NULL}, no project is saved.}
 }
 \value{
 \code{dbDisconnect} returns \code{TRUE}.
@@ -21,4 +21,27 @@ overwrites existing files without confirmation.}}
 \code{dbDisconnect} closes a \code{SAS EG} connection. It is important to 
    close connection because creation of a new \code{SASEGConnection} launchs 
    \code{SAS EG} in memory. You also can save your work in a \code{SAS EG} project.
+}
+\examples{
+\dontrun{
+# Modify the path below following your install:
+path <- "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScripting.dll"
+my_profile <- "PROFILE"
+my_server <- "SASPROD"
+conn <- dbConnect(RSASEG::SASEG(), 
+                  DLLFilePath = path, 
+                  profile = my_profile, 
+                  server = my_server)
+show(conn)
+dbWriteTable(conn, "mtcars", mtcars)
+dbGetQuery(conn, "SELECT * FROM mtcars WHERE cyl = 4")
+
+# Important: you have to disconnect from SAS EG
+# When disconnecting, you also can save your work
+RSASEG_project <- paste(normalizePath("~"), "RSASEG.egp", sep = "\\\\")
+dbDisconnect(conn, projectPath = RSASEG_project)
+}
+}
+\seealso{
+\code{\link[=dbConnect,SASEGDriver-method]{dbConnect}}
 }

@@ -9,47 +9,87 @@ NULL
 # Driver Class ------------------------------------------------------------
 
 
-#' Driver class for SAS Enterprise Guide.
+#' Driver class for SAS Enterprise Guide
 #'
-#' @keywords internal
+#' This a driver class for \code{SAS Enterprise Guide}.
+#' 
+#' The \code{SASEGDriver} class inherits from the \code{\link[DBI]{DBIDriver-class}}. 
+#' @rdname SASEG
 #' @exportClass SASEGDriver
 setClass("SASEGDriver", contains = "DBIDriver")
-
-#' @rdname SASEGDriver-class
-#' @export
-setMethod("dbUnloadDriver", "SASEGDriver", function(drv, ...) {
-  TRUE
-})
 
 setMethod("show", "SASEGDriver", function(object) {
   cat("<SASEGDriver>\n")
 })
 
+#' @description \code{SASEG()} generates a new \code{SASEG} driver.
+#' @return \code{SASEG()} returns a \code{SASEGDriver} object.
 #' @export
 SASEG <- function() {
   new("SASEGDriver")
 }
 
+#' Unload SASEGDriver
+#' 
+#' This method was developed for \code{DBI} compliance.
+#' @return \code{dbUnloadDriver} method returns \code{TRUE}.
+#' @keywords internal
+#' @export
+setMethod("dbUnloadDriver", "SASEGDriver", function(drv, ...) {
+  TRUE
+})
 
 # SAS Class and Methods ---------------------------------------------------
 
 
-#' SAS class.
+#' SAS program class
+#' 
+#' An S4 class for \code{SAS} program.
+#' @keywords internal
 setClass("SAS", contains = "character")
 
-#' @exportMethod SAS
+#' Create a SAS program
+#' 
+#' \code{SAS} methods create a new \code{SAS} class object.
+#' @param x An object. May be a \code{character} string or an object of a class 
+#'     inheriting from \code{character}. 
+#' @rdname SAS-class
+#' @family SAS-methods
 setGeneric("SAS", function(x, ...) standardGeneric("SAS"))
 
+#' Quote a character string as a SAS program
+#' 
+#' This method quotes a character string as a \code{SAS} program.
+#' This method is very similar to \code{\link[DBI]{SQL}} method for class \code{character}.
+#' @param x A character string.
+#' @return An object of class \code{SAS}.
+#' @keywords internal
+#' @family SAS-methods
 #' @export
 setMethod("SAS", "character", function(x, ...) {
   new("SAS", x)
 })
 
+# SAS class objects do not need to be quoted:
 #' @export
 setMethod("SAS", "SAS", function(x, ...) {
   return(x)
 })
 
+#' Transform an SQL statement as a SAS statement
+#' 
+#' This method wraps an \code{SQL} statement into a \code{PROC SQL}.
+#' 
+#' The \code{ODS} option permits to create a \code{SAS} dataset when a 
+#'     \code{SELECT} statement is submitted (thx @@ François Malet).
+#' @param x An object of class \code{\link[DBI]{SQL}}.
+#' @return An object of class \code{SAS}.
+#' @examples 
+#' sql_statement <- DBI::SQL("SELECT * \n FROM SASHELP.CLASS")
+#' sas_pgm <- RSASEG::SAS(sql_statement)
+#' show(sas_pgm)
+#' @keywords internal
+#' @family SAS-methods
 #' @export
 setMethod("SAS", "SQL", function(x, ...) {
   new("SAS",
@@ -67,9 +107,21 @@ setMethod("show", "SAS", function(object) {
 # Connection Class and Methods --------------------------------------------
 
 
-#' SAS EG connection class.
+#' SAS EG connection class
 #'
+#' This class inherits from \code{\link[DBI]{DBIConnection-class}}.
+#' An object of class \code{SASEGConnection} can be understood a \code{SAS EG} project.
+#' 
+#' The \code{SASUtil} slot is used to run utils codes, as fetch programs.
 #' @exportClass SASEGConnection
+#' @slot profile A character string with the profile name.
+#' @slot server A character string with the server name used to run \code{SAS} 
+#'     codes.
+#' @slot application A \code{\linkS4class{SASEGApplication}} object.
+#' @slot SASProject A \code{\linkS4class{SASEGProject}} object.
+#' @slot SASUtil A \code{\linkS4class{SASEGCode}} object.
+#' @slot dbms A character string to store informations for \code{SAS/ACCESS} 
+#'     connector. Not used.
 #' @keywords internal
 setClass("SASEGConnection",
          contains = "DBIConnection",
@@ -85,16 +137,36 @@ setClass("SASEGConnection",
          )
 )
 
-#' @param drv An object created by \code{SASEG()}
-#' @rdname SASEGDriver-class
+#' @description Use \code{dbConnect} to create a new connection to a \code{SAS} 
+#'     server through \code{SAS Enterprise Guide}.
+#' @param drv An object created by \code{SASEG()}.
+#' @param DLLFilePath A character string with the filepath to \code{SASEGScripting.dll}.
+#' @param profile A character string with the \code{SAS EG} profile name.
+#' @param server A character string with the server name to run \code{SAS} programs.
+#' @return \code{dbConnect} returns an object of class \code{\linkS4class{SASEGConnection}}.
+#' @rdname SASEG
 #' @export
 #' @examples
 #' \dontrun{
-#' db <- dbConnect(RSASEG::SASEG(), DLLFilePath, profile, server, dbms)
-#' dbWriteTable(db, "mtcars", mtcars)
-#' dbGetQuery(db, "SELECT * FROM mtcars WHERE cyl == 4")
+#' # Modify the path below following your install:
+#' path <- "C:\\Program Files\\SAS94\\SASEnterpriseGuide\\7.1\\SASEGScripting.dll"
+#' my_profile <- "PROFILE"
+#' my_server <- "SASPROD"
+#' conn <- dbConnect(RSASEG::SASEG(), 
+#'                   DLLFilePath = path, 
+#'                   profile = my_profile, 
+#'                   server = my_server)
+#' show(conn)
+#' dbWriteTable(conn, "mtcars", mtcars)
+#' dbGetQuery(conn, "SELECT * FROM mtcars WHERE cyl = 4")
+#' 
+#' # Important: you have to disconnect from SAS EG
+#' # When disconnecting, you also can save your work
+#' RSASEG_project <- paste(normalizePath("~"), "RSASEG.egp", sep = "\\")
+#' dbDisconnect(conn, projectPath = RSASEG_project)
 #' }
-setMethod("dbConnect", "SASEGDriver", function(drv, DLLFilePath, profile, server, dbms, ...) {
+#' @seealso \code{\link[=dbDisconnect,SASEGConnection-method]{dbDisconnect}}
+setMethod("dbConnect", "SASEGDriver", function(drv, DLLFilePath, profile, server, ...) {
   # Load SAS.EG.Scripting namespace:
   loadSASEGScripting(DLLFilePath)
   # Create a new SAS EG Application object:
@@ -110,7 +182,6 @@ setMethod("dbConnect", "SASEGDriver", function(drv, DLLFilePath, profile, server
   new("SASEGConnection", profile = profile, server = server, application = application, SASProject = SASProject, SASUtil = SASUtil, dbms = dbms)
 })
 
-#' @export
 setMethod("show", "SASEGConnection", function(object) {
   show(object@application)
   cat(
@@ -121,6 +192,16 @@ setMethod("show", "SASEGConnection", function(object) {
     )
 })
 
+#' Disconnect (or close) a SAS EG connection
+#' 
+#' \code{dbDisconnect} closes a \code{SAS EG} connection. It is important to 
+#'    close connection because creation of a new \code{SASEGConnection} launchs 
+#'    \code{SAS EG} in memory. You also can save your work in a \code{SAS EG} project.
+#' @param conn An object created by \code{\link[=dbConnect,SASEGDriver-method]{dbConnect}}.
+#' @param projectPath A character string with the path to save the project 
+#'     created by \code{RSASEG}. \strong{Be careful: \code{saveAs} method 
+#'     overwrites existing files without confirmation.}
+#' @return \code{dbDisconnect} returns \code{TRUE}.
 #' @export
 setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, ...) {
   if(!is.null(projectPath))  saveAs(conn@SASProject, projectPath)
@@ -132,13 +213,23 @@ setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, 
 # Results class and Methods -----------------------------------------------
 
 
-#' SASEG results class.
-#'
+#' SASEG results class
+#' 
+#' \code{SASEGResult} class inherits from \code{\link[DBI]{DBIResult-class}}.
+#' 
+#' @slot SASResult An object of class \code{\linkS4class{SASEGCode}}.
+#' @slot SASUtil An object of class \code{\linkS4class{SASEGCode}}.
+#' @slot fetch A closure.
+#' @slot rowsFetched A closure.
 #' @keywords internal
 #' @exportClass SASEGResult
 setClass("SASEGResult",
          contains = "DBIResult",
-         slots = list(SASResult = "SASEGCode", SASUtil = "SASEGCode", fetched = "function", rowsFetched = "function")
+         slots = list(SASResult = "SASEGCode", 
+                      SASUtil = "SASEGCode", 
+                      fetched = "function", 
+                      rowsFetched = "function"
+                      )
          )
 
 setGeneric("setFetched", function(res, value) standardGeneric("setFetched"))

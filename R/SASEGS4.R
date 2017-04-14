@@ -722,8 +722,8 @@ setGeneric("read", function(object, ...) standardGeneric("read"))
 #' 
 #' \code{read} method is used to read a \code{SASEGDataset} and retrieve data 
 #'     in a \code{data.table}.
-#' @details Data are first saved in a local temporary file and then imported 
-#'     with \code{\link[data.table]{fread}}.
+#' @details \code{read} method stores data in a local temporary file and then imports 
+#'     in \code{R} with \code{\link[data.table]{fread}}.
 #' @param object A \code{SASEGDataset} object.
 #' @return \code{read} returns a \code{data.table}.
 #' @rdname SASEGDataset-class

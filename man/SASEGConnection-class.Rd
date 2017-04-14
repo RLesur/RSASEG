@@ -3,8 +3,30 @@
 \docType{class}
 \name{SASEGConnection-class}
 \alias{SASEGConnection-class}
-\title{SAS EG connection class.}
+\title{SAS EG connection class}
 \description{
-SAS EG connection class.
+This class inherits from \code{\link[DBI]{DBIConnection-class}}.
+An object of class \code{SASEGConnection} can be understood a \code{SAS EG} project.
 }
+\details{
+The \code{SASUtil} slot is used to run utils codes, as fetch programs.
+}
+\section{Slots}{
+
+\describe{
+\item{\code{profile}}{A character string with the profile name.}
+
+\item{\code{server}}{A character string with the server name used to run \code{SAS} 
+codes.}
+
+\item{\code{application}}{A \code{\linkS4class{SASEGApplication}} object.}
+
+\item{\code{SASProject}}{A \code{\linkS4class{SASEGProject}} object.}
+
+\item{\code{SASUtil}}{A \code{\linkS4class{SASEGCode}} object.}
+
+\item{\code{dbms}}{A character string to store informations for \code{SAS/ACCESS} 
+connector. Not used.}
+}}
+
 \keyword{internal}

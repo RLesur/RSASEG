@@ -3,7 +3,22 @@
 \docType{class}
 \name{SAS-class}
 \alias{SAS-class}
-\title{SAS class.}
-\description{
-SAS class.
+\alias{SAS}
+\title{SAS program class}
+\usage{
+SAS(x, ...)
 }
+\arguments{
+\item{x}{An object. May be a \code{character} string or an object of a class 
+inheriting from \code{character}.}
+}
+\description{
+An S4 class for \code{SAS} program.
+
+\code{SAS} methods create a new \code{SAS} class object.
+}
+\seealso{
+Other SAS-methods: \code{\link{SAS,SQL-method}},
+  \code{\link{SAS,character-method}}
+}
+\keyword{internal}

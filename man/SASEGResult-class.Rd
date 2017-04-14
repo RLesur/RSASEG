@@ -3,8 +3,20 @@
 \docType{class}
 \name{SASEGResult-class}
 \alias{SASEGResult-class}
-\title{SASEG results class.}
+\title{SASEG results class}
 \description{
-SASEG results class.
+\code{SASEGResult} class inherits from \code{\link[DBI]{DBIResult-class}}.
 }
+\section{Slots}{
+
+\describe{
+\item{\code{SASResult}}{An object of class \code{\linkS4class{SASEGCode}}.}
+
+\item{\code{SASUtil}}{An object of class \code{\linkS4class{SASEGCode}}.}
+
+\item{\code{fetch}}{A closure.}
+
+\item{\code{rowsFetched}}{A closure.}
+}}
+
 \keyword{internal}

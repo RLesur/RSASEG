@@ -28,7 +28,7 @@ temporary directory of the session is used.}
 \code{NULL}, the name of the dataset is used.}
 
 \item{type}{Optional, a character with the file format (\code{"csv"}, 
-\code{"tab"} or \code{"txt"}. \code{tab} is used by default.}
+\code{"tab"} or \code{"txt"}). \code{tab} is used by default.}
 
 \item{fsep}{Optional, a character with a path separator passed to 
 \code{\link[base]{file.path}}. As \code{SAS EG} is a \code{Windows} 
@@ -61,8 +61,8 @@ Scripting OutputDataset} object.
     in a \code{data.table}.
 }
 \details{
-Data are first saved in a local temporary file and then imported 
-    with \code{\link[data.table]{fread}}.
+\code{read} method stores data in a local temporary file and then imports 
+    in \code{R} with \code{\link[data.table]{fread}}.
 }
 \section{Constructor}{
  There is no constructor. \code{SASEGDataset} objects

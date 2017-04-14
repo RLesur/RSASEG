@@ -76,13 +76,23 @@ setMethod("SAS", "SAS", function(x, ...) {
   return(x)
 })
 
-#' Transform an SQL statement as a SAS statement
+#' Transform an SQL statement into a SAS statement
 #' 
-#' This method wraps an \code{SQL} statement into a \code{PROC SQL}.
+#' This method wraps an \code{SQL} statement in a \code{PROC SQL}. For instance,
+#' \code{SAS(SQL("SELECT * FROM SASHELP.CLASS"))} returns:
+#' \tabular{l}{
+#'    \code{PROC SQL DQUOTE=ANSI;} \cr
+#'    \code{ods output SQL_Results=WORK.SQLOUT;} \cr
+#'    \code{SELECT * FROM SASHELP.CLASS;} \cr
+#'    \code{QUIT;}
+#' }
 #' 
 #' The \code{ODS} option permits to create a \code{SAS} dataset when a 
 #'     \code{SELECT} statement is submitted (thx @@ François Malet).
 #' @param x An object of class \code{\link[DBI]{SQL}}.
+#' @param SQL_Results A character string with the name of a dataset to store 
+#'     the \code{SAS/ODS} output. If \code{SQL_Results} is \code{NA_character_} 
+#'     or \code{""}, the \code{ODS} option is not used.
 #' @return An object of class \code{SAS}.
 #' @examples 
 #' sql_statement <- DBI::SQL("SELECT * \n FROM SASHELP.CLASS")
@@ -91,10 +101,16 @@ setMethod("SAS", "SAS", function(x, ...) {
 #' @keywords internal
 #' @family SAS-methods
 #' @export
-setMethod("SAS", "SQL", function(x, ...) {
+setMethod("SAS", "SQL", function(x, SQL_Results = "WORK.SQLOUT", ...) {
+  if(is.na(SQL_Results)|(SQL_Results == "")) {
+    ods_string <- ""
+  } else {
+    ods_string <- paste0("ods output SQL_Results=", SQL_Results, ";\n")
+  }
   new("SAS",
       paste0("PROC SQL DQUOTE=ANSI;\n",
-             "ods output SQL_Results=SQLOut;\n",
+             #"ods output SQL_Results=", SQL_Results, ";\n",
+             ods_string,
              x, ";\n",
              "QUIT;\n"))
 })

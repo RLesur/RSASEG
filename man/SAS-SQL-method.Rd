@@ -3,18 +3,29 @@
 \docType{methods}
 \name{SAS,SQL-method}
 \alias{SAS,SQL-method}
-\title{Transform an SQL statement as a SAS statement}
+\title{Transform an SQL statement into a SAS statement}
 \usage{
-\S4method{SAS}{SQL}(x, ...)
+\S4method{SAS}{SQL}(x, SQL_Results = "WORK.SQLOUT", ...)
 }
 \arguments{
 \item{x}{An object of class \code{\link[DBI]{SQL}}.}
+
+\item{SQL_Results}{A character string with the name of a dataset to store 
+the \code{SAS/ODS} output. If \code{SQL_Results} is \code{NA_character_} 
+or \code{""}, the \code{ODS} option is not used.}
 }
 \value{
 An object of class \code{SAS}.
 }
 \description{
-This method wraps an \code{SQL} statement into a \code{PROC SQL}.
+This method wraps an \code{SQL} statement into a \code{PROC SQL}. For instance,
+\code{SAS(SQL("SELECT * FROM SASHELP.CLASS"))} returns:
+\tabular{l}{
+   \code{PROC SQL DQUOTE=ANSI;} \cr
+   \code{ods output SQL_Results=WORK.SQLOUT;} \cr
+   \code{SELECT * FROM SASHELP.CLASS;} \cr
+   \code{QUIT;}
+}
 }
 \details{
 The \code{ODS} option permits to create a \code{SAS} dataset when a 

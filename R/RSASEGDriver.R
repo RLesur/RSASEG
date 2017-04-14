@@ -126,26 +126,23 @@ setMethod("show", "SAS", function(object) {
 #'
 #' This class inherits from \code{\link[DBI]{DBIConnection-class}}.
 #' An object of class \code{SASEGConnection} can be understood a \code{SAS EG} project.
-#' 
-#' The \code{SASUtil} slot is used to run codes in a non persistent way, as fetch programs.
 #' @exportClass SASEGConnection
 #' @slot profile A character string with the profile name.
 #' @slot server A character string with the server name used to run \code{SAS} 
 #'     codes.
 #' @slot application A \code{\linkS4class{SASEGApplication}} object.
 #' @slot SASProject A \code{\linkS4class{SASEGProject}} object.
-#' @slot SASUtil A \code{\linkS4class{SASEGCode}} object.
+#' @slot SASUtil A \code{\linkS4class{SASEGCode}} object. This slot is used to 
+#'     run codes (eg. fetch programs) in a non persistent way.
 #' @slot dbms A character string to store informations for \code{SAS/ACCESS} 
-#'     connector. Not used.
+#'     connector. Not used yet.
 #' @keywords internal
 setClass("SASEGConnection",
          contains = "DBIConnection",
          slots = list(
            profile = "character",
            server = "character",
-           # Slot application is a SAS EG Application object
            application = "SASEGApplication",
-           # Slot SASProject is a SAS EG Project object
            SASProject = "SASEGProject",
            SASUtil = "SASEGCode",
            dbms = "character"
@@ -184,16 +181,26 @@ setClass("SASEGConnection",
 setMethod("dbConnect", "SASEGDriver", function(drv, DLLFilePath, profile, server, ...) {
   # Load SAS.EG.Scripting namespace:
   loadSASEGScripting(DLLFilePath)
-  # Create a new SAS EG Application object:
+  # Create a new SASEGApplication object:
   application <- SASEGApplication()
   # Set profile:
   setProfile(application, profile)
-  # Create a new SAS EG Project object:
+  # Create a new SASEGProject object:
   SASProject <- newProject(application)
-  # Create a new SAS EG Code project to run utils tasks (e.g. fetch programs):
-  SASUtil <- newCode(project = SASProject, server = server, program = noteUtil, name = "garbage")
+  # Create a new SASEGCode object to run utils tasks (e.g. fetch programs) in
+  # a non persistent way:
+  SASUtil <- newCode(project = SASProject, 
+                     server = server, 
+                     program = noteUtil, 
+                     name = "garbage")
   dbms <- character(0)
-  new("SASEGConnection", profile = profile, server = server, application = application, SASProject = SASProject, SASUtil = SASUtil, dbms = dbms)
+  new("SASEGConnection", 
+      profile = profile, 
+      server = server, 
+      application = application, 
+      SASProject = SASProject, 
+      SASUtil = SASUtil, 
+      dbms = dbms)
 })
 
 setMethod("show", "SASEGConnection", function(object) {
@@ -266,7 +273,20 @@ setClass("SASEGResult",
                       )
          )
 
+#' Set the slot Fetched as...
+#' 
+#' This method sets the slot Fetched as a value.
+#' @param res A result object.
+#' @param value A value.
+#' @keywords internal
 setGeneric("setFetched", function(res, value) standardGeneric("setFetched"))
+
+#' Set the slot fetched as...
+#' 
+#' This method sets the slot \code{fetched} as \code{TRUE} or \code{FALSE}.
+#' @param res A \code{SASEGResult} object.
+#' @param value A logical.
+#' @keywords internal
 setMethod("setFetched", "SASEGResult", function(res, value) {
   res@fetched(set = value)
 })
@@ -275,7 +295,6 @@ setMethod("setFetched", "SASEGResult", function(res, value) {
 setMethod("dbHasCompleted", "SASEGResult", function(res, ...) {
   res@fetched()
 })
-
 
 #' Send a query to SAS EG.
 #'

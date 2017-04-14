@@ -8,9 +8,6 @@
 This class inherits from \code{\link[DBI]{DBIConnection-class}}.
 An object of class \code{SASEGConnection} can be understood a \code{SAS EG} project.
 }
-\details{
-The \code{SASUtil} slot is used to run codes in a non persistent way, as fetch programs.
-}
 \section{Slots}{
 
 \describe{
@@ -23,10 +20,11 @@ codes.}
 
 \item{\code{SASProject}}{A \code{\linkS4class{SASEGProject}} object.}
 
-\item{\code{SASUtil}}{A \code{\linkS4class{SASEGCode}} object.}
+\item{\code{SASUtil}}{A \code{\linkS4class{SASEGCode}} object. This slot is used to 
+run codes (eg. fetch programs) in a non persistent way.}
 
 \item{\code{dbms}}{A character string to store informations for \code{SAS/ACCESS} 
-connector. Not used.}
+connector. Not used yet.}
 }}
 
 \keyword{internal}

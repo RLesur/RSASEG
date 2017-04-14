@@ -49,7 +49,7 @@ setMethod("dbUnloadDriver", "SASEGDriver", function(drv, ...) {
 
 #' SAS program class
 #' 
-#' An S4 class for \code{SAS} program.
+#' An S4 class for \code{SAS} programs.
 #' @keywords internal
 setClass("SAS", contains = "character")
 
@@ -141,6 +141,7 @@ setMethod("show", "SAS", function(object) {
 #'     run codes (eg. fetch programs) in a non persistent way.
 #' @slot dbms A character string to store informations for \code{SAS/ACCESS} 
 #'     connector. Not used yet.
+#' @slot isValid A closure.
 #' @keywords internal
 setClass("SASEGConnection",
          contains = "DBIConnection",
@@ -150,7 +151,8 @@ setClass("SASEGConnection",
            application = "SASEGApplication",
            SASProject = "SASEGProject",
            SASUtil = "SASEGCode",
-           dbms = "character"
+           dbms = "character",
+           isValid = "function"
          )
 )
 
@@ -205,7 +207,9 @@ setMethod("dbConnect", "SASEGDriver", function(drv, DLLFilePath, profile, server
       application = application, 
       SASProject = SASProject, 
       SASUtil = SASUtil, 
-      dbms = dbms)
+      dbms = dbms,
+      isValid = state_generator(init = TRUE)
+      )
 })
 
 setMethod("show", "SASEGConnection", function(object) {
@@ -216,6 +220,10 @@ setMethod("show", "SASEGConnection", function(object) {
     "DBMS SQL Pass-Through: ", if(length(object@dbms) == 0) "NONE" else object@dbms,
     sep = ""
     )
+})
+
+setMethod("dbIsValid", "SASEGConnection", function(dbObj, ...) {
+  dbObj@isValid()
 })
 
 #' Disconnect (or close) a SAS EG connection
@@ -252,8 +260,9 @@ setMethod("show", "SASEGConnection", function(object) {
 setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, ...) {
   if(!is.null(projectPath))  saveAs(conn@SASProject, projectPath)
   terminate(conn@application)
-  return(TRUE)
-  })
+  conn@isValid(set = FALSE)
+  invisible(TRUE)
+})
 
 
 # Results class and Methods -----------------------------------------------

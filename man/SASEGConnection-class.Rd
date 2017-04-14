@@ -25,6 +25,8 @@ run codes (eg. fetch programs) in a non persistent way.}
 
 \item{\code{dbms}}{A character string to store informations for \code{SAS/ACCESS} 
 connector. Not used yet.}
+
+\item{\code{isValid}}{A closure.}
 }}
 
 \keyword{internal}

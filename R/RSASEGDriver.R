@@ -89,7 +89,8 @@ setMethod("SAS", "SAS", function(x, ...) {
 #'    \code{PROC SQL DQUOTE=ANSI;} \cr
 #'    \code{ods output SQL_Results=WORK.SQLOUT;} \cr
 #'    \code{SELECT * FROM SASHELP.CLASS;} \cr
-#'    \code{QUIT;}
+#'    \code{\%put &sqlobs;} \cr
+#'    \code{QUIT;} \cr
 #' }
 #' 
 #' The \code{ODS} option permits to create a \code{SAS} dataset when a 
@@ -116,6 +117,7 @@ setMethod("SAS", "SQL", function(x, SQLResult = "WORK.SQLOUT", ...) {
       paste0("PROC SQL DQUOTE=ANSI;\n",
              ods_string,
              x, ";\n",
+             "%put &sqlobs;\n", 
              "QUIT;\n"))
 })
 

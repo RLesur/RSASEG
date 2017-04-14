@@ -3,7 +3,7 @@
 \docType{methods}
 \name{dbSendQuery,SASEGConnection,character-method}
 \alias{dbSendQuery,SASEGConnection,character-method}
-\title{Send an SQL query to SAS EG.}
+\title{Send an SQL query to SAS EG}
 \usage{
 \S4method{dbSendQuery}{SASEGConnection,character}(conn, statement,
   persistent = TRUE, codeName = NULL, ...)
@@ -27,8 +27,11 @@ A \code{SASEGResult} object.
     first embedded in a \code{PROC SQL} and sent to \code{SAS}.
     
 \code{dbSendQuery} can also send a \code{SAS} program: you have to escape it 
-    first with \code{SAS()}.
+    first using \code{SAS()}.
 }
 \examples{
 # This is another good place to put examples
+}
+\seealso{
+Package \code{DBI}: \code{\link[DBI]{dbSendQuery}}
 }

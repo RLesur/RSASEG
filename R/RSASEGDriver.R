@@ -16,7 +16,7 @@ NULL
 #' The \code{SASEGDriver} class inherits from the \code{\link[DBI]{DBIDriver-class}}. 
 #' @rdname SASEG
 #' @exportClass SASEGDriver
-setClass("SASEGDriver", contains = "DBIDriver")
+setClass("SASEGDriver", contains = "DBIDriver", slots = list(isValid = "function"))
 
 setMethod("show", "SASEGDriver", function(object) {
   cat("<SASEGDriver>\n")
@@ -26,8 +26,12 @@ setMethod("show", "SASEGDriver", function(object) {
 #' @return \code{SASEG()} returns a \code{SASEGDriver} object.
 #' @export
 SASEG <- function() {
-  new("SASEGDriver")
+  new("SASEGDriver", isValid = state_generator(init = TRUE))
 }
+
+setMethod("dbIsValid", "SASEGDriver", function(dbObj, ...) {
+  dbObj@isValid()
+})
 
 #' Unload SASEGDriver
 #' 
@@ -36,6 +40,7 @@ SASEG <- function() {
 #' @keywords internal
 #' @export
 setMethod("dbUnloadDriver", "SASEGDriver", function(drv, ...) {
+  drv@isValid(set = FALSE)
   TRUE
 })
 
@@ -344,17 +349,18 @@ setMethod(
 )
 
 
-#' Send an SQL query to SAS EG.
+#' Send an SQL query to SAS EG
 #'
 #' \code{dbSendQuery} sends an \code{SQL} query to \code{SAS}. The query is 
 #'     first embedded in a \code{PROC SQL} and sent to \code{SAS}.
 #'     
 #' \code{dbSendQuery} can also send a \code{SAS} program: you have to escape it 
-#'     first with \code{SAS()}.
+#'     first using \code{SAS()}.
 #' @param statement A character string containing a \code{SQL} code or an 
 #'     \code{\link[DBI]{SQL}} class object.
 #' @inheritParams dbSendQuery,SASEGConnection,SAS-method 
 #' @return A \code{SASEGResult} object.
+#' @seealso Package \code{DBI}: \code{\link[DBI]{dbSendQuery}}
 #' @export
 #' @examples
 #' # This is another good place to put examples

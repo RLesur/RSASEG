@@ -20,6 +20,8 @@ dataset created by the \code{ODS} during a \code{PROC SQL}.}
 \item{\code{fetch}}{A closure.}
 
 \item{\code{rowsFetched}}{A closure.}
+
+\item{\code{isValid}}{A closure.}
 }}
 
 \keyword{internal}

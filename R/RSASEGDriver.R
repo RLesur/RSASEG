@@ -278,6 +278,7 @@ setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, 
 #'     dataset created by the \code{ODS} during a \code{PROC SQL}.
 #' @slot fetch A closure.
 #' @slot rowsFetched A closure.
+#' @slot isValid A closure.
 #' @keywords internal
 #' @exportClass SASEGResult
 setClass("SASEGResult",
@@ -286,7 +287,8 @@ setClass("SASEGResult",
                       SASUtil = "SASEGCode",
                       SQLResult = "character",
                       fetched = "function", 
-                      rowsFetched = "function"
+                      rowsFetched = "function",
+                      isValid = "function"
                       )
          )
 
@@ -311,6 +313,10 @@ setMethod("setFetched", "SASEGResult", function(res, value) {
 #' @export
 setMethod("dbHasCompleted", "SASEGResult", function(res, ...) {
   res@fetched()
+})
+
+setMethod("dbIsValid", "SASEGResult", function(dbObj, ...) {
+  dbObj@isValid()
 })
 
 #' Send a SAS query to SAS EG
@@ -350,8 +356,10 @@ setMethod(
                SASResult = SASCode,
                SASUtil = conn@SASUtil,
                SQLResult = NULL,
-               fetched = state_generator(),
-               rowsFetched = count_generator())
+               fetched = state_generator(init = FALSE),
+               rowsFetched = count_generator(),
+               isValid = state_generator(init = TRUE)
+               )
     if(countOutputDatasets(SASCode) == 0) setFetched(res, value = TRUE)
     return(res)
   }
@@ -404,6 +412,7 @@ setMethod("dbClearResult", "SASEGResult", function(res, ...) {
     run(SASUtil)
     i <- i+1
   }
+  res@isValid(set = FALSE)
   return(TRUE)
 })
 

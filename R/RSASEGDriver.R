@@ -278,27 +278,39 @@ setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, 
 
 #' SASEG results class
 #' 
-#' \code{SASEGResult} class inherits from \code{\link[DBI]{DBIResult-class}}.
+#' \code{SASEGResult} class inherits from \code{\link[DBI]{DBIResult-class}}. 
+#'    This class represents results of \emph{any} \code{SAS} program. It is 
+#'    extended by \code{SASEGSQLResult} for \code{SQL} results.
 #' 
 #' @slot conn An object of class \code{\linkS4class{SASEGConnection}}.
 #' @slot SASResult An object of class \code{\linkS4class{SASEGCode}}.
-#' @slot SQLResult A character string. This slot contains the filename of the 
-#'     dataset created by the \code{ODS} during a \code{PROC SQL}.
-#' @slot fetch A closure.
-#' @slot rowsFetched A closure.
+#' @slot fetched A closure.
 #' @slot isValid A closure.
 #' @keywords internal
-#' @exportClass SASEGResult
 setClass("SASEGResult",
          contains = "DBIResult",
          slots = list(conn = "SASEGConnection",
                       SASResult = "SASEGCode", 
-                      SQLResult = "character",
                       fetched = "function", 
-                      rowsFetched = "function",
                       isValid = "function"
                       )
          )
+
+#' SASEG PROC SQL results class
+#' 
+#' \code{SASEGSQLResult} class extends \code{\linkS4class{SASEGResult}}. 
+#'    This class represents results of \code{PROC SQL} programs.
+#' 
+#' @slot SQLResult A character string. This slot contains the filename of the 
+#'     dataset created by the \code{ODS} during a \code{PROC SQL}.
+#' @slot rowsFetched A closure.
+#' @keywords internal
+setClass("SASEGSQLResult",
+         contains = "SASEGResult",
+         slots = list(SQLResult = "character",
+                      rowsFetched = "function"
+         )
+)
 
 #' Set the slot Fetched as...
 #' 
@@ -442,8 +454,9 @@ setMethod("dbClearResult", "SASEGResult", function(res, ...) {
 #' @export
 setMethod("dbFetch", "SASEGResult", function(res, n = -1, ...) {
   l <- getListDatasets(res@SASResult)
-  if(length(l)>1) stop("Query results contain multiple datasets; cannot execute dbFetch() method.\n  Please run:\n  datalist <- dbFetchAll(res)")
-  d <- read(l[[1]])
+  d <- read(l[[res@SQLResult]])
+  #if(length(l)>1) stop("Query results contain multiple datasets; cannot execute dbFetch() method.\n  Please run:\n  datalist <- dbFetchAll(res)")
+  #d <- read(l[[1]])
   setFetched(res = res, value = TRUE)
   return(d)
 })

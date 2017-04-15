@@ -10,7 +10,7 @@
 \arguments{
 \item{x}{An object of class \code{\link[DBI]{SQL}}.}
 
-\item{SQLResult}{A character string with the name of a dataset to store 
+\item{SQLResult}{A character string with the name of a table to store 
 the \code{SAS/ODS} output. If \code{SQLResult} is \code{NA_character_} 
 or \code{""}, the \code{ODS} option is not used.}
 }
@@ -30,7 +30,7 @@ This method wraps an \code{SQL} statement in a \code{PROC SQL}. For instance,
 }
 \details{
 The \code{ODS} option permits to create a \code{SAS} dataset when a 
-    \code{SELECT} statement is submitted (thx @ François Malet).
+    \code{SELECT} query is submitted (thx @ François Malet).
 }
 \examples{
 sql_statement <- DBI::SQL("SELECT * \\n FROM SASHELP.CLASS")

@@ -6,7 +6,7 @@
 \title{Send an SQL query to SAS EG}
 \usage{
 \S4method{dbSendQuery}{SASEGConnection,character}(conn, statement,
-  persistent = TRUE, codeName = NULL, ...)
+  persistent = TRUE, codeName = NULL, query = TRUE, ...)
 }
 \arguments{
 \item{conn}{A \code{SASEGConnection} object.}
@@ -18,6 +18,9 @@
 is created. If \code{FALSE}, \code{garbage} code is used.}
 
 \item{codeName}{A character string to name the new \code{\linkS4class{SASEGCode}} object.}
+
+\item{query}{A logical. \code{TRUE} indicates a \code{SELECT} query. 
+\code{FALSE} indicate a data transformation statement.}
 }
 \value{
 A \code{SASEGResult} object.

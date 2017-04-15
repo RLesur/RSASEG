@@ -5,21 +5,18 @@
 \alias{SASEGResult-class}
 \title{SASEG results class}
 \description{
-\code{SASEGResult} class inherits from \code{\link[DBI]{DBIResult-class}}.
+\code{SASEGResult} class inherits from \code{\link[DBI]{DBIResult-class}}. 
+   This class represents results of \emph{any} \code{SAS} program. It is 
+   extended by \code{SASEGSQLResult} for \code{SQL} results.
 }
 \section{Slots}{
 
 \describe{
+\item{\code{conn}}{An object of class \code{\linkS4class{SASEGConnection}}.}
+
 \item{\code{SASResult}}{An object of class \code{\linkS4class{SASEGCode}}.}
 
-\item{\code{SASUtil}}{An object of class \code{\linkS4class{SASEGCode}}.}
-
-\item{\code{SQLResult}}{A character string. This slot contains the filename of the 
-dataset created by the \code{ODS} during a \code{PROC SQL}.}
-
-\item{\code{fetch}}{A closure.}
-
-\item{\code{rowsFetched}}{A closure.}
+\item{\code{fetched}}{A closure.}
 
 \item{\code{isValid}}{A closure.}
 }}

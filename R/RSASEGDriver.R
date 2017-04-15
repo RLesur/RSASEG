@@ -280,8 +280,8 @@ setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, 
 #' 
 #' \code{SASEGResult} class inherits from \code{\link[DBI]{DBIResult-class}}.
 #' 
+#' @slot conn An object of class \code{\linkS4class{SASEGConnection}}.
 #' @slot SASResult An object of class \code{\linkS4class{SASEGCode}}.
-#' @slot SASUtil An object of class \code{\linkS4class{SASEGCode}}.
 #' @slot SQLResult A character string. This slot contains the filename of the 
 #'     dataset created by the \code{ODS} during a \code{PROC SQL}.
 #' @slot fetch A closure.
@@ -291,8 +291,8 @@ setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, 
 #' @exportClass SASEGResult
 setClass("SASEGResult",
          contains = "DBIResult",
-         slots = list(SASResult = "SASEGCode", 
-                      SASUtil = "SASEGCode",
+         slots = list(conn = "SASEGConnection",
+                      SASResult = "SASEGCode", 
                       SQLResult = "character",
                       fetched = "function", 
                       rowsFetched = "function",
@@ -362,11 +362,11 @@ setMethod(
     # Only for debugging:
     # cat(getSourceCode(SASCode))
     res <- new("SASEGResult",
+               conn = conn,
                SASResult = SASCode,
-               SASUtil = conn@SASUtil,
                SQLResult = NULL,
                fetched = state_generator(init = FALSE),
-               rowsFetched = count_generator(),
+               rowsFetched = count_generator(init = 0),
                isValid = state_generator(init = TRUE)
                )
     if(countOutputDatasets(SASCode) == 0) setFetched(res, value = TRUE)
@@ -384,6 +384,8 @@ setMethod(
 #'     first using \code{SAS()}.
 #' @param statement A character string containing a \code{SQL} code or an 
 #'     \code{\link[DBI]{SQL}} class object.
+#' @param query A logical. \code{TRUE} indicates a \code{SELECT} query. 
+#'     \code{FALSE} indicate a data transformation statement. 
 #' @inheritParams dbSendQuery,SASEGConnection,SAS-method 
 #' @return A \code{SASEGResult} object.
 #' @seealso Package \code{DBI}: \code{\link[DBI]{dbSendQuery}}
@@ -393,9 +395,14 @@ setMethod(
 setMethod(
   "dbSendQuery", 
   c("SASEGConnection", "character"), 
-  function(conn, statement, persistent = TRUE, codeName = NULL, ...) {
-    # Choose a new dataset name to store the result of SQL statement:
-    SQLResult <- paste0("WORK.", random_table_name())
+  function(conn, statement, persistent = TRUE, codeName = NULL, query = TRUE, ...) {
+    if(query) {
+      # Choose a new dataset name to store the result of SQL query:
+      SQLResult <- paste0("WORK.", random_table_name()) 
+    } else {
+      # Case of data manipulation SQL statement  
+      SQLResult <- NA_character_
+      }
     # Transform SQL statement into a SAS statement:
     statement <- SAS(SQL(statement), SQLResult = SQLResult)
     # Retrieve SAS execution results:
@@ -407,22 +414,27 @@ setMethod(
   }
 )
 
+#' @export
+setMethod(
+  "dbSendStatement", 
+  "SASEGConnection", 
+  function(conn, statement, persistent = TRUE, codeName = NULL, ...) {
+  dbSendQuery(conn, statement, persistent, codeName, FALSE)
+})
+
 
 #' @export
 setMethod("dbClearResult", "SASEGResult", function(res, ...) {
-  l <- getListDatasets(res@SASResult)
-  drop_char <- paste("DROP TABLE", lapply(l, getFileName))
-  drop_sql <- lapply(drop_char, SQL)
-  drop_sas <- paste(noteUtil, lapply(drop_sql, SAS))
-  SASUtil <- res@SASUtil
-  i <- 1
-  while(i <= length(drop_sas)) {
-    setText(SASUtil, drop_sas[[i]])
-    run(SASUtil)
-    i <- i+1
+  if(is.null(res@SQLResult)) {
+    warning("dbClearResult are usually executed on SQL results. No dataset deleted.")
+  } else {
+    if(!is.na(res@SQLResult)) {
+      statement <- paste("DROP TABLE", res@SQLResult)
+      dbSendStatement(res@conn, statement, persistent = FALSE)
+    } 
   }
   res@isValid(set = FALSE)
-  return(TRUE)
+  invisible(TRUE)
 })
 
 

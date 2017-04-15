@@ -23,14 +23,11 @@ is created. If \code{FALSE}, \code{garbage} code is used.}
 \code{FALSE} indicate a data transformation statement.}
 }
 \value{
-A \code{SASEGResult} object.
+A \code{SASEGSQLResult} object.
 }
 \description{
 \code{dbSendQuery} sends an \code{SQL} query to \code{SAS}. The query is 
     first embedded in a \code{PROC SQL} and sent to \code{SAS}.
-    
-\code{dbSendQuery} can also send a \code{SAS} program: you have to escape it 
-    first using \code{SAS()}.
 }
 \examples{
 # This is another good place to put examples

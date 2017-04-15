@@ -296,22 +296,6 @@ setClass("SASEGResult",
                       )
          )
 
-#' SASEG PROC SQL results class
-#' 
-#' \code{SASEGSQLResult} class extends \code{\linkS4class{SASEGResult}}. 
-#'    This class represents results of \code{PROC SQL} programs.
-#' 
-#' @slot SQLResult A character string. This slot contains the filename of the 
-#'     dataset created by the \code{ODS} during a \code{PROC SQL}.
-#' @slot rowsFetched A closure.
-#' @keywords internal
-setClass("SASEGSQLResult",
-         contains = "SASEGResult",
-         slots = list(SQLResult = "character",
-                      rowsFetched = "function"
-         )
-)
-
 #' Set the slot Fetched as...
 #' 
 #' This method sets the slot Fetched as a value.
@@ -376,9 +360,7 @@ setMethod(
     res <- new("SASEGResult",
                conn = conn,
                SASResult = SASCode,
-               SQLResult = NULL,
                fetched = state_generator(init = FALSE),
-               rowsFetched = count_generator(init = 0),
                isValid = state_generator(init = TRUE)
                )
     if(countOutputDatasets(SASCode) == 0) setFetched(res, value = TRUE)
@@ -386,20 +368,33 @@ setMethod(
   }
 )
 
+#' SASEG PROC SQL results class
+#' 
+#' \code{SASEGSQLResult} class extends \code{\linkS4class{SASEGResult}}. 
+#'    This class represents results of \code{PROC SQL} programs.
+#' 
+#' @slot SQLResult A character string. This slot contains the filename of the 
+#'     dataset created by the \code{ODS} during a \code{PROC SQL}.
+#' @slot rowsFetched A closure.
+#' @keywords internal
+setClass("SASEGSQLResult",
+         contains = "SASEGResult",
+         slots = list(SQLResult = "character",
+                      rowsFetched = "function"
+         )
+)
 
 #' Send an SQL query to SAS EG
 #'
 #' \code{dbSendQuery} sends an \code{SQL} query to \code{SAS}. The query is 
 #'     first embedded in a \code{PROC SQL} and sent to \code{SAS}.
 #'     
-#' \code{dbSendQuery} can also send a \code{SAS} program: you have to escape it 
-#'     first using \code{SAS()}.
 #' @param statement A character string containing a \code{SQL} code or an 
 #'     \code{\link[DBI]{SQL}} class object.
 #' @param query A logical. \code{TRUE} indicates a \code{SELECT} query. 
 #'     \code{FALSE} indicate a data transformation statement. 
 #' @inheritParams dbSendQuery,SASEGConnection,SAS-method 
-#' @return A \code{SASEGResult} object.
+#' @return A \code{SASEGSQLResult} object.
 #' @seealso Package \code{DBI}: \code{\link[DBI]{dbSendQuery}}
 #' @export
 #' @examples
@@ -419,10 +414,12 @@ setMethod(
     statement <- SAS(SQL(statement), SQLResult = SQLResult)
     # Retrieve SAS execution results:
     res <- dbSendQuery(conn, statement, persistent, codeName)
-    # Set the name of the dataset where SQL results are stored:
-    res@SQLResult <- SQLResult
+    res_sql <- new("SASEGSQLResult",
+                   res,
+                   SQLResult = SQLResult,
+                   rowsFetched = count_generator(init = 0))
     #SQLResult %in% names(getListDatasets(res@SASResult))
-    return(res)
+    return(res_sql)
   }
 )
 
@@ -431,7 +428,7 @@ setMethod(
   "dbSendStatement", 
   "SASEGConnection", 
   function(conn, statement, persistent = TRUE, codeName = NULL, ...) {
-  dbSendQuery(conn, statement, persistent, codeName, FALSE)
+  dbSendQuery(conn, statement, persistent, codeName, query = FALSE)
 })
 
 

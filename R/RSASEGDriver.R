@@ -34,7 +34,24 @@ setMethod("dbIsValid", "SASEGDriver", function(dbObj, ...) {
   dbObj@isValid()
 })
 
-#' Find the database data type associated with an R object
+#' Find the SAS data type associated with an R object
+#' 
+#' Find the SAS data type associated with an R object.
+#' @param dbObj An object resulting from call to \code{SASEG()}.
+#' @param obj An \code{R} object whose \code{SAS} type we want to determine.
+#' @examples 
+#' dbDataType(SASEG(), 1:5)
+#' dbDataType(SASEG(), 1)
+#' dbDataType(SASEG(), TRUE)
+#' dbDataType(SASEG(), Sys.Date())
+#' dbDataType(SASEG(), Sys.time())
+#' dbDataType(SASEG(), Sys.time() - as.POSIXct(Sys.Date()))
+#' dbDataType(SASEG(), c("x", "abc"))
+#' dbDataType(SASEG(), list(raw(10), raw(20)))
+#' dbDataType(SASEG(), I(3))
+#' 
+#' dbDataType(SASEG(), iris)
+#' @seealso Generic: \code{\link[DBI]{dbDataType}}.
 #' @export
 setMethod("dbDataType", "SASEGDriver", function(dbObj, obj, ...) {
   getSASType(obj)

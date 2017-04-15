@@ -476,7 +476,7 @@ setMethod(
       SQLResult <- NA_character_
       }
     # Transform SQL statement into a SAS statement:
-    statement <- SAS(SQL(statement), SQLResult = SQLResult)
+    statement <- SAS(DBI::SQL(statement), SQLResult = SQLResult)
     # Retrieve SAS execution results:
     res <- dbSendQuery(conn, statement, persistent, codeName)
     res_sql <- new("SASEGSQLResult",
@@ -600,7 +600,7 @@ setMethod("sqlAppendTable", "SASEGConnection", function(con, table, values, row.
   # SAS PROC SQL INSERT INTO statement has its own syntax. 
   # One row is inserted for each VALUES clause.
   # Multiple VALUES clauses are not separated by commas.
-  SQL(paste0(
+  DBI::SQL(paste0(
     "INSERT INTO ", table, "\n",
     "  (", paste(fields, collapse = ", "), ")\n",
     paste0("  VALUES(", rows, ")", collapse = "\n")
@@ -611,7 +611,7 @@ setMethod("sqlAppendTable", "SASEGConnection", function(con, table, values, row.
 #' @export
 setMethod("dbWriteTable", "SASEGConnection", function(conn, name, value, row.names = NA, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  program <- SAS(SQL(paste0(
+  program <- SAS(DBI::SQL(paste0(
     sqlCreateTable(con = conn, table = name, fields = value, row.names = row.names, temporary = FALSE),
     ";\n",
     sqlAppendTable(con = conn, table = name, values = value, row.names = row.names, ...)

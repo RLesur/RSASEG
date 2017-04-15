@@ -7,7 +7,7 @@
 \description{
 \code{SASEGResult} class inherits from \code{\link[DBI]{DBIResult-class}}. 
    This class represents results of \emph{any} \code{SAS} program. It is 
-   extended by \code{SASEGSQLResult} for \code{SQL} results.
+   extended by \code{\linkS4class{SASEGSQLResult}} for \code{SQL} results.
 }
 \section{Slots}{
 

@@ -34,6 +34,12 @@ setMethod("dbIsValid", "SASEGDriver", function(dbObj, ...) {
   dbObj@isValid()
 })
 
+#' Find the database data type associated with an R object
+#' @export
+setMethod("dbDataType", "SASEGDriver", function(dbObj, obj, ...) {
+  getSASType(obj)
+})
+
 #' Unload SASEGDriver
 #' 
 #' This method was developed for \code{DBI} compliance.
@@ -272,6 +278,11 @@ setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, 
   invisible(TRUE)
 })
 
+#' @export
+setMethod("dbDataType", "SASEGConnection", function(dbObj, obj, ...) {
+  dbDataType(SASEG(), obj)
+})
+
 
 # Results class and Methods -----------------------------------------------
 
@@ -280,7 +291,7 @@ setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, 
 #' 
 #' \code{SASEGResult} class inherits from \code{\link[DBI]{DBIResult-class}}. 
 #'    This class represents results of \emph{any} \code{SAS} program. It is 
-#'    extended by \code{SASEGSQLResult} for \code{SQL} results.
+#'    extended by \code{\linkS4class{SASEGSQLResult}} for \code{SQL} results.
 #' 
 #' @slot conn An object of class \code{\linkS4class{SASEGConnection}}.
 #' @slot SASResult An object of class \code{\linkS4class{SASEGCode}}.
@@ -329,11 +340,12 @@ setMethod("dbIsValid", "SASEGResult", function(dbObj, ...) {
 #' This method sends a \code{SAS} query to \code{SAS EG}.
 #' 
 #' Statements with class \code{\linkS4class{SAS}} are directly sent to the 
-#'     \code{SAS} server through \code{SAS EG} escaping any code transformations. 
+#'     \code{SAS} server through \code{SAS EG} escaping any code transformation. 
 #' @param conn A \code{SASEGConnection} object.
 #' @param statement A \code{\linkS4class{SAS}} object.
-#' @param persistent A logical. If \code{TRUE}, a new \code{SASEGCode} object 
-#'      is created. If \code{FALSE}, \code{garbage} code is used.
+#' @param persistent A logical. If \code{TRUE}, a new \code{SASEGCode} 
+#'      is created in the \code{SASEGProject}. If \code{FALSE}, \code{garbage} 
+#'      code is used.
 #' @param codeName A character string to name the new \code{\linkS4class{SASEGCode}} object.
 #' @return A \code{SASEGResult} object.
 #' @keywords internal
@@ -367,6 +379,35 @@ setMethod(
     return(res)
   }
 )
+
+#' @export
+setMethod("dbClearResult", "SASEGResult", function(res, ...) {
+  res@isValid(set = FALSE)
+  invisible(TRUE)
+})
+
+#' @export
+setMethod("dbFetch", "SASEGResult", function(res, n = -1, ...) {
+  l <- getListDatasets(res@SASResult)
+  n <- length(l)
+  d <- vector("list", n)
+  i <- 1
+  while(i <= length(l)) {
+    d[[i]] <- read(l[[i]])
+    i <- i+1
+  }
+  names(d) <- names(l)
+  setFetched(res = res, value = TRUE)
+  if(n == 1) {d <- d[[1]]}
+  return(d)
+})
+
+setGeneric("dbGetLog", function(res, ...) standardGeneric("dbGetLog"))
+
+#' @export
+setMethod("dbGetLog", "SASEGResult", function(res, ...) {
+  getLog(res@SASResult)
+})
 
 #' SASEG PROC SQL results class
 #' 
@@ -407,7 +448,7 @@ setMethod(
       # Choose a new dataset name to store the result of SQL query:
       SQLResult <- paste0("WORK.", random_table_name()) 
     } else {
-      # Case of data manipulation SQL statement  
+      # In case of data manipulation SQL statement  
       SQLResult <- NA_character_
       }
     # Transform SQL statement into a SAS statement:
@@ -433,67 +474,23 @@ setMethod(
 
 
 #' @export
-setMethod("dbClearResult", "SASEGResult", function(res, ...) {
-  if(is.null(res@SQLResult)) {
-    warning("dbClearResult are usually executed on SQL results. No dataset deleted.")
-  } else {
-    if(!is.na(res@SQLResult)) {
-      statement <- paste("DROP TABLE", res@SQLResult)
-      dbSendStatement(res@conn, statement, persistent = FALSE)
+setMethod("dbClearResult", "SASEGSQLResult", function(res, ...) {
+  if(!is.na(res@SQLResult)) {
+    statement <- paste("DROP TABLE", res@SQLResult)
+    dbSendStatement(res@conn, statement, persistent = FALSE)
     } 
-  }
   res@isValid(set = FALSE)
   invisible(TRUE)
 })
 
 
-#' Retrieve records from SAS EG query
+#' Retrieve records from SAS EG SQL query
 #' @export
-setMethod("dbFetch", "SASEGResult", function(res, n = -1, ...) {
+setMethod("dbFetch", "SASEGSQLResult", function(res, n = -1, ...) {
   l <- getListDatasets(res@SASResult)
   d <- read(l[[res@SQLResult]])
-  #if(length(l)>1) stop("Query results contain multiple datasets; cannot execute dbFetch() method.\n  Please run:\n  datalist <- dbFetchAll(res)")
-  #d <- read(l[[1]])
   setFetched(res = res, value = TRUE)
   return(d)
-})
-
-setGeneric("dbFetchAll", function(res, ...) standardGeneric("dbFetchAll"))
-
-#' @export
-setMethod("dbFetchAll", "SASEGResult", function(res, ...) {
-  l <- getListDatasets(res@SASResult)
-  n <- length(l)
-  d <- vector("list", n)
-  i <- 1
-  while(i <= length(l)) {
-    d[[i]] <- read(l[[i]])
-    i <- i+1
-  }
-  names(d) <- names(l)
-  setFetched(res = res, value = TRUE)
-  if(n == 1) {d <- d[[1]]}
-  return(d)
-})
-
-
-setGeneric("dbGetLog", function(res, ...) standardGeneric("dbGetLog"))
-
-#' @export
-setMethod("dbGetLog", "SASEGResult", function(res, ...) {
-  getLog(res@SASResult)
-})
-
-#' Find the database data type associated with an R object
-#' @export
-setMethod("dbDataType", "SASEGDriver", function(dbObj, obj, ...) {
-  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  getSASType(obj)
-})
-
-#' @export
-setMethod("dbDataType", "SASEGConnection", function(dbObj, obj, ...) {
-  dbDataType(SASEG(), obj)
 })
 
 

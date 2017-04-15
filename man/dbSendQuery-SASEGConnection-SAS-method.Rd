@@ -13,8 +13,9 @@
 
 \item{statement}{A \code{\linkS4class{SAS}} object.}
 
-\item{persistent}{A logical. If \code{TRUE}, a new \code{SASEGCode} object 
-is created. If \code{FALSE}, \code{garbage} code is used.}
+\item{persistent}{A logical. If \code{TRUE}, a new \code{SASEGCode} 
+is created in the \code{SASEGProject}. If \code{FALSE}, \code{garbage} 
+code is used.}
 
 \item{codeName}{A character string to name the new \code{\linkS4class{SASEGCode}} object.}
 }
@@ -26,6 +27,6 @@ This method sends a \code{SAS} query to \code{SAS EG}.
 }
 \details{
 Statements with class \code{\linkS4class{SAS}} are directly sent to the 
-    \code{SAS} server through \code{SAS EG} escaping any code transformations.
+    \code{SAS} server through \code{SAS EG} escaping any code transformation.
 }
 \keyword{internal}

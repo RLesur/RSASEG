@@ -29,6 +29,7 @@ SASEG <- function() {
   new("SASEGDriver", isValid = state_generator(init = TRUE))
 }
 
+#' @export
 setMethod("dbIsValid", "SASEGDriver", function(dbObj, ...) {
   dbObj@isValid()
 })
@@ -94,9 +95,9 @@ setMethod("SAS", "SAS", function(x, ...) {
 #' }
 #' 
 #' The \code{ODS} option permits to create a \code{SAS} dataset when a 
-#'     \code{SELECT} statement is submitted (thx @@ François Malet).
+#'     \code{SELECT} query is submitted (thx @@ François Malet).
 #' @param x An object of class \code{\link[DBI]{SQL}}.
-#' @param SQLResult A character string with the name of a dataset to store 
+#' @param SQLResult A character string with the name of a table to store 
 #'     the \code{SAS/ODS} output. If \code{SQLResult} is \code{NA_character_} 
 #'     or \code{""}, the \code{ODS} option is not used.
 #' @return An object of class \code{SAS}.
@@ -224,6 +225,7 @@ setMethod("show", "SASEGConnection", function(object) {
     )
 })
 
+#' @export
 setMethod("dbIsValid", "SASEGConnection", function(dbObj, ...) {
   dbObj@isValid()
 })
@@ -260,9 +262,13 @@ setMethod("dbIsValid", "SASEGConnection", function(dbObj, ...) {
 #' @seealso \code{\link[=dbConnect,SASEGDriver-method]{dbConnect}}
 #' @export
 setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, ...) {
-  if(!is.null(projectPath))  saveAs(conn@SASProject, projectPath)
-  terminate(conn@application)
-  conn@isValid(set = FALSE)
+  if(dbIsValid(conn)) {
+    if(!is.null(projectPath))  saveAs(conn@SASProject, projectPath)
+    terminate(conn@application)
+    conn@isValid(set = FALSE)
+  } else {
+    warning("Connection already disconnect.")
+  }
   invisible(TRUE)
 })
 
@@ -317,6 +323,7 @@ setMethod("dbHasCompleted", "SASEGResult", function(res, ...) {
   res@fetched()
 })
 
+#' @export
 setMethod("dbIsValid", "SASEGResult", function(dbObj, ...) {
   dbObj@isValid()
 })

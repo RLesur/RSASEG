@@ -36,9 +36,11 @@ setMethod("dbIsValid", "SASEGDriver", function(dbObj, ...) {
 
 #' Find the SAS data type associated with an R object
 #' 
-#' Find the SAS data type associated with an R object.
+#' Find the \code{SAS} data type associated with an \code{R} object.
 #' @param dbObj An object resulting from call to \code{SASEG()}.
 #' @param obj An \code{R} object whose \code{SAS} type we want to determine.
+#' @param ... Other parameters. Not used.
+#' @return A character string or a character vector.
 #' @examples 
 #' dbDataType(SASEG(), 1:5)
 #' dbDataType(SASEG(), 1)
@@ -47,11 +49,13 @@ setMethod("dbIsValid", "SASEGDriver", function(dbObj, ...) {
 #' dbDataType(SASEG(), Sys.time())
 #' dbDataType(SASEG(), Sys.time() - as.POSIXct(Sys.Date()))
 #' dbDataType(SASEG(), c("x", "abc"))
-#' dbDataType(SASEG(), list(raw(10), raw(20)))
+#' \dontrun{
+#' dbDataType(SASEG(), list(raw(10), raw(20)))}
 #' dbDataType(SASEG(), I(3))
 #' 
 #' dbDataType(SASEG(), iris)
 #' @seealso Generic: \code{\link[DBI]{dbDataType}}.
+#' @keywords internal
 #' @export
 setMethod("dbDataType", "SASEGDriver", function(dbObj, obj, ...) {
   getSASType(obj)
@@ -60,6 +64,8 @@ setMethod("dbDataType", "SASEGDriver", function(dbObj, obj, ...) {
 #' Unload SASEGDriver
 #' 
 #' This method was developed for \code{DBI} compliance.
+#' @param drv An object resulting from call to \code{SASEG()}.
+#' @param ... Other parameters. Not used.
 #' @return \code{dbUnloadDriver} method returns \code{TRUE}.
 #' @keywords internal
 #' @export
@@ -73,7 +79,7 @@ setMethod("dbUnloadDriver", "SASEGDriver", function(drv, ...) {
 
 #' SAS program class
 #' 
-#' An S4 class for \code{SAS} programs.
+#' An S4 class for \code{SAS} programs. This class extends the \code{character} class.
 #' @keywords internal
 setClass("SAS", contains = "character")
 
@@ -91,6 +97,7 @@ setGeneric("SAS", function(x, ...) standardGeneric("SAS"))
 #' This method quotes a character string as a \code{SAS} program.
 #' This method is very similar to \code{\link[DBI]{SQL}} method for class \code{character}.
 #' @param x A character string.
+#' @param ... Other parameters passed to methods.
 #' @return An object of class \code{SAS}.
 #' @keywords internal
 #' @family SAS-methods
@@ -131,7 +138,7 @@ setMethod("SAS", "SAS", function(x, ...) {
 #' @keywords internal
 #' @family SAS-methods
 #' @export
-setMethod("SAS", "SQL", function(x, SQLResult = "WORK.SQLOUT", ...) {
+setMethod("SAS", "SQL", function(x, SQLResult = "WORK.SQLOUT") {
   if(is.na(SQLResult)|(SQLResult == "")) {
     ods_string <- ""
   } else {

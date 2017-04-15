@@ -11,9 +11,14 @@
 \item{dbObj}{An object resulting from call to \code{SASEG()}.}
 
 \item{obj}{An \code{R} object whose \code{SAS} type we want to determine.}
+
+\item{...}{Other parameters. Not used.}
+}
+\value{
+A character string or a character vector.
 }
 \description{
-Find the SAS data type associated with an R object.
+Find the \code{SAS} data type associated with an \code{R} object.
 }
 \examples{
 dbDataType(SASEG(), 1:5)
@@ -23,11 +28,13 @@ dbDataType(SASEG(), Sys.Date())
 dbDataType(SASEG(), Sys.time())
 dbDataType(SASEG(), Sys.time() - as.POSIXct(Sys.Date()))
 dbDataType(SASEG(), c("x", "abc"))
-dbDataType(SASEG(), list(raw(10), raw(20)))
+\dontrun{
+dbDataType(SASEG(), list(raw(10), raw(20)))}
 dbDataType(SASEG(), I(3))
 
 dbDataType(SASEG(), iris)
 }
 \seealso{
-\code{\link[DBI]{dbDataType}}.
+Generic: \code{\link[DBI]{dbDataType}}.
 }
+\keyword{internal}

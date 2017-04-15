@@ -13,7 +13,7 @@ SAS(x, ...)
 inheriting from \code{character}.}
 }
 \description{
-An S4 class for \code{SAS} programs.
+An S4 class for \code{SAS} programs. This class extends the \code{character} class.
 
 \code{SAS} methods create a new \code{SAS} class object.
 }

@@ -9,6 +9,8 @@
 }
 \arguments{
 \item{x}{A character string.}
+
+\item{...}{Other parameters passed to methods.}
 }
 \value{
 An object of class \code{SAS}.

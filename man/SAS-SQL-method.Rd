@@ -5,7 +5,7 @@
 \alias{SAS,SQL-method}
 \title{Transform an SQL statement into a SAS statement}
 \usage{
-\S4method{SAS}{SQL}(x, SQLResult = "WORK.SQLOUT", ...)
+\S4method{SAS}{SQL}(x, SQLResult = "WORK.SQLOUT")
 }
 \arguments{
 \item{x}{An object of class \code{\link[DBI]{SQL}}.}

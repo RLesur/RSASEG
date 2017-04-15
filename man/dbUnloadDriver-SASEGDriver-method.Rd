@@ -7,6 +7,11 @@
 \usage{
 \S4method{dbUnloadDriver}{SASEGDriver}(drv, ...)
 }
+\arguments{
+\item{drv}{An object resulting from call to \code{SASEG()}.}
+
+\item{...}{Other parameters. Not used.}
+}
 \value{
 \code{dbUnloadDriver} method returns \code{TRUE}.
 }

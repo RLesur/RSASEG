@@ -22,7 +22,14 @@ setGeneric("getSASType", function(obj, ...) standardGeneric("getSASType"))
 
 setOldClass("AsIs")
 
-setMethod("getSASType", "AsIs", function(obj) return(getSASType(unclass(obj))))
+setMethod("getSASType", "AsIs", function(obj) {
+  if(length(class(obj)) == 1) {
+    obj <- unclass(obj)
+  } else {
+    class(obj) <- class(obj)[!class(obj) == "AsIs"]
+  }
+  return(getSASType(obj))
+})
 
 setMethod("getSASType", "logical", function(obj) return("SMALLINT"))
 

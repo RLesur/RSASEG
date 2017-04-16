@@ -3,11 +3,27 @@
 \docType{class}
 \name{SASEGResult-class}
 \alias{SASEGResult-class}
+\alias{dbFetch,SASEGResult-method}
 \title{SASEG results class}
+\usage{
+\S4method{dbFetch}{SASEGResult}(res, n = -1, ...)
+}
+\arguments{
+\item{res}{An object of class \code{SASEGResult}.}
+
+\item{n}{An integer, \bold{not used}.}
+
+\item{...}{Other parameters. Not used.}
+}
 \description{
 \code{SASEGResult} class inherits from \code{\link[DBI]{DBIResult-class}}. 
    This class represents results of \emph{any} \code{SAS} program. It is 
    extended by \code{\linkS4class{SASEGSQLResult}} for \code{SQL} results.
+
+\code{dbFetch} method retrieve all datasets created by a \code{SAS} statement.
+}
+\details{
+This method retrieve all rows for all datasets created by a \code{SAS} program.
 }
 \section{Slots}{
 

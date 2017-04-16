@@ -28,11 +28,12 @@ A \code{SASEGSQLResult} object.
 }
 \description{
 \code{dbSendQuery} sends an \code{SQL} query to \code{SAS}. The query is 
-    first embedded in a \code{PROC SQL} and sent to \code{SAS}.
+    first embedded in a \code{PROC SQL} and sent to \code{SAS}. 
+    \code{dbSendQuery} is used to send \code{SELECT ...} queries.
 }
 \examples{
 # This is another good place to put examples
 }
 \seealso{
-Package \code{DBI}: \code{\link[DBI]{dbSendQuery}}
+Generic: \code{\link[DBI]{dbSendQuery}}
 }

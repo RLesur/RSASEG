@@ -12,6 +12,9 @@
 
 \item{value}{A logical.}
 }
+\value{
+\code{TRUE}, invisible.
+}
 \description{
 This method sets the slot \code{fetched} as \code{TRUE} or \code{FALSE}.
 }

@@ -13,7 +13,7 @@ proc_saseg <- function(DLLFilePath, profile, server, projectpath = NULL, ...) {
     code = as.character(paste0(c(...), collapse = "\n"))
     result <- dbSendQuery(conn = conn, statement = SAS(code), codeName = codeName)
     if(!is.null(out.df)) {
-      out <- dbFetchAll(result)
+      out <- dbFetch(result)
       assign(out.df, out, envir = globalenv())
     }
     log <- dbGetLog(result)

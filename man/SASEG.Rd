@@ -19,6 +19,8 @@ SASEG()
 \item{profile}{A character string with the \code{SAS EG} profile name.}
 
 \item{server}{A character string with the server name to run \code{SAS} programs.}
+
+\item{...}{Other parameters. Not used.}
 }
 \value{
 \code{SASEG()} returns a \code{SASEGDriver} object.

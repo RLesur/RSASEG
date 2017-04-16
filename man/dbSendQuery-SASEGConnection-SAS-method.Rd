@@ -20,7 +20,7 @@ code is used.}
 \item{codeName}{A character string to name the new \code{\linkS4class{SASEGCode}} object.}
 }
 \value{
-A \code{SASEGResult} object.
+A \code{\linkS4class{SASEGResult}} object.
 }
 \description{
 This method sends a \code{SAS} query to \code{SAS EG}.

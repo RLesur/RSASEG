@@ -5,7 +5,7 @@
 \alias{SASEGSQLResult-class}
 \title{SASEG PROC SQL results class}
 \description{
-\code{SASEGSQLResult} class extends \code{\linkS4class{SASEGResult}}. 
+\code{SASEGSQLResult} class inherits from \code{\link[DBI]{DBIResult-class}} and extends \code{\linkS4class{SASEGResult}}. 
    This class represents results of \code{PROC SQL} programs.
 }
 \section{Slots}{

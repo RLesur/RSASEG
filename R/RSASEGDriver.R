@@ -106,12 +106,6 @@ setMethod("SAS", "character", function(x, ...) {
   new("SAS", x)
 })
 
-# SAS class objects do not need to be quoted:
-#' @export
-setMethod("SAS", "SAS", function(x, ...) {
-  return(x)
-})
-
 #' Transform an SQL statement into a SAS statement
 #' 
 #' This method wraps an \code{SQL} statement in a \code{PROC SQL}. For instance,
@@ -195,6 +189,7 @@ setClass("SASEGConnection",
 #' @param DLLFilePath A character string with the filepath to \code{SASEGScripting.dll}.
 #' @param profile A character string with the \code{SAS EG} profile name.
 #' @param server A character string with the server name to run \code{SAS} programs.
+#' @param ... Other parameters. Not used.
 #' @return \code{dbConnect} returns an object of class \code{\linkS4class{SASEGConnection}}.
 #' @rdname SASEG
 #' @export
@@ -255,6 +250,11 @@ setMethod("show", "SASEGConnection", function(object) {
     )
 })
 
+#' Test if SAS EG connection is valid
+#' 
+#' \code{dbIsValid} tests if a \code{\linkS4class{SASEGConnection}} object is valid.
+#' @param dbObj An object of class \code{\linkS4class{SASEGConnection}}.
+#' @param ... Other parameters. Not used.
 #' @export
 setMethod("dbIsValid", "SASEGConnection", function(dbObj, ...) {
   dbObj@isValid()
@@ -302,6 +302,15 @@ setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, 
   invisible(TRUE)
 })
 
+#' Find the SAS data type associated with an R object
+#' 
+#' Find the \code{SAS} data type associated with an \code{R} object.
+#' @param dbObj An object of class \code{\linkS4class{SASEGConnection}}.
+#' @param obj An \code{R} object whose \code{SAS} type we want to determine.
+#' @param ... Other parameters. Not used.
+#' @return A character string or a character vector.
+#' @seealso \code{\link{dbDataType,SASEGDriver-method}}.
+#' @keywords internal
 #' @export
 setMethod("dbDataType", "SASEGConnection", function(dbObj, obj, ...) {
   dbDataType(SASEG(), obj)
@@ -344,16 +353,36 @@ setGeneric("setFetched", function(res, value) standardGeneric("setFetched"))
 #' This method sets the slot \code{fetched} as \code{TRUE} or \code{FALSE}.
 #' @param res A \code{SASEGResult} object.
 #' @param value A logical.
+#' @return \code{TRUE}, invisible.
 #' @keywords internal
 setMethod("setFetched", "SASEGResult", function(res, value) {
   res@fetched(set = value)
+  invisible(TRUE)
 })
 
+#' Test if a SAS EG result is fetched
+#' 
+#' \code{dbHasCompleted} method is used to test if a result is totally fetched.
+#' @param res An object of class \code{\linkS4class{SASEGResult}} or that 
+#'     inherits from this class, as \code{\linkS4class{SASEGSQLResult}}.
+#' @param ... Other parameters. Not used.
+#' @return A logical: \code{TRUE}, if all rows are fetched; \code{FALSE}, if 
+#'     there is some row to be fetched.
+#' @seealso Generic: \code{\link[DBI]{dbHasCompleted}}.
+#' @keywords internal   
 #' @export
 setMethod("dbHasCompleted", "SASEGResult", function(res, ...) {
   res@fetched()
 })
 
+#' Test if a SASEGResult object is valid
+#' 
+#' \code{dbIsValid} method tests if a \code{\linkS4class{SASEGResult}} is valid.
+#' \code{TRUE} is returned if the object is valid.
+#' @param dbObj A \code{\linkS4class{SASEGResult}} object.
+#' @param ... Other parameters. Not used.
+#' @return A logical.
+#' @seealso Generic: \code{\link[DBI]{dbIsValid}}.
 #' @export
 setMethod("dbIsValid", "SASEGResult", function(dbObj, ...) {
   dbObj@isValid()
@@ -371,7 +400,7 @@ setMethod("dbIsValid", "SASEGResult", function(dbObj, ...) {
 #'      is created in the \code{SASEGProject}. If \code{FALSE}, \code{garbage} 
 #'      code is used.
 #' @param codeName A character string to name the new \code{\linkS4class{SASEGCode}} object.
-#' @return A \code{SASEGResult} object.
+#' @return A \code{\linkS4class{SASEGResult}} object.
 #' @keywords internal
 #' @export
 setMethod(
@@ -404,12 +433,15 @@ setMethod(
   }
 )
 
-#' @export
-setMethod("dbClearResult", "SASEGResult", function(res, ...) {
-  res@isValid(set = FALSE)
-  invisible(TRUE)
-})
-
+#' Fetch all results of a SAS program
+#' 
+#' \code{dbFetch} method retrieve all datasets created by a \code{SAS} statement.
+#' 
+#' This method retrieve all rows for all datasets created by a \code{SAS} program.
+#' @param res An object of class \code{SASEGResult}.
+#' @param n An integer, \bold{not used}.
+#' @param ... Other parameters. Not used.
+#' @rdname SASEGResult-class
 #' @export
 setMethod("dbFetch", "SASEGResult", function(res, n = -1, ...) {
   l <- getListDatasets(res@SASResult)
@@ -426,8 +458,18 @@ setMethod("dbFetch", "SASEGResult", function(res, n = -1, ...) {
   return(d)
 })
 
+#' Get the log of a program execution
+#' 
+#' \code{dbGetLog} methods retrieve the log of a program execution.
+#' 
+#' \code{dbGetLog} does not belong to the \code{DBI} specification.
+#' @keywords internal
 setGeneric("dbGetLog", function(res, ...) standardGeneric("dbGetLog"))
 
+#' Get the log ater a SAS run
+#' 
+#' \code{dbGetLog} retrieves the log of the \code{SAS} program.
+#' @param res A \code{SASEGResult}.
 #' @export
 setMethod("dbGetLog", "SASEGResult", function(res, ...) {
   getLog(res@SASResult)
@@ -435,7 +477,7 @@ setMethod("dbGetLog", "SASEGResult", function(res, ...) {
 
 #' SASEG PROC SQL results class
 #' 
-#' \code{SASEGSQLResult} class extends \code{\linkS4class{SASEGResult}}. 
+#' \code{SASEGSQLResult} class inherits from \code{\link[DBI]{DBIResult-class}} and extends \code{\linkS4class{SASEGResult}}. 
 #'    This class represents results of \code{PROC SQL} programs.
 #' 
 #' @slot SQLResult A character string. This slot contains the filename of the 
@@ -452,7 +494,10 @@ setClass("SASEGSQLResult",
 #' Send an SQL query to SAS EG
 #'
 #' \code{dbSendQuery} sends an \code{SQL} query to \code{SAS}. The query is 
-#'     first embedded in a \code{PROC SQL} and sent to \code{SAS}.
+#'     first embedded in a \code{PROC SQL} and sent to \code{SAS}. 
+#'     \code{dbSendQuery} is used to send \code{SELECT ...} queries.
+#'     
+#' 
 #'     
 #' @param statement A character string containing a \code{SQL} code or an 
 #'     \code{\link[DBI]{SQL}} class object.
@@ -460,7 +505,7 @@ setClass("SASEGSQLResult",
 #'     \code{FALSE} indicate a data transformation statement. 
 #' @inheritParams dbSendQuery,SASEGConnection,SAS-method 
 #' @return A \code{SASEGSQLResult} object.
-#' @seealso Package \code{DBI}: \code{\link[DBI]{dbSendQuery}}
+#' @seealso Generic: \code{\link[DBI]{dbSendQuery}}
 #' @export
 #' @examples
 #' # This is another good place to put examples

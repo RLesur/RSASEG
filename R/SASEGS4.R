@@ -150,7 +150,7 @@ setMethod("clrGet", "SASObjRef", function(objOrType, name) {
   SASObjRef(rClr::clrGet(ptr(objOrType), name))
 })
 
-#' Sets the value of a field or property of an object or class (generic)
+#' Set the value of a field or property of an object or class (generic)
 #' 
 #' This is a generic version of the \code{\link[rClr]{clrSet}} function of the 
 #' \code{rClr} package.
@@ -188,8 +188,11 @@ setClass("SASEGApplication", contains = "SASObjRef")
 #' @return \code{NULL}, invisibly
 #' @keywords internal
 finalize_app <- function(e) {
+  message("Closing a SASEG Application...")
   app <- new("cobjRef", clrobj = e, clrtype = "SAS.EG.Scripting.Application")
   rClr::clrCall(app, "Quit")
+  message("...done.")
+  
   invisible()
 }
 
@@ -216,22 +219,63 @@ finalize_app <- function(e) {
 #' @seealso \code{\linkS4class{SASEGProject}}
 #' @export
 SASEGApplication <- function() {
+  message("Opening a SAS EG Application...")
   ptr <- rClr::clrNew("SAS.EG.Scripting.Application")
   # Get the external pointer:
   e <- rClr::clrGetExtPtr(ptr)
   # Register the finalizer:
   reg.finalizer(e, finalize_app, onexit = FALSE)
+  message("...done.")
+  
   new("SASEGApplication", ptr = ptr)
 }
+
+#' Get the name of an object
+#' 
+#' Get the name of an object.
+#' @param object An object.
+#' @param ... Other parameters passed to method.
+#' @keywords internal
+#' @exportMethod getName
+setGeneric("getName", function(object, ...) standardGeneric("getName"))
+
+#' Get the name of a SASEGApplication object
+#' 
+#' \code{getName} returns the name of a \code{SASEGApplication} object.
+#' @param  object An object created by \code{SASEGApplication()}.
+#' @rdname SASEGApplication-class
+#' @export
+setMethod("getName", "SASEGApplication", function(object, ...) {
+  clrGet(object, "Name")
+})
+
+#' Get the version of an object
+#' 
+#' Get the version of an object.
+#' @param object An object.
+#' @param ... Other parameters passed to method.
+#' @keywords internal
+#' @exportMethod getVersion
+setGeneric("getVersion", function(object, ...) standardGeneric("getVersion"))
+
+#' Get the version number of a SASEGApplication object
+#' 
+#' \code{getVersion} returns the version number of a \code{SASEGApplication} object.
+#' @inheritParams getName,SASEGApplication-method
+#' @rdname SASEGApplication-class
+#' @export
+setMethod("getVersion", "SASEGApplication", function(object, ...) {
+  clrGet(object, "Version")
+})
 
 #' @rdname SASEGApplication-class
 #' @description \code{show} method provides useful informations including 
 #'     \code{SAS EG} version and available profiles.
-#' @param  object A \code{SASEGApplication} object.
+#' @inheritParams getName,SASEGApplication-method
 setMethod("show", "SASEGApplication", function(object) {
-  cat(clrGet(object, "Name"),
+  cat(getName(object),
       ", Version: ",
-      clrGet(object, "Version"),
+      getVersion(object),
       "\n", sep=""
   )
   for(i in 0:(clrGet(clrCall(object, "Profiles"), "Count")-1)) {
@@ -280,7 +324,7 @@ setGeneric("terminate", function(application) standardGeneric("terminate"))
 #' Quit a SASEGApplication
 #' 
 #' \code{terminate} method is used to quit a \code{SASEGApplication}.
-#' @inheritParams setProfile-method
+#' @inheritParams setProfile,SASEGApplication-method
 #' @return \code{terminate} method returns \code{TRUE}. 
 #' @rdname SASEGApplication-class
 #' @export
@@ -343,7 +387,7 @@ setGeneric("newProject", function(application) standardGeneric("newProject"))
 #' 
 #' \code{newProject} method opens a new \code{SASEGProject} in a given 
 #'     \code{SASEGApplication}.
-#' @inheritParams setProfile-method
+#' @inheritParams setProfile,SASEGApplication-method
 #' @return \code{newProject} returns a \code{\linkS4class{SASEGProject}} object.
 #' @rdname SASEGApplication-class
 #' @export
@@ -681,15 +725,6 @@ setMethod("getListDatasets", "SASEGCode", function(code) {
   }
   return(l)
 })
-
-#' Get the name of an object
-#' 
-#' Get the name of an object.
-#' @param object An object.
-#' @param ... Other parameters passed to method.
-#' @keywords internal
-#' @exportMethod getName
-setGeneric("getName", function(object, ...) standardGeneric("getName"))
 
 #' Get the name of a SASEGDataset
 #' 

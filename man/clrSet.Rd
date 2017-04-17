@@ -2,7 +2,7 @@
 % Please edit documentation in R/SASEGS4.R
 \name{clrSet}
 \alias{clrSet}
-\title{Sets the value of a field or property of an object or class (generic)}
+\title{Set the value of a field or property of an object or class (generic)}
 \usage{
 clrSet(objOrType, name, value)
 }

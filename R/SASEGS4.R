@@ -90,11 +90,14 @@ SASObjRef <- function(ptr) {
 #' @exportMethod ptr
 setGeneric("ptr", function(SASObj) standardGeneric("ptr"))
 
-#' @rdname SASObjRef-class
+#' Accessor to the ptr slot of a SASObjRef
+#' 
+#' Use \code{ptr()} to access the \code{ptr} slot of a \code{SASObjRef} object.
 #' @param SASObj A \code{SASObjRef} object.
 #' @return \code{ptr(SASObj)} returns a \code{cobjRef} object from a \code{SASObjRef} object.
-#' @export
+#' @rdname SASObjRef-class
 #' @keywords internal
+#' @export
 setMethod("ptr", "SASObjRef", function(SASObj) {return(SASObj@ptr)})
 
 #' Call a method on an object (generic)
@@ -122,7 +125,7 @@ setMethod("clrCall", "SASObjRef", function(obj, methodName, ...) {
   SASObjRef(rClr::clrCall(ptr(obj), methodName, ...))
 })
 
-#' Gets the value of a field or property of an object or class (generic)
+#' Get the value of a field or property of an object or class (generic)
 #' 
 #' This is a generic version of the \code{\link[rClr]{clrGet}} function of the \code{rClr} 
 #' package.

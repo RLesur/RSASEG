@@ -55,6 +55,8 @@ SASObjRef(ptr)
 The \code{SASObjRef} S4 class represents any \code{SAS EG Scripting} object.
 This is a virtual class.
 This class and its methods are internals.
+
+Use \code{ptr()} to access the \code{ptr} slot of a \code{SASObjRef} object.
 }
 \details{
 A \code{SASObjRef} object has only one slot, named \code{ptr}, where \code{ptr} is

@@ -2,7 +2,7 @@
 % Please edit documentation in R/SASEGS4.R
 \name{clrGet}
 \alias{clrGet}
-\title{Gets the value of a field or property of an object or class (generic)}
+\title{Get the value of a field or property of an object or class (generic)}
 \usage{
 clrGet(objOrType, name)
 }

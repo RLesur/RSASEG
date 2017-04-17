@@ -34,6 +34,14 @@ setMethod("dbIsValid", "SASEGDriver", function(dbObj, ...) {
   dbObj@isValid()
 })
 
+#' @export
+setMethod("dbGetInfo", "SASEGDriver", function(dbObj, ...) {
+  list(
+    "driver.version" = "0.0.9000",
+    "client.version" = ""
+  )
+})
+
 #' Find the SAS data type associated with an R object
 #' 
 #' Find the \code{SAS} data type associated with an \code{R} object.

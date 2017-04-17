@@ -177,6 +177,19 @@ setMethod("clrSet", "SASObjRef", function(objOrType, name, value) {
 #' \code{SAS EG Scripting Application} object.
 setClass("SASEGApplication", contains = "SASObjRef")
 
+#' A finalizer function for SASEGApplication
+#' 
+#' In case of end user would not safely close a SASEGApplication object,
+#'    a finalizer is implemented. A call to method "Quit" is done.
+#' @param e An external pointer.
+#' @return \code{NULL}, invisibly
+#' @keywords internal
+finalize_app <- function(e) {
+  app <- new("cobjRef", clrobj = e, clrtype = "SAS.EG.Scripting.Application")
+  rClr::clrCall(app, "Quit")
+  invisible()
+}
+
 #' @rdname SASEGApplication-class
 #' @return \code{SASEGApplication()} is the constructor; it returns a 
 #'     \code{SASEGApplication} object.
@@ -201,6 +214,10 @@ setClass("SASEGApplication", contains = "SASObjRef")
 #' @export
 SASEGApplication <- function() {
   ptr <- rClr::clrNew("SAS.EG.Scripting.Application")
+  # Get the external pointer:
+  e <- rClr::clrGetExtPtr(ptr)
+  # Register the finalizer:
+  reg.finalizer(e, finalize_app, onexit = FALSE)
   new("SASEGApplication", ptr = ptr)
 }
 

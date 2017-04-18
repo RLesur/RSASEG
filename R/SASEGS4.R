@@ -74,7 +74,7 @@ setClass("SASObjRef", slots = list(ptr = "cobjRef"))
 #' @export
 #' @keywords internal
 SASObjRef <- function(ptr) {
-  if(class(ptr) == "cobjRef") {
+  if("cobjRef" %in% class(ptr)) {
     out <- new("SASObjRef", ptr = ptr)
   } else {
     out <- ptr
@@ -182,13 +182,14 @@ setClass("SASEGApplication", contains = "SASObjRef")
 
 #' A finalizer function for SASEGApplication
 #' 
-#' In case of end user would not safely close a SASEGApplication object,
-#'    a finalizer is implemented. A call to method "Quit" is done.
+#' In case of end user would not safely close a 
+#'     \code{\linkS4class{SASEGApplication}} object, a finalizer is 
+#'     implemented. A call to method \code{"Quit"} is done.
 #' @param e An external pointer.
 #' @return \code{NULL}, invisibly
 #' @keywords internal
 finalize_app <- function(e) {
-  message("Closing a SASEG Application...")
+  message("Closing a useless SAS EG Application...")
   app <- new("cobjRef", clrobj = e, clrtype = "SAS.EG.Scripting.Application")
   rClr::clrCall(app, "Quit")
   message("...done.")
@@ -206,6 +207,9 @@ finalize_app <- function(e) {
 #' loadSASEGScripting(path)
 #'
 #' app <- SASEGApplication()
+#' getName(app)
+#' getVersion(app)
+#' getListAvailableProfiles(app)
 #' show(app)
 #'
 #' my_profile <- "PROFILE"
@@ -219,12 +223,12 @@ finalize_app <- function(e) {
 #' @seealso \code{\linkS4class{SASEGProject}}
 #' @export
 SASEGApplication <- function() {
-  message("Opening a SAS EG Application...")
+  message("Opening a new SAS EG Application...")
   ptr <- rClr::clrNew("SAS.EG.Scripting.Application")
   # Get the external pointer:
   e <- rClr::clrGetExtPtr(ptr)
   # Register the finalizer:
-  reg.finalizer(e, finalize_app, onexit = FALSE)
+  reg.finalizer(e, finalize_app, onexit = TRUE)
   message("...done.")
   
   new("SASEGApplication", ptr = ptr)
@@ -243,6 +247,8 @@ setGeneric("getName", function(object, ...) standardGeneric("getName"))
 #' 
 #' \code{getName} returns the name of a \code{SASEGApplication} object.
 #' @param  object An object created by \code{SASEGApplication()}.
+#' @return \code{getName} returns a character string with the name of 
+#'     \code{SAS EG} application.
 #' @rdname SASEGApplication-class
 #' @export
 setMethod("getName", "SASEGApplication", function(object, ...) {
@@ -262,10 +268,45 @@ setGeneric("getVersion", function(object, ...) standardGeneric("getVersion"))
 #' 
 #' \code{getVersion} returns the version number of a \code{SASEGApplication} object.
 #' @inheritParams getName,SASEGApplication-method
+#' @return \code{getVersion} returns a character string with the version number 
+#'     of \code{SAS EG}.
 #' @rdname SASEGApplication-class
 #' @export
 setMethod("getVersion", "SASEGApplication", function(object, ...) {
-  clrGet(object, "Version")
+  as.character(clrGet(object, "Version"))
+})
+
+#' Get a list of available profiles 
+#' 
+#' Get a list of available profiles.
+#' @param object An object.
+#' @param ... Other parameters passed to method.
+#' @keywords internal
+#' @exportMethod getListAvailableProfiles
+setGeneric(
+  "getListAvailableProfiles", 
+  function(object, ...) standardGeneric("getListAvailableProfiles")
+  )
+
+#' Get a list of available SAS EG profiles 
+#' 
+#' \code{getListAvailableProfiles} method is used to retrieve a named list of 
+#'     available profiles in \code{SAS EG}.
+#' @inheritParams getName,SASEGApplication-method
+#' @return \code{getListAvailableProfiles} returns a list of named lists of character strings. 
+#' @rdname SASEGApplication-class
+#' @export
+setMethod("getListAvailableProfiles", "SASEGApplication", function(object, ...) {
+  lapply(
+    X = 0:(clrGet(clrCall(object, "Profiles"), "Count")-1),
+    FUN = function(i) {
+      list(
+        profilename = clrGet(clrCall(clrCall(object, "Profiles"), "Items", i), "Name"),
+        host = clrGet(clrCall(clrCall(object, "Profiles"), "Items", i), "HostName"),
+        port = clrGet(clrCall(clrCall(object, "Profiles"), "Items", i), "Port")
+        )
+      }
+    )
 })
 
 #' @rdname SASEGApplication-class
@@ -273,22 +314,18 @@ setMethod("getVersion", "SASEGApplication", function(object, ...) {
 #'     \code{SAS EG} version and available profiles.
 #' @inheritParams getName,SASEGApplication-method
 setMethod("show", "SASEGApplication", function(object) {
-  cat(getName(object),
-      ", Version: ",
-      getVersion(object),
-      "\n", sep=""
-  )
-  for(i in 0:(clrGet(clrCall(object, "Profiles"), "Count")-1)) {
-    cat(
-      "Profile available: ",
-      clrGet(clrCall(clrCall(object, "Profiles"), "Items", i), "Name"),
-      ", Host: ",
-      clrGet(clrCall(clrCall(object, "Profiles"), "Items", i), "HostName"),
-      ", Port: ",
-      clrGet(clrCall(clrCall(object, "Profiles"), "Items", i), "Port"),
-      "\n", sep=""
+  cat(
+    paste(getName(object), paste("Version:", getVersion(object)), sep = ", "), 
+    vapply(
+      X = getListAvailableProfiles(object), 
+      FUN = function(l) paste(c("Profile available:", "Host:", "Port"), 
+                              l, 
+                              collapse = ", "
+                              ),
+      FUN.VALUE = character(1)
+      ), 
+    sep = "\n"
     )
-  }
 })
 
 #' Set the profile in an application
@@ -312,14 +349,14 @@ setMethod("setProfile", "SASEGApplication", function(application, profile) {
   clrCall(application, "SetActiveProfile", profile)
 })
 
-#' Terminate (or quit) an application
+#' Terminate (or quit) an object
 #' 
-#' \code{terminate} method is used to quit an application.
+#' \code{terminate} method is used to close (or quit) an object.
 #' 
-#' @param application An application object.
+#' @param object An object to close.
 #' @keywords internal
 #' @exportMethod terminate
-setGeneric("terminate", function(application) standardGeneric("terminate"))
+setGeneric("terminate", function(object) standardGeneric("terminate"))
 
 #' Quit a SASEGApplication
 #' 
@@ -328,8 +365,8 @@ setGeneric("terminate", function(application) standardGeneric("terminate"))
 #' @return \code{terminate} method returns \code{TRUE}. 
 #' @rdname SASEGApplication-class
 #' @export
-setMethod("terminate", "SASEGApplication", function(application) {
-  clrCall(application, "Quit")
+setMethod("terminate", "SASEGApplication", function(object) {
+  clrCall(object, "Quit")
   return(TRUE)
 })
 
@@ -420,6 +457,17 @@ setGeneric("saveAs", function(object, ...) standardGeneric("saveAs"))
 setMethod("saveAs", "SASEGProject", function(object, filepath, ...) {
   clrCall(object, "SaveAs", filepath)
   message("SAS Enterprise Guide Project saved to: ", filepath)
+})
+
+#' Close a SASEGProject
+#' 
+#' \code{terminate} method closes a \code{SASEGProject}.
+#' 
+#' @param object A \code{SASEGProject} object.
+#' @rdname SASEGProject-class
+#' @export
+setMethod("terminate", "SASEGProject", function(object) {
+  clrCall(object, "Close")
 })
 
 

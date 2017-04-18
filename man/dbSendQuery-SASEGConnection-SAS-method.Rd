@@ -13,9 +13,9 @@
 
 \item{statement}{A \code{\linkS4class{SAS}} object.}
 
-\item{persistent}{A logical. If \code{TRUE}, a new \code{SASEGCode} 
-is created in the \code{SASEGProject}. If \code{FALSE}, \code{garbage} 
-code is used.}
+\item{persistent}{A logical. If \code{TRUE}, a new 
+\code{\linkS4class{SASEGCode}} is created in the \code{SASEGProject}. If 
+\code{FALSE}, \code{garbage} code is used.}
 
 \item{codeName}{A character string to name the new \code{\linkS4class{SASEGCode}} object.}
 }

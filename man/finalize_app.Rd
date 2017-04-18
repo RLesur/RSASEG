@@ -13,7 +13,8 @@ finalize_app(e)
 \code{NULL}, invisibly
 }
 \description{
-In case of end user would not safely close a SASEGApplication object,
-   a finalizer is implemented. A call to method "Quit" is done.
+In case of end user would not safely close a 
+    \code{\linkS4class{SASEGApplication}} object, a finalizer is 
+    implemented. A call to method \code{"Quit"} is done.
 }
 \keyword{internal}

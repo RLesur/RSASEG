@@ -15,3 +15,4 @@
 \description{
 \code{dbIsValid} tests if a \code{\linkS4class{SASEGConnection}} object is valid.
 }
+\keyword{internal}

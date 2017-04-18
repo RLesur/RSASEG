@@ -21,18 +21,26 @@ A character string or a character vector.
 Find the \code{SAS} data type associated with an \code{R} object.
 }
 \examples{
-dbDataType(SASEG(), 1:5)
-dbDataType(SASEG(), 1)
-dbDataType(SASEG(), TRUE)
-dbDataType(SASEG(), Sys.Date())
-dbDataType(SASEG(), Sys.time())
-dbDataType(SASEG(), Sys.time() - as.POSIXct(Sys.Date()))
-dbDataType(SASEG(), c("x", "abc"))
 \dontrun{
-dbDataType(SASEG(), list(raw(10), raw(20)))}
-dbDataType(SASEG(), I(3))
+library(DBI)
+library(rClr)
 
-dbDataType(SASEG(), iris)
+# Modify the path below following your install:
+path <- "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScripting.dll"
+drv <- RSASEG::SASEG(path)
+
+dbDataType(drv, 1:5)
+dbDataType(drv, 1)
+dbDataType(drv, TRUE)
+dbDataType(drv, Sys.Date())
+dbDataType(drv, Sys.time())
+dbDataType(drv, Sys.time() - as.POSIXct(Sys.Date()))
+dbDataType(drv, c("x", "abc"))
+dbDataType(drv, list(raw(10), raw(20)))
+dbDataType(drv, I(3))
+dbDataType(drv, iris)
+
+dbUnloadDriver(drv)}
 }
 \seealso{
 Generic: \code{\link[DBI]{dbDataType}}.

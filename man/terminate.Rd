@@ -2,14 +2,14 @@
 % Please edit documentation in R/SASEGS4.R
 \name{terminate}
 \alias{terminate}
-\title{Terminate (or quit) an application}
+\title{Terminate (or quit) an object}
 \usage{
-terminate(application)
+terminate(object)
 }
 \arguments{
-\item{application}{An application object.}
+\item{object}{An object to close.}
 }
 \description{
-\code{terminate} method is used to quit an application.
+\code{terminate} method is used to close (or quit) an object.
 }
 \keyword{internal}

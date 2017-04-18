@@ -6,6 +6,11 @@
 \usage{
 dbGetLog(res, ...)
 }
+\arguments{
+\item{res}{An object.}
+
+\item{...}{Other parameters passed to method.}
+}
 \description{
 \code{dbGetLog} methods retrieve the log of a program execution.
 }

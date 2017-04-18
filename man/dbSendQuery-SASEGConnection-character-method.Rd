@@ -11,12 +11,12 @@
 \arguments{
 \item{conn}{A \code{SASEGConnection} object.}
 
-\item{statement}{A character string containing a \code{SQL} code or an 
-\code{\link[DBI]{SQL}} class object.}
+\item{statement}{A character string containing an \code{SQL} code 
+or an \code{\link[DBI]{SQL}} class object.}
 
-\item{persistent}{A logical. If \code{TRUE}, a new \code{SASEGCode} 
-is created in the \code{SASEGProject}. If \code{FALSE}, \code{garbage} 
-code is used.}
+\item{persistent}{A logical. If \code{TRUE}, a new 
+\code{\linkS4class{SASEGCode}} is created in the \code{SASEGProject}. If 
+\code{FALSE}, \code{garbage} code is used.}
 
 \item{codeName}{A character string to name the new \code{\linkS4class{SASEGCode}} object.}
 
@@ -27,8 +27,8 @@ code is used.}
 A \code{SASEGSQLResult} object.
 }
 \description{
-\code{dbSendQuery} sends an \code{SQL} query to \code{SAS}. The query is 
-    first embedded in a \code{PROC SQL} and sent to \code{SAS}. 
+\code{dbSendQuery} sends an \code{\link[DBI]{SQL}} query to \code{SAS}. The 
+    query is first embedded in a \code{PROC SQL} and sent to \code{SAS}. 
     \code{dbSendQuery} is used to send \code{SELECT ...} queries.
 }
 \examples{

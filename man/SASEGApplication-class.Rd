@@ -6,6 +6,7 @@
 \alias{SASEGApplication}
 \alias{getName,SASEGApplication-method}
 \alias{getVersion,SASEGApplication-method}
+\alias{getListAvailableProfiles,SASEGApplication-method}
 \alias{show,SASEGApplication-method}
 \alias{setProfile,SASEGApplication-method}
 \alias{terminate,SASEGApplication-method}
@@ -18,11 +19,13 @@ SASEGApplication()
 
 \S4method{getVersion}{SASEGApplication}(object, ...)
 
+\S4method{getListAvailableProfiles}{SASEGApplication}(object, ...)
+
 \S4method{show}{SASEGApplication}(object)
 
 \S4method{setProfile}{SASEGApplication}(application, profile)
 
-\S4method{terminate}{SASEGApplication}(application)
+\S4method{terminate}{SASEGApplication}(object)
 
 \S4method{newProject}{SASEGApplication}(application)
 }
@@ -37,6 +40,14 @@ SASEGApplication()
 \code{SASEGApplication()} is the constructor; it returns a 
     \code{SASEGApplication} object.
 
+\code{getName} returns a character string with the name of 
+    \code{SAS EG} application.
+
+\code{getVersion} returns a character string with the version number 
+    of \code{SAS EG}.
+
+\code{getListAvailableProfiles} returns a list of named lists of character strings.
+
 \code{terminate} method returns \code{TRUE}.
 
 \code{newProject} returns a \code{\linkS4class{SASEGProject}} object.
@@ -48,6 +59,9 @@ The \code{SASEGApplication} class is an S4 class to represent a
 \code{getName} returns the name of a \code{SASEGApplication} object.
 
 \code{getVersion} returns the version number of a \code{SASEGApplication} object.
+
+\code{getListAvailableProfiles} method is used to retrieve a named list of 
+    available profiles in \code{SAS EG}.
 
 \code{show} method provides useful informations including 
     \code{SAS EG} version and available profiles.
@@ -66,6 +80,9 @@ path <- "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScrip
 loadSASEGScripting(path)
 
 app <- SASEGApplication()
+getName(app)
+getVersion(app)
+getListAvailableProfiles(app)
 show(app)
 
 my_profile <- "PROFILE"

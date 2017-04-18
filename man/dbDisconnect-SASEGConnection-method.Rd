@@ -15,7 +15,7 @@ created by \code{RSASEG}. \strong{Be careful: \code{dbDisconnect} method
 overwrites existing files without confirmation}. If \code{NULL}, no project is saved.}
 }
 \value{
-\code{dbDisconnect} returns \code{TRUE}.
+\code{dbDisconnect} returns \code{TRUE}, invisibly.
 }
 \description{
 \code{dbDisconnect} closes a \code{SAS EG} connection. It is important to 
@@ -24,14 +24,16 @@ overwrites existing files without confirmation}. If \code{NULL}, no project is s
 }
 \examples{
 \dontrun{
+library(DBI)
+library(rClr)
+
 # Modify the path below following your install:
 path <- "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScripting.dll"
+drv <- RSASEG::SASEG(path)
+
 my_profile <- "PROFILE"
 my_server <- "SASPROD"
-conn <- dbConnect(RSASEG::SASEG(), 
-                  DLLFilePath = path, 
-                  profile = my_profile, 
-                  server = my_server)
+conn <- dbConnect(drv, my_profile, my_server)
 show(conn)
 dbWriteTable(conn, "mtcars", mtcars)
 dbGetQuery(conn, "SELECT * FROM mtcars WHERE cyl = 4")

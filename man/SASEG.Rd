@@ -4,33 +4,63 @@
 \name{SASEGDriver-class}
 \alias{SASEGDriver-class}
 \alias{SASEG}
+\alias{dbListConnections,SASEGDriver-method}
+\alias{dbIsValid,SASEGDriver-method}
+\alias{dbUnloadDriver,SASEGDriver-method}
 \alias{dbConnect,SASEGDriver-method}
 \title{Driver class for SAS Enterprise Guide}
 \usage{
-SASEG()
 
-\S4method{dbConnect}{SASEGDriver}(drv, DLLFilePath, profile, server, ...)
+  SASEG(DLLPath = "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScripting.dll")
+
+\S4method{dbListConnections}{SASEGDriver}(drv, ...)
+
+\S4method{dbIsValid}{SASEGDriver}(dbObj, ...)
+
+\S4method{dbUnloadDriver}{SASEGDriver}(drv, ...)
+
+\S4method{dbConnect}{SASEGDriver}(drv, profile, server, ...)
 }
 \arguments{
-\item{drv}{An object created by \code{SASEG()}.}
+\item{DLLPath}{A character string with the path to file \code{SASEGScripting.dll}.}
 
-\item{DLLFilePath}{A character string with the filepath to \code{SASEGScripting.dll}.}
+\item{drv}{An object resulting from call to \code{SASEG()}.}
+
+\item{...}{Other parameters. Not used.}
+
+\item{dbObj}{An object created by a call to \code{SASEG()}.}
 
 \item{profile}{A character string with the \code{SAS EG} profile name.}
 
 \item{server}{A character string with the server name to run \code{SAS} programs.}
-
-\item{...}{Other parameters. Not used.}
 }
 \value{
 \code{SASEG()} returns a \code{SASEGDriver} object.
+
+\code{dbListConnections} returns an empty list if there is no active
+    connection or a list with a single \code{\linkS4class{SASEGConnection}} 
+    object.
+
+\code{dbIsValid} returns a \code{logical}.
+
+\code{dbUnloadDriver} method returns \code{TRUE}.
 
 \code{dbConnect} returns an object of class \code{\linkS4class{SASEGConnection}}.
 }
 \description{
 This a driver class for \code{SAS Enterprise Guide}.
 
-\code{SASEG()} generates a new \code{SASEG} driver.
+\code{SASEG(DLLPath)} generates a new \code{SASEG} driver: you 
+    have to provide location of file \code{SASEGScripting.dll} following 
+    your installation of \code{SAS Enterprise Guide}.
+
+\code{dbListConnections} method is used to retrieve the list of active 
+    connections. Since \code{SASEGDriver} allows a single connection, the 
+    list contains either a single element or is empty.
+
+\code{dbIsValid} tests if a \code{SASEGDriver} is still valid.
+
+\code{dbUnloadDriver} usage is recommended for \code{SASEGDriver} objects.
 
 Use \code{dbConnect} to create a new connection to a \code{SAS} 
     server through \code{SAS Enterprise Guide}.
@@ -40,14 +70,16 @@ The \code{SASEGDriver} class inherits from the \code{\link[DBI]{DBIDriver-class}
 }
 \examples{
 \dontrun{
+library(DBI)
+library(rClr)
+
 # Modify the path below following your install:
 path <- "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScripting.dll"
+drv <- RSASEG::SASEG(path)
+
 my_profile <- "PROFILE"
 my_server <- "SASPROD"
-conn <- dbConnect(RSASEG::SASEG(), 
-                  DLLFilePath = path, 
-                  profile = my_profile, 
-                  server = my_server)
+conn <- dbConnect(drv, my_profile, my_server)
 show(conn)
 dbWriteTable(conn, "mtcars", mtcars)
 dbGetQuery(conn, "SELECT * FROM mtcars WHERE cyl = 4")

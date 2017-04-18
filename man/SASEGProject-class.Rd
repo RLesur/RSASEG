@@ -4,10 +4,13 @@
 \name{SASEGProject-class}
 \alias{SASEGProject-class}
 \alias{saveAs,SASEGProject-method}
+\alias{terminate,SASEGProject-method}
 \alias{newCode,SASEGProject-method}
 \title{An S4 class to represent a SAS EG Project object}
 \usage{
 \S4method{saveAs}{SASEGProject}(object, filepath, ...)
+
+\S4method{terminate}{SASEGProject}(object)
 
 \S4method{newCode}{SASEGProject}(project, server = NULL, program = NULL,
   name = NULL, ...)
@@ -31,6 +34,8 @@ Optional, \code{NULL} by default.}
 
 \item{name}{A character string with the name of the program. Optional, 
 \code{NULL} by default.}
+
+\item{object}{A \code{SASEGProject} object.}
 }
 \value{
 \code{newCode} method returns a \code{\linkS4class{SASEGCode}}.
@@ -40,6 +45,8 @@ The \code{SASEGProject} class is an S4 class to represent a
     \code{SAS EG Scripting Project} object.
 
 \code{saveAs} method saves a \code{SASEGProject} to a file.
+
+\code{terminate} method closes a \code{SASEGProject}.
 
 \code{newCode} method is used to create a new \code{SASEGCode} object in a 
     \code{SASEGProject} object.

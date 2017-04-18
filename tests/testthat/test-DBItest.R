@@ -6,7 +6,7 @@ DBItest::make_context(
     server = rstudioapi::askForPassword("Server Name:")
   ),
   set_as_default = TRUE,
-  tweaks = tweaks(omit_blob_tests = TRUE),
+  tweaks = DBItest::tweaks(constructor_relax_args = TRUE, omit_blob_tests = TRUE),
   name = "Romain Lesur's profile"
 )
 DBItest::test_getting_started()

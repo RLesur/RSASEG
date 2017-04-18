@@ -491,6 +491,8 @@ setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, 
     # Detach current connection from the list of connections of the driver:
     drv <- drv(conn)
     cnx(drv) <- NULL
+    # Close SASEGProject:
+    terminate(conn@SASProject)
     # Unvalidate connection:
     isValid(conn) <- FALSE
   } else {

@@ -78,6 +78,21 @@ count_generator <- function(init = 0) {
   }
 }
 
+cnx_list_generator <- function(init = NULL) {
+  cnx <- init
+  list(
+    get = function() if(is.null(cnx)) return(list()) else return(list(cnx)),
+    set = function(obj) {
+      if(is.null(obj)) {
+        cnx <<- obj
+      } else {
+        stopifnot("SASEGConnection" %in% class(obj), is.null(cnx))
+        cnx <<- obj
+      }
+    }
+    )
+}
+
 random_table_name <- function(n = 28) {
   paste0(LETTERS[ceiling(stats::runif(n, min = 0, max = 26))], collapse = "")
   }

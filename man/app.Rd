@@ -7,11 +7,15 @@
 app(obj, ...)
 }
 \arguments{
-\item{obj}{An object.}
+\item{obj}{An object with a slot named \code{app}.}
 
 \item{...}{Other parameters passed to method.}
 }
 \description{
 Method to access a slot named \code{app}.
+}
+\seealso{
+\code{\link{app,SASEGDriver-method}}, 
+    \code{\link{app,SASEGConnection-method}}
 }
 \keyword{internal}

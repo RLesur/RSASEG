@@ -3,12 +3,16 @@
 \docType{methods}
 \name{dbDataType,SASEGDriver-method}
 \alias{dbDataType,SASEGDriver-method}
+\alias{dbDataType,SASEGConnection-method}
 \title{Find the SAS data type associated with an R object}
 \usage{
 \S4method{dbDataType}{SASEGDriver}(dbObj, obj, ...)
+
+\S4method{dbDataType}{SASEGConnection}(dbObj, obj, ...)
 }
 \arguments{
-\item{dbObj}{An object resulting from call to \code{SASEG()}.}
+\item{dbObj}{An object resulting from a call to \code{\link[=SASEG]{SASEG()}} 
+or \code{\link[=dbConnect,SASEGDriver-method]{dbConnect()}}.}
 
 \item{obj}{An \code{R} object whose \code{SAS} type we want to determine.}
 
@@ -18,7 +22,10 @@
 A character string or a character vector.
 }
 \description{
-Find the \code{SAS} data type associated with an \code{R} object.
+\code{dbDataType} method finds the \code{SAS} data type associated with an \code{R} object.
+
+Methods are implemented for \code{\linkS4class{SASEGDriver}} and 
+    \code{\linkS4class{SASEGConnection}} classes.
 }
 \examples{
 \dontrun{
@@ -40,6 +47,22 @@ dbDataType(drv, list(raw(10), raw(20)))
 dbDataType(drv, I(3))
 dbDataType(drv, iris)
 
+my_profile <- "PROFILE"
+my_server <- "SASPROD"
+conn <- dbConnect(drv, my_profile, my_server)
+
+dbDataType(conn, 1:5)
+dbDataType(conn, 1)
+dbDataType(conn, TRUE)
+dbDataType(conn, Sys.Date())
+dbDataType(conn, Sys.time())
+dbDataType(conn, Sys.time() - as.POSIXct(Sys.Date()))
+dbDataType(conn, c("x", "abc"))
+dbDataType(conn, list(raw(10), raw(20)))
+dbDataType(conn, I(3))
+dbDataType(conn, iris)
+
+dbDisconnect(conn, projectPath = RSASEG_project)
 dbUnloadDriver(drv)}
 }
 \seealso{

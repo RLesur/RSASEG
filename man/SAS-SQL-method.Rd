@@ -24,7 +24,6 @@ This method wraps an \code{SQL} statement in a \code{PROC SQL}. For instance,
    \code{PROC SQL DQUOTE=ANSI;} \cr
    \code{ods output SQL_Results=WORK.SQLOUT;} \cr
    \code{SELECT * FROM SASHELP.CLASS;} \cr
-   \code{\%put &sqlobs;} \cr
    \code{QUIT;} \cr
 }
 }

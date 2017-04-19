@@ -11,11 +11,10 @@ NULL
 
 #' Driver class for SAS Enterprise Guide
 #'
-#' This a driver class for \code{SAS Enterprise Guide}.
-#' 
-#' The \code{SASEGDriver} class inherits from the \code{\link[DBI]{DBIDriver-class}}.
-#' @rdname SASEG
-#' @exportClass SASEGDriver
+#' This a driver class for \code{SAS Enterprise Guide}. The \code{SASEGDriver} 
+#'     class inherits from the \code{\link[DBI]{DBIDriver-class}}. A 
+#'     \code{SASEGDriver} object can be understood as a \code{SAS EG} application.
+#' @keywords internal
 setClass(
   "SASEGDriver", 
   contains = "DBIDriver", 
@@ -28,7 +27,7 @@ setClass(
 
 #' Access to slot app of an object
 #' 
-#' A generic accessor to a slot named app.
+#' Method to access a slot named \code{app}.
 #' @param obj An object.
 #' @param ... Other parameters passed to method.
 #' @keywords internal
@@ -39,6 +38,7 @@ setGeneric("app", function(obj, ...) standardGeneric("app"))
 #' \code{app()} access to the slot \code{app} of a \code{\linkS4class{SASEGDriver}}.
 #' @param obj An object of class \code{\linkS4class{SASEGDriver}}.
 #' @param ... Other parameters passed to method. Not used.
+#' @rdname SASEGDriver-class
 #' @keywords internal
 setMethod("app", "SASEGDriver", function(obj, ...) {
   obj@app
@@ -253,7 +253,6 @@ setMethod("SAS", "character", function(x, ...) {
 #'    \code{PROC SQL DQUOTE=ANSI;} \cr
 #'    \code{ods output SQL_Results=WORK.SQLOUT;} \cr
 #'    \code{SELECT * FROM SASHELP.CLASS;} \cr
-#'    \code{\%put &sqlobs;} \cr
 #'    \code{QUIT;} \cr
 #' }
 #' 
@@ -281,7 +280,6 @@ setMethod("SAS", "SQL", function(x, SQLResult = "WORK.SQLOUT") {
       paste0("PROC SQL DQUOTE=ANSI;\n",
              ods_string,
              x, ";\n",
-             "%put &sqlobs;\n", 
              "QUIT;\n"))
 })
 
@@ -591,6 +589,8 @@ setMethod("isValid<-", "SASEGResult", function(obj, value) {
 #' @keywords internal   
 #' @export
 setMethod("dbHasCompleted", "SASEGResult", function(res, ...) {
+  if(!dbIsValid(res))  stop("Result is not valid.")
+  
   res@fetched()
 })
 
@@ -682,6 +682,11 @@ setMethod("dbFetch", "SASEGResult", function(res, n = -1, ...) {
   return(d)
 })
 
+#' @export
+setMethod("dbClearResult", "SASEGResult", function(res, ...) {
+  invisible(TRUE)
+})
+
 #' Get the log of a program execution
 #' 
 #' \code{dbGetLog} methods retrieve the log of a program execution.
@@ -704,6 +709,26 @@ setMethod("dbGetLog", "SASEGResult", function(res, ...) {
   getLog(res@SASResult)
 })
 
+setGeneric("dbGetAutoMacroVariables", function(conn, ...) standardGeneric("dbGetAutoMacroVariables"))
+
+setMethod("dbGetAutoMacroVariables", "SASEGConnection", function(conn, ...) {
+  statement <- SAS(
+    paste(
+      paste0("DATA WORK.", random_table_name(), ";"),
+      '  IF SYMEXIST("sqlexitcode") THEN sqlexitcode=&sqlexitcode;',
+      '  IF SYMEXIST("sqlobs") THEN sqlobs=&sqlobs;',
+      '  IF SYMEXIST("sqloops") THEN sqloops=&sqloops;',
+      '  IF SYMEXIST("sqlrc") THEN sqlrc=&sqlrc;',
+      '  IF SYMEXIST("sqlxmsg") THEN sqlxmsg=&sqlxmsg;',
+      '  IF SYMEXIST("sqlxrc") THEN sqlxrc=&sqlxrc;',
+      'RUN;',
+      sep = "\n"
+      )
+    )
+  
+  dbGetQuery(conn, statement, persistent = FALSE)
+})
+
 #' SASEG PROC SQL results class
 #' 
 #' \code{SASEGSQLResult} class inherits from \code{\link[DBI]{DBIResult-class}} 
@@ -721,7 +746,6 @@ setClass(
     rowsFetched = "function"
     )
   )
-
 
 #' Send an SQL query to SAS EG
 #'
@@ -746,19 +770,29 @@ setMethod(
       # Choose a new dataset name to store the result of SQL query:
       SQLResult <- paste0("WORK.", random_table_name()) 
     } else {
-      # In case of data manipulation SQL statement  
+      # In case of data manipulation SQL statement:  
       SQLResult <- NA_character_
       }
     # Transform SQL statement into a SAS statement:
     statement <- SAS(DBI::SQL(statement), SQLResult = SQLResult)
-    # Retrieve SAS execution results and get a SASEGResult object:
+    # Run SAS statement and get a SASEGResult object:
     res <- dbSendQuery(conn, statement, persistent, codeName)
+    # Get SAS PROC SQL automatic macro variables:
+    SAS_auto_macro_var <- dbGetAutoMacroVariables(conn)    
+    # FINIR
+    # In case of end user made a "mistake" (ie. sending a data manipulation 
+    #   statement with dbSendQuery instead of dbSendStatement), correct the 
+    #   value of SQLResult:
+    if(!SQLResult %in% names(getListDatasets(res@SASResult))) {SQLResult <- NA_character_}
+    
+    if(is.na(SQLResult)) {fetched(res) <- TRUE}
+    
     # Construct a SASEGSQLResult object:
     res_sql <- new("SASEGSQLResult",
                    res,
                    SQLResult = SQLResult,
                    rowsFetched = count_generator(init = 0))
-    #SQLResult %in% names(getListDatasets(res@SASResult))
+    
     return(res_sql)
   }
 )
@@ -766,7 +800,7 @@ setMethod(
 #' @export
 setMethod(
   "dbSendStatement", 
-  "SASEGConnection", 
+  c("SASEGConnection", "character"), 
   function(conn, statement, persistent = TRUE, codeName = NULL, ...) {
   dbSendQuery(conn, statement, persistent, codeName, query = FALSE)
 })
@@ -782,15 +816,40 @@ setMethod("dbClearResult", "SASEGSQLResult", function(res, ...) {
   invisible(TRUE)
 })
 
-
 #' Retrieve records from SAS EG SQL query
 #' @export
 setMethod("dbFetch", "SASEGSQLResult", function(res, n = -1, ...) {
-  l <- getListDatasets(res@SASResult)
-  d <- read(l[[res@SQLResult]])
-  fetched(res) <- TRUE
-  return(d)
+  # If object res was created by a SQL statement then SQLResult slot is NA:
+  if(dbHasCompleted(res)) {
+    warning("No row to fetch.")
+    return(data.frame(NULL))
+  } else {
+    if(n == -1 | is.infinite(n)) {
+      # Get all datasets created by the SAS Statement
+      # This list can contain other datasets
+      l <- getListDatasets(res@SASResult)
+      # Read only the dataset pointed by SQLResult
+      d <- read(l[[res@SQLResult]])
+      fetched(res) <- TRUE
+      return(d)  
+    } else {
+      stop("Not yet implemented. Try n = -1.")
+    }
+  }
 })
+
+#' @export
+setMethod(
+  "dbGetQuery", 
+  c("SASEGConnection", "character"), 
+  function(conn, statement, persistent = TRUE, codeName = NULL, ...) {
+    res <- dbSendQuery(conn, statement, persistent, codeName, query = TRUE)
+    on.exit(dbClearResult(res))
+    d <- dbFetch(res, n = -1)
+    return(d)
+})
+
+
 
 
 # SQL Methods -------------------------------------------------------------

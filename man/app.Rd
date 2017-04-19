@@ -12,6 +12,6 @@ app(obj, ...)
 \item{...}{Other parameters passed to method.}
 }
 \description{
-A generic accessor to a slot named app.
+Method to access a slot named \code{app}.
 }
 \keyword{internal}

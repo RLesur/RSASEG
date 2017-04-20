@@ -41,11 +41,11 @@ setMethod("getSASType", "character", function(obj) return("VARCHAR(32767)"))
 
 setMethod("getSASType", "Date", function(obj) return("NUM INFORMAT=DATE9. FORMAT=E8601DA."))
 
-setMethod("getSASType", "POSIXct", function(obj) return("DATETIME FORMAT=E8601DT19."))
+setMethod("getSASType", "POSIXct", function(obj) return("NUM INFORMAT=DATETIME. FORMAT=E8601DT19."))
 
 setOldClass("difftime")
 
-setMethod("getSASType", "difftime", function(obj) return("REAL"))
+setMethod("getSASType", "difftime", function(obj) return("NUM INFORMAT=TIME. FORMAT=TIME."))
 
 setMethod("getSASType", "factor", function(obj) return("VARCHAR(32767)"))
 

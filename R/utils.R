@@ -8,13 +8,30 @@ noteUtil <- paste0(
 SASMonth <- c("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC")
 
 is.Date <- function(x) {
-  if("AsIs" %in% class(x)) {x <- unclass(x)}
-  return("Date" %in% class(x))
+  if("Date" %in% class(x)) {
+    return(TRUE)
+  } else {
+    if("AsIs" %in% class(x)) {x <- unclass(x)} 
+    return("Date" %in% class(x))  
+  }
 }
 
 is.DateTime <- function(x) {
-  if("AsIs" %in% class(x)) {x <- unclass(x)}
-  return("POSIXt" %in% class(x))
+  if("POSIXt" %in% class(x)) {
+    return(TRUE)
+  } else {
+    if("AsIs" %in% class(x)) {x <- unclass(x)} 
+    return("POSIXt" %in% class(x))  
+  }
+}
+
+is.difftime <- function(x) {
+  if("difftime" %in% class(x)) {
+    return(TRUE)
+  } else {
+    if("difftime" %in% class(x)) {x <- unclass(x)} 
+    return("difftime" %in% class(x))  
+  }
 }
 
 # Return a SAS Date constant from a Date
@@ -40,6 +57,26 @@ SASDateTimeConstant <- function(x) {
          format(x, "%S"),
          "'dt")
 }
+
+# Return a SAS Time constant from a difftime
+SASTimeConstant <- function(x) {
+  if(is.null(x)) return(NULL)
+  if(is.na(x)) return(NA_character_)
+  units(x) <- "hours"
+  if(x >= 100) warning("A difftime is greater or equal than 100 hours: values returned by SAS will be false.", immediate. = TRUE)
+  h <- as.character(floor(x))
+  if(nchar(h) == 1) {h <- paste0("0", h)}
+  x <- x-floor(x)
+  units(x) <- "mins"
+  m <- as.character(floor(x))
+  if(nchar(m) == 1) {m <- paste0("0", m)}
+  x <- x-floor(x)
+  units(x) <- "secs"
+  s <- as.character(round(x))
+  if(nchar(s) == 1) {s <- paste0("0", s)}
+  paste0("'", h, ":", m, ":", s, "'t")
+}
+
 
 # A closure creator
 # Example :

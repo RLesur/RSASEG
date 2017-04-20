@@ -13,6 +13,10 @@ setMethod("SASFormat", "POSIXt", function(x) {
   vapply(x, SASDateTimeConstant, character(1))
 })
 
+setMethod("SASFormat", "difftime", function(x) {
+  vapply(x, SASTimeConstant, character(1))
+})
+
 setMethod("SASFormat", "logical", function(x) {
   vapply(x, as.numeric, numeric(1))
 })

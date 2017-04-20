@@ -975,9 +975,13 @@ setMethod("sqlData", "SASEGConnection", function(con, value, row.names = NA, ...
   is_Date <- vapply(value, is.Date, logical(1))
   value[is_Date] <- lapply(value[is_Date], SASFormat)
   
-  # Convert datetimes as SAS DATETIME18. format
+  # Convert datetimes as SAS DATETIME. format
   is_DateTime <- vapply(value, is.DateTime, logical(1))
   value[is_DateTime] <- lapply(value[is_DateTime], SASFormat)
+  
+  # Convert difftimes as SAS TIME. format
+  is_difftime <- vapply(value, is.difftime, logical(1))
+  value[is_difftime] <- lapply(value[is_difftime], SASFormat)
   
   # Convert everything to character and turn NAs into NULL
   value[] <- lapply(value, as.character)

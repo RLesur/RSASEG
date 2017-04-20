@@ -1012,16 +1012,10 @@ setMethod("sqlAppendTable", "SASEGConnection", function(con, table, values, row.
 #' @export
 setMethod("dbWriteTable", "SASEGConnection", function(conn, name, value, row.names = NA, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  program <- SAS(DBI::SQL(paste0(
+  statement <- paste0(
     sqlCreateTable(con = conn, table = name, fields = value, row.names = row.names, temporary = FALSE),
     ";\n",
     sqlAppendTable(con = conn, table = name, values = value, row.names = row.names, ...)
-  )))
-  # Create a new SAS EG Code object with server and SAS program:
-  SASCode <- newCode(conn@SASProject, 
-                     server = conn@server, 
-                     program = program, 
-                     name = paste("Create dataset", name)
-                     )
-  run(SASCode)
+    )
+  dbSendStatement(conn, statement, codeName = paste("Create dataset", name))
 })

@@ -782,12 +782,12 @@ setMethod("dbGetAutoMacroVariables", "SASEGConnection", function(conn, ...) {
   statement <- SAS(
     paste(
       paste0("DATA WORK.", random_table_name(), ";"),
-      '  IF SYMEXIST("sqlexitcode") THEN sqlexitcode=&sqlexitcode;',
-      '  IF SYMEXIST("sqlobs") THEN sqlobs=&sqlobs;',
-      '  IF SYMEXIST("sqloops") THEN sqloops=&sqloops;',
-      '  IF SYMEXIST("sqlrc") THEN sqlrc=&sqlrc;',
-      '  IF SYMEXIST("sqlxmsg") THEN sqlxmsg=&sqlxmsg;',
-      '  IF SYMEXIST("sqlxrc") THEN sqlxrc=&sqlxrc;',
+      '  sqlexitcode=SYMGETN("sqlexitcode");',
+      '  sqlobs=SYMGETN("sqlobs");',
+      '  sqloops=SYMGETN("sqloops");',
+      '  sqlrc=SYMGETN("sqlrc");',
+      '  sqlxmsg=SYMGET("sqlxmsg");',
+      '  sqlxrc=SYMGET("sqlxrc");',
       'RUN;',
       sep = "\n"
       )

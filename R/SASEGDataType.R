@@ -14,7 +14,7 @@ setMethod("SASFormat", "POSIXt", function(x) {
 })
 
 setMethod("SASFormat", "difftime", function(x) {
-  vapply(x, SASTimeConstant, character(1))
+  vapply(x, SASTimeConstant, character(1), units(x))
 })
 
 setMethod("SASFormat", "logical", function(x) {

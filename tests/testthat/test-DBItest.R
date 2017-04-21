@@ -11,3 +11,4 @@ DBItest::make_context(
 )
 DBItest::test_getting_started()
 DBItest::test_driver()
+DBItest::test_connection()

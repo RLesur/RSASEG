@@ -1131,4 +1131,6 @@ setMethod("dbWriteTable", "SASEGConnection", function(conn, name, value, row.nam
     sqlAppendTable(con = conn, table = name, values = value, row.names = row.names, ...)
     )
   dbSendStatement(conn, statement, codeName = paste("Create dataset", name))
+  
+  invisible(TRUE)
 })

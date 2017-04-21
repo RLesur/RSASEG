@@ -34,6 +34,10 @@ is.difftime <- function(x) {
   }
 }
 
+is.voidstring <- function(x) {
+  x == ""
+}
+
 # Return a SAS Date constant from a Date
 SASDateConstant <- function(x) {
   if(is.null(x)) return(NULL)

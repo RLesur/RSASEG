@@ -16,6 +16,11 @@
 dataset created by the \code{ODS} during a \code{PROC SQL}.}
 
 \item{\code{rowsFetched}}{A closure.}
+
+\item{\code{SQLRC}}{A data frame with SAS return codes.}
+
+\item{\code{RCFileName}}{A character string with the name of the temp dataset where 
+return codes are stored.}
 }}
 
 \keyword{internal}

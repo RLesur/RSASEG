@@ -371,7 +371,6 @@ setClass("SASEGConnection",
          slots = list(
            profile = "character",
            server = "character",
-           #application = "SASEGApplication",
            SASProject = "SASEGProject",
            SASUtil = "SASEGCode",
            dbms = "character",
@@ -473,7 +472,6 @@ setMethod("dbConnect", "SASEGDriver", function(drv, profile, server, ...) {
   new_cnx <- new("SASEGConnection", 
              profile = profile, 
              server = server, 
-             #application = application, 
              SASProject = SASProject, 
              SASUtil = SASUtil, 
              dbms = dbms,
@@ -581,7 +579,7 @@ setMethod("dbDataType", "SASEGConnection", function(dbObj, obj, ...) {
 })
 
 
-# Results class and Methods -----------------------------------------------
+# SAS Results class and Methods -----------------------------------------------
 
 
 #' SASEGResult class
@@ -609,6 +607,23 @@ setClass("SASEGResult",
                       )
          )
 
+#' Is a SASEGResult object fetched?
+#' 
+#' \code{dbHasCompleted} method is used to test if a result is totally fetched.
+#' @inheritParams fetched-set,SASEGResult-method
+#' @param ... Other parameters. Not used.
+#' @return \code{dbHasCompleted} returns a logical: \code{TRUE}, if all rows are 
+#'     fetched; \code{FALSE}, if there is some rows to be fetched.
+#' @seealso Generic: \code{\link[DBI]{dbHasCompleted}}.
+#' @rdname SASEGResult-class
+#' @keywords internal   
+#' @export
+setMethod("dbHasCompleted", "SASEGResult", function(res, ...) {
+  if(!dbIsValid(res))  stop("Result is not valid.")
+  
+  res@fetched()
+})
+
 #' Set the slot fetched as...
 #' 
 #' \code{`fetched<-`} sets the slot \code{fetched} as a value.
@@ -631,36 +646,6 @@ setMethod("fetched<-", "SASEGResult", function(res, value) {
   return(res)
 })
 
-#' @section Replacement methods:
-#' \code{`isValid<-`} method sets the value \code{isValid}. This method is not 
-#'     exported. Only developpers may need to use it. 
-#' @param obj An object of class \code{SASEGResult} or inheriting from this 
-#'     class, as \code{\linkS4class{SASEGSQLResult}}.
-#' @inheritParams fetched-set,SASEGResult-method
-#' @rdname SASEGResult-class
-#' @keywords internal
-setMethod("isValid<-", "SASEGResult", function(obj, value) {
-  obj@isValid(set = value)
-  return(obj)
-}) 
-
-#' Is a SASEGResult object fetched?
-#' 
-#' \code{dbHasCompleted} method is used to test if a result is totally fetched.
-#' @inheritParams fetched-set,SASEGResult-method
-#' @param ... Other parameters. Not used.
-#' @return \code{dbHasCompleted} returns a logical: \code{TRUE}, if all rows are 
-#'     fetched; \code{FALSE}, if there is some rows to be fetched.
-#' @seealso Generic: \code{\link[DBI]{dbHasCompleted}}.
-#' @rdname SASEGResult-class
-#' @keywords internal   
-#' @export
-setMethod("dbHasCompleted", "SASEGResult", function(res, ...) {
-  if(!dbIsValid(res))  stop("Result is not valid.")
-  
-  res@fetched()
-})
-
 #' Is a SASEGResult object valid?
 #' 
 #' \code{dbIsValid} method tests if a \code{SASEGResult} is valid.
@@ -676,6 +661,19 @@ setMethod("dbIsValid", "SASEGResult", function(dbObj, ...) {
   dbObj@isValid()
 })
 
+#' @section Replacement methods:
+#' \code{`isValid<-`} method sets the value \code{isValid}. This method is not 
+#'     exported. Only developpers may need to use it. 
+#' @param obj An object of class \code{SASEGResult} or inheriting from this 
+#'     class, as \code{\linkS4class{SASEGSQLResult}}.
+#' @inheritParams fetched-set,SASEGResult-method
+#' @rdname SASEGResult-class
+#' @keywords internal
+setMethod("isValid<-", "SASEGResult", function(obj, value) {
+  obj@isValid(set = value)
+  return(obj)
+}) 
+
 #' Send a SAS query to SAS EG
 #' 
 #' This method sends a \code{SAS} query to \code{SAS EG}.
@@ -684,25 +682,26 @@ setMethod("dbIsValid", "SASEGResult", function(dbObj, ...) {
 #'     \code{SAS} server through \code{SAS EG} escaping any code transformation. 
 #' @param conn A \code{SASEGConnection} object.
 #' @param statement A \code{\linkS4class{SAS}} object.
+#' @param codeName A character string to name the new \code{\linkS4class{SASEGCode}} object.
 #' @param persistent A logical. If \code{TRUE}, a new 
 #'     \code{\linkS4class{SASEGCode}} is created in the \code{SASEGProject}. If 
 #'     \code{FALSE}, \code{garbage} code is used.
-#' @param codeName A character string to name the new \code{\linkS4class{SASEGCode}} object.
 #' @return A \code{\linkS4class{SASEGResult}} object.
 #' @keywords internal
 #' @export
 setMethod(
   "dbSendQuery", 
   c("SASEGConnection", "SAS"), 
-  function(conn, statement, persistent = TRUE, codeName = NULL, ...) {
+  function(conn, statement, codeName = NULL, persistent = TRUE, ...) {
     if(persistent) {
       # Create a new SAS EG Code object with server and SAS program: 
       SASCode <- newCode(conn@SASProject, 
                          server = conn@server, 
                          program = statement, 
                          name = codeName
-                         )
+                        )
     } else {
+      # Use temporary SAS Code
       SASCode <- conn@SASUtil
       setText(SASCode, paste0(noteUtil, statement))
     }
@@ -749,6 +748,7 @@ setMethod("dbFetch", "SASEGResult", function(res, n = -1, ...) {
   return(d)
 })
 
+# Ne pas l'enlever, c'est pour que le dbGetQuery fonctionne
 #' @export
 setMethod("dbClearResult", "SASEGResult", function(res, ...) {
   invisible(TRUE)
@@ -776,25 +776,16 @@ setMethod("dbGetLog", "SASEGResult", function(res, ...) {
   getLog(res@SASResult)
 })
 
-setGeneric("dbGetAutoMacroVariables", function(conn, ...) standardGeneric("dbGetAutoMacroVariables"))
-
-setMethod("dbGetAutoMacroVariables", "SASEGConnection", function(conn, ...) {
-  statement <- SAS(
-    paste(
-      paste0("DATA WORK.", random_table_name(), ";"),
-      '  sqlexitcode=SYMGETN("sqlexitcode");',
-      '  sqlobs=SYMGETN("sqlobs");',
-      '  sqloops=SYMGETN("sqloops");',
-      '  sqlrc=SYMGETN("sqlrc");',
-      '  sqlxmsg=SYMGET("sqlxmsg");',
-      '  sqlxrc=SYMGET("sqlxrc");',
-      'RUN;',
-      sep = "\n"
-      )
-    )
-  
-  dbGetQuery(conn, statement, persistent = FALSE)
+#' Get the statement that was sent to SAS
+#' 
+#' \code{dbGetStatement} collect the program that was sent to \code{SAS}.
+#' @export
+setMethod("dbGetStatement", "SASEGResult", function(res, ...) {
+  getSourceCode(res@SASResult)
 })
+
+# SQL Results class and methods -------------------------------------------
+
 
 #' SASEG PROC SQL results class
 #' 
@@ -804,15 +795,28 @@ setMethod("dbGetAutoMacroVariables", "SASEGConnection", function(conn, ...) {
 #' @slot SQLResult A character string. This slot contains the filename of the 
 #'     dataset created by the \code{ODS} during a \code{PROC SQL}.
 #' @slot rowsFetched A closure.
+#' @slot SQLRC A data frame with SAS return codes.
+#' @slot RCFileName A character string with the name of the temp dataset where 
+#'     return codes are stored.
 #' @keywords internal
 setClass(
   "SASEGSQLResult",
   contains = "SASEGResult",
   slots = list(
     SQLResult = "character",
-    rowsFetched = "function"
+    rowsFetched = "function",
+    SQLRC = "data.frame",
+    RCFileName = "character"
     )
   )
+
+#' Get the number of fetched rows
+#' 
+#' \code{dbGetRowCount} returns the number of rows that was fetched.
+#' @export
+setMethod("dbGetRowCount", "SASEGSQLResult", function(res, ...) {
+  res@rowsFetched()
+})
 
 #' Send an SQL query to SAS EG
 #'
@@ -832,7 +836,7 @@ setClass(
 setMethod(
   "dbSendQuery", 
   c("SASEGConnection", "character"), 
-  function(conn, statement, persistent = TRUE, codeName = NULL, query = TRUE, ...) {
+  function(conn, statement, codeName = NULL, persistent = TRUE, query = TRUE, ...) {
     if(query) {
       # Choose a new dataset name to store the result of SQL query:
       SQLResult <- paste0("WORK.", random_table_name()) 
@@ -842,23 +846,55 @@ setMethod(
       }
     # Transform SQL statement into a SAS statement:
     statement <- SAS(DBI::SQL(statement), SQLResult = SQLResult)
+    # In case of a new SAS Code, construct a DATA STEP to retrieve SAS Return Codes:
+    if(persistent){
+      # * pick a name:
+      RCFileName <- paste0("WORK.", random_table_name())
+      # * elaborate the DATA STEP:
+      statement_RC <- SAS(
+        paste(
+          paste0("DATA ", RCFileName, ";"),
+          '  sqlexitcode=SYMGETN("sqlexitcode");',
+          '  sqlobs=SYMGETN("sqlobs");',
+          '  sqloops=SYMGETN("sqloops");',
+          '  sqlrc=SYMGETN("sqlrc");',
+          '  syserrortext=SYMGET("syserrortext");',
+          '  sqlxmsg=SYMGET("sqlxmsg");',
+          '  sqlxrc=SYMGET("sqlxrc");',
+          'RUN;',
+          sep = "\n"
+          )
+        )
+    } else {
+      RCFileName <- NA_character_
+      statement_RC <- ""
+    }
+    # Merge with main statement:
+    statement <- SAS(paste(statement, statement_RC, sep = "\n\n"))
     # Run SAS statement and get a SASEGResult object:
-    res <- dbSendQuery(conn, statement, persistent, codeName)
-    # Get SAS PROC SQL automatic macro variables:
-    SAS_auto_macro_var <- dbGetAutoMacroVariables(conn)    
-    # FINIR
+    res <- dbSendQuery(conn, statement, codeName, persistent)
+    # Get the list of output datasets:
+    l <- getListDatasets(res@SASResult)
+    # Read the SAS return codes:
+    if(!is.na(RCFileName)) {
+      SQLRC <- data.frame(read(l[[RCFileName]]))
+    } else {
+      SQLRC <- data.frame(NULL)
+    }
     # In case of end user made a "mistake" (ie. sending a data manipulation 
     #   statement with dbSendQuery instead of dbSendStatement), correct the 
     #   value of SQLResult:
-    if(!SQLResult %in% names(getListDatasets(res@SASResult))) {SQLResult <- NA_character_}
-    
+    if(!SQLResult %in% names(l)) {SQLResult <- NA_character_}
+    #  If a data manipulation statement was sent, turn result as fetched:
     if(is.na(SQLResult)) {fetched(res) <- TRUE}
-    
     # Construct a SASEGSQLResult object:
     res_sql <- new("SASEGSQLResult",
                    res,
                    SQLResult = SQLResult,
-                   rowsFetched = count_generator(init = 0))
+                   rowsFetched = count_generator(init = 0),
+                   SQLRC = SQLRC,
+                   RCFileName = RCFileName
+                   )
     
     return(res_sql)
   }
@@ -868,55 +904,115 @@ setMethod(
 setMethod(
   "dbSendStatement", 
   c("SASEGConnection", "character"), 
-  function(conn, statement, persistent = TRUE, codeName = NULL, ...) {
-  dbSendQuery(conn, statement, persistent, codeName, query = FALSE)
+  function(conn, statement, codeName = NULL, persistent = TRUE, ...) {
+  dbSendQuery(conn, statement, codeName, persistent, query = FALSE)
 })
 
+#' @export
+setMethod("dbGetRowsAffected", "SASEGSQLResult", function(res, ...) {
+  res@SQLRC$sqlobs
+})
 
 #' @export
 setMethod("dbClearResult", "SASEGSQLResult", function(res, ...) {
+  # If RCFileName dataset exists, drop it:
+  if(!is.na(res@RCFileName)) {
+    statement <- paste0("DROP TABLE ", res@RCFileName, ";\n")
+  } else {
+    statement <- ""
+  }
+  # If SQLResult dataset exists, drop it:
   if(!is.na(res@SQLResult)) {
-    statement <- paste("DROP TABLE", res@SQLResult)
-    dbSendStatement(res@conn, statement, persistent = FALSE)
-    } 
+    statement <- paste0(statement, "DROP TABLE ", res@SQLResult)
+  } else {
+    statement <- paste0(statement, "")
+  } 
+  # If necessary, run drop statement:
+  if(any(!is.na(c(res@RCFileName, res@SQLResult)))) dbSendStatement(res@conn, statement, codeName = NULL, persistent = FALSE)
+  # In all cases, set isValid to FALSE:
   isValid(res) <- FALSE
+  
   invisible(TRUE)
 })
 
 #' Retrieve records from SAS EG SQL query
 #' @export
 setMethod("dbFetch", "SASEGSQLResult", function(res, n = -1, ...) {
+  if(!length(n) == 1) stop("Argument n must be an atomic vector.")
+  if(!any(n%%1 == 0, is.infinite(n))) stop("Argument n must be a whole number.")
+  if(n < -1) stop("Argument n must be greater or equal to -1.")
+  if(!dbIsValid(res)) stop("Invalid result object.")
   # If object res was created by a SQL statement then SQLResult slot is NA:
-  if(dbHasCompleted(res)) {
-    warning("No row to fetch.")
+  if(is.na(res@SQLResult)) {
+    warning("No table to fetch: check that there is no error in your SQL code.")
     return(data.frame(NULL))
-  } else {
-    if(n == -1 | is.infinite(n)) {
-      # Get all datasets created by the SAS Statement
-      # This list can contain other datasets
-      l <- getListDatasets(res@SASResult)
-      # Read only the dataset pointed by SQLResult
-      d <- read(l[[res@SQLResult]])
-      fetched(res) <- TRUE
-      return(d)  
-    } else {
-      stop("Not yet implemented. Try n = -1.")
     }
+  if(dbHasCompleted(res)) message("No row to fetch: an empty data.frame is returned.") 
+  # Store in a variable whether all remaining rows are claimed:
+  allrows <- (n == -1 | is.infinite(n))
+  
+  if(allrows & dbGetRowCount(res) == 0) {
+    # Get all datasets created by the SAS Statement
+    # This list can contain other datasets
+    l <- getListDatasets(res@SASResult)
+    # Read only the dataset pointed by SQLResult
+    d <- data.frame(read(l[[res@SQLResult]]))
+    d[is.voidstring(d)] <- NA
+    fetched(res) <- TRUE
+  } else {
+    n_min <- dbGetRowCount(res)+1
+    n_max <- dbGetRowCount(res)+n
+    if(n == 0) {
+      n_min <- 0
+      n_max <- 0
+    }
+    if(allrows | dbHasCompleted(res)) {
+      condition <- paste0("GE ", n_min)
+    } else {
+      condition <- paste0("BETWEEN ", n_min, " AND ", n_max)
+    }
+    query <- paste0("SELECT * FROM ", res@SQLResult, "\n",
+                    "WHERE MONOTONIC() ", condition)
+    d <- dbGetQuery(res@conn, query, codeName = NULL, persistent = FALSE)
+    if(nrow(d) < n | allrows) {fetched(res) <- TRUE}
   }
+  res@rowsFetched(add = nrow(d))
+  return(d)
 })
 
 #' @export
 setMethod(
   "dbGetQuery", 
   c("SASEGConnection", "character"), 
-  function(conn, statement, persistent = TRUE, codeName = NULL, ...) {
-    res <- dbSendQuery(conn, statement, persistent, codeName, query = TRUE)
+  function(conn, statement, codeName = NULL, persistent = TRUE, ...) {
+    res <- dbSendQuery(conn, statement, codeName = codeName, persistent = persistent, query = TRUE)
     on.exit(dbClearResult(res))
     d <- dbFetch(res, n = -1)
     return(d)
 })
 
-
+#' @export
+setMethod("dbColumnInfo", "SASEGSQLResult", function(res, ...) {
+  if(is.na(res@SQLResult)) return(data.frame(NULL))
+  splitted <- strsplit(res@SQLResult, ".", fixed = TRUE)[[1]]
+  libname <- splitted[1]
+  tablename <- splitted[2]
+  statement <- paste(
+    'SELECT name,',
+    '       type AS "field.type",',
+    '       format AS "field.format",',
+    '       informat AS "field.informat",',
+    '       notnull,',
+    '       precision,',
+    '       scale',
+    'FROM DICTIONARY.COLUMNS',
+    paste0("WHERE libname='", libname, "' AND memname='", tablename, "'"),
+    sep = "\n"
+  )
+  d <- dbGetQuery(res@conn, statement, codeName = NULL, persistent = FALSE)
+  d <- SAS2RDataType(d)
+  return(d)
+})
 
 
 # SQL Methods -------------------------------------------------------------
@@ -951,6 +1047,19 @@ setMethod("dbQuoteIdentifier", c("SASEGConnection", "Table"), function(conn, x, 
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
   dbQuoteIdentifier(DBI::ANSI(), x, ...)
 })
+
+#' @export
+dataset <- function(name, libname = "WORK") {
+  if(length(libname) > 1 | length(name) > 1) stop("You must provide atomic libname/name.")
+  name <- strsplit(name, ".", fixed = TRUE)[[1]]
+  if(length(name) > 2) stop('name argument cannot contain more than one "."')
+  if(length(name) == 2) return(new("Table", name = name))
+  if(grepl(pattern = ".", x = libname, fixed = TRUE)) stop('Libname cannot contain "."')
+  if(is.null(libname)) {
+    warning("Null libname, WORK is provided as libname.", immediate. = TRUE)
+    libname <- "WORK"}
+  return(new("Table", name = c(as.character(libname), as.character(name))))
+}
 
 #' @export
 setMethod("sqlData", "SASEGConnection", function(con, value, row.names = NA, ...) {

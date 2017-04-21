@@ -3,21 +3,21 @@
 \docType{class}
 \name{SASEGResult-class}
 \alias{SASEGResult-class}
-\alias{fetched<-,SASEGResult-method}
-\alias{isValid<-,SASEGResult-method}
 \alias{dbHasCompleted,SASEGResult-method}
+\alias{fetched<-,SASEGResult-method}
 \alias{dbIsValid,SASEGResult-method}
+\alias{isValid<-,SASEGResult-method}
 \alias{dbFetch,SASEGResult-method}
 \alias{dbGetLog,SASEGResult-method}
 \title{SASEGResult class}
 \usage{
-\S4method{fetched}{SASEGResult}(res) <- value
-
-\S4method{isValid}{SASEGResult}(obj) <- value
-
 \S4method{dbHasCompleted}{SASEGResult}(res, ...)
 
+\S4method{fetched}{SASEGResult}(res) <- value
+
 \S4method{dbIsValid}{SASEGResult}(dbObj, ...)
+
+\S4method{isValid}{SASEGResult}(obj) <- value
 
 \S4method{dbFetch}{SASEGResult}(res, n = -1, ...)
 
@@ -27,14 +27,14 @@
 \item{res}{An object of class \code{SASEGResult} or inheriting from this 
 class, as \code{\linkS4class{SASEGSQLResult}}.}
 
-\item{value}{A logical.}
-
-\item{obj}{An object of class \code{SASEGResult} or inheriting from this 
-class, as \code{\linkS4class{SASEGSQLResult}}.}
-
 \item{...}{Other parameters. Not used.}
 
+\item{value}{A logical.}
+
 \item{dbObj}{An object of class \code{SASEGResult} or inheriting from this 
+class, as \code{\linkS4class{SASEGSQLResult}}.}
+
+\item{obj}{An object of class \code{SASEGResult} or inheriting from this 
 class, as \code{\linkS4class{SASEGSQLResult}}.}
 
 \item{n}{An integer, \bold{not used}. All rows of all datasets are fetched.}

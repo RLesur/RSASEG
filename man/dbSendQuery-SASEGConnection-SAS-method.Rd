@@ -5,19 +5,19 @@
 \alias{dbSendQuery,SASEGConnection,SAS-method}
 \title{Send a SAS query to SAS EG}
 \usage{
-\S4method{dbSendQuery}{SASEGConnection,SAS}(conn, statement,
-  persistent = TRUE, codeName = NULL, ...)
+\S4method{dbSendQuery}{SASEGConnection,SAS}(conn, statement, codeName = NULL,
+  persistent = TRUE, ...)
 }
 \arguments{
 \item{conn}{A \code{SASEGConnection} object.}
 
 \item{statement}{A \code{\linkS4class{SAS}} object.}
 
+\item{codeName}{A character string to name the new \code{\linkS4class{SASEGCode}} object.}
+
 \item{persistent}{A logical. If \code{TRUE}, a new 
 \code{\linkS4class{SASEGCode}} is created in the \code{SASEGProject}. If 
 \code{FALSE}, \code{garbage} code is used.}
-
-\item{codeName}{A character string to name the new \code{\linkS4class{SASEGCode}} object.}
 }
 \value{
 A \code{\linkS4class{SASEGResult}} object.

@@ -64,3 +64,18 @@ setMethod("getSASType", "list", function(obj) {
     stop("Type not supported by SAS.")
   }
 })
+
+# Test fonction pour dbColumnInfo
+SAS2RDataType <- function(columnInfo) {
+  data.type <- vector("character", nrow(columnInfo))
+  data.type[grepl("char", columnInfo$field.type, fixed = TRUE)] <- "character"
+  data.type[grepl("DATE", columnInfo$field.format, fixed = TRUE)] <- "date"
+  data.type[grepl("TIME", columnInfo$field.format, fixed = TRUE)] <- "difftime"
+  data.type[grepl("DATETIME", columnInfo$field.format, fixed = TRUE)] <- "POSIXct"
+  data.type[grepl("E8601DA", columnInfo$field.format, fixed = TRUE)] <- "date"
+  data.type[grepl("E8601DT", columnInfo$field.format, fixed = TRUE)] <- "POSIXct"
+  data.type[is.voidstring(data.type)] <- "numeric"
+  columnInfo <- data.frame(columnInfo, data.type, stringsAsFactors = FALSE)
+  return(columnInfo)
+}
+

@@ -1,5 +1,6 @@
 #' @import DBI
 #' @import methods
+#' @importFrom stringr str_to_upper
 #' @include SASEGS4.R
 #' @include SASEGDataType.R
 #' @include utils.R
@@ -346,6 +347,20 @@ setMethod("show", "SAS", function(object) {
   cat(paste0("<SAS> ", object@.Data, collapse = "\n"))
 })
 
+#' @export
+dataset <- function(name, libname = "WORK") {
+  if(length(libname) > 1 | length(name) > 1) stop("You must provide atomic libname/name.")
+  name <- strsplit(name, ".", fixed = TRUE)[[1]]
+  if(length(name) > 2) stop('name argument cannot contain more than one "."')
+  if(length(name) == 2) return(new("Table", name = name))
+  if(grepl(pattern = ".", x = libname, fixed = TRUE)) stop('Libname cannot contain "."')
+  if(is.null(libname)) {
+    warning("Null libname, WORK is provided as libname.", immediate. = TRUE)
+    libname <- "WORK"
+  }
+  return(new("Table", name = c(as.character(libname), as.character(name))))
+}
+
 
 # Connection Class and Methods --------------------------------------------
 
@@ -355,29 +370,16 @@ setMethod("show", "SAS", function(object) {
 #' This class inherits from \code{\link[DBI]{DBIConnection-class}}.
 #' An object of class \code{SASEGConnection} can be understood a \code{SAS EG} project.
 #' @exportClass SASEGConnection
-#' @slot profile A character string with the profile name.
-#' @slot server A character string with the server name used to run \code{SAS} 
-#'     codes.
-#' @slot application A \code{\linkS4class{SASEGApplication}} object.
-#' @slot SASProject A \code{\linkS4class{SASEGProject}} object.
-#' @slot SASUtil A \code{\linkS4class{SASEGCode}} object. This slot is used to 
-#'     run codes (eg. fetch programs) in a non persistent way.
-#' @slot dbms A character string to store informations for \code{SAS/ACCESS} 
-#'     connector. Not used yet.
-#' @slot isValid A closure.
+#' @slot infos An environment that reference all slots. This environment is 
+#'     registered. Referenced objects are: drv (the SASEGDriver used to connect to), 
+#'     isValid (a logical), profile (a character string), server (a character 
+#'     string), SASProject (a SASEGProject object), SASUtil (a SASEGCode object), 
+#'     listResults (an environment), dbms (a character string)
 #' @keywords internal
 setClass("SASEGConnection",
          contains = "DBIConnection",
-         slots = list(
-           profile = "character",
-           server = "character",
-           SASProject = "SASEGProject",
-           SASUtil = "SASEGCode",
-           dbms = "character",
-           isValid = "function",
-           drv = "SASEGDriver"
+         slots = list(infos = "environment")
          )
-)
 
 #' Access to slot drv of an object
 #' 
@@ -396,8 +398,35 @@ setGeneric("drv", function(obj, ...) standardGeneric("drv"))
 #' @return A \code{\linkS4class{SASEGDriver}} object.
 #' @keywords internal
 setMethod("drv", "SASEGConnection", function(obj, ...) {
-  obj@drv
+  env <- obj@infos
+  env$drv
 })
+
+#' Test if SAS EG connection is valid
+#' 
+#' \code{dbIsValid} tests if a \code{\linkS4class{SASEGConnection}} object is valid.
+#' @param dbObj An object of class \code{\linkS4class{SASEGConnection}}.
+#' @param ... Other parameters. Not used.
+#' @keywords internal
+#' @export
+setMethod("dbIsValid", "SASEGConnection", function(dbObj, ...) {
+  env <- dbObj@infos
+  env$isValid
+})
+
+#' Set the value isValid of a SASEGConnection object
+#' 
+#' Value stored in slot \code{isValid} can be replaced with this method. This 
+#'     method is not exported. Only developpers may need to use it. 
+#' @param obj A \code{\linkS4class{SASEGDriver}} object.
+#' @param value A logical.
+#' @seealso dbIsValid,SASEGConnection-method
+#' @keywords internal
+setMethod("isValid<-", "SASEGConnection", function(obj, value) {
+  env <- obj@infos
+  env$isValid <- value
+  return(obj)
+}) 
 
 #' Access to the SASEGApplication object stored in a SASEGConnection object
 #' 
@@ -411,6 +440,52 @@ setMethod("drv", "SASEGConnection", function(obj, ...) {
 setMethod("app", "SASEGConnection", function(obj, ...) {
   app(drv(obj))
 })
+
+setGeneric("getProfile", function(obj) standardGeneric("getProfile"))
+
+setMethod("getProfile", "SASEGConnection", function(obj) {
+  env <- obj@infos
+  env$profile
+})
+
+setGeneric("server", function(obj) standardGeneric("server"))
+
+setMethod("server", "SASEGConnection", function(obj) {
+  env <- obj@infos
+  env$server
+})
+
+setGeneric("project", function(obj) standardGeneric("project"))
+
+setMethod("project", "SASEGConnection", function(obj) {
+  env <- obj@infos
+  env$SASProject
+})
+
+setGeneric("getUtil", function(obj) standardGeneric("getUtil"))
+
+setMethod("getUtil", "SASEGConnection", function(obj) {
+  env <- obj@infos
+  env$SASUtil
+})
+
+#' @export
+setMethod("dbGetException", "SASEGConnection", function(conn, ...) {
+  list(
+    errornum = conn@infos$sqlrc,
+    errorMsg = conn@infos$syserrortext
+  )
+})
+
+finalize_cnx <- function(e) {
+  cnx <- new("SASEGConnection", infos = e)
+  if(dbIsValid(cnx)) {
+    message("Disconnecting a lost connection.")
+    dbDisconnect(cnx)
+    }
+  
+  invisible()
+}
 
 #' @description Use \code{dbConnect} to create a new connection to a \code{SAS} 
 #'     server through \code{SAS Enterprise Guide}. A single connection is 
@@ -454,9 +529,22 @@ setMethod("app", "SASEGConnection", function(obj, ...) {
 #' @seealso \code{\link[=dbDisconnect,SASEGConnection-method]{dbDisconnect}}
 setMethod("dbConnect", "SASEGDriver", function(drv, profile, server, ...) {
   if(!dbIsValid(drv)) stop("invalid driver.")
-  if(length(dbListConnections(drv)) >= dbGetInfo(drv)$max.connections) {
-    stop("Cannot create a new connection: max. number of connections reached.")
+  
+  list_cnx <- dbListConnections(drv)
+  if(length(list_cnx) >= dbGetInfo(drv)$max.connections) {
+    warning("Cannot create a new connection: max. number of connections reached.\n  Existing connection returned.", immediate. = TRUE)
+    cnx <- dbListConnections(drv)[[1]]
+    if(!getProfile(cnx) == profile) warning("\n  Previous profile used: ", getProfile(cnx), immediate. = TRUE)
+    if(!server(cnx) == server) warning("\n  Previous server used: ", server(cnx), immediate. = TRUE)
+    return(cnx)
   }
+  
+  infos <- new.env(parent = emptyenv())
+  infos$drv <- drv
+  infos$isValid <- TRUE
+  infos$profile <- profile
+  infos$server <- server
+  infos$listResults <- new.env(parent = emptyenv())
   app <- app(drv)
   # Set profile:
   setProfile(app, profile)
@@ -464,58 +552,35 @@ setMethod("dbConnect", "SASEGDriver", function(drv, profile, server, ...) {
   SASProject <- newProject(app)
   # Create a new SASEGCode object to run utils tasks (e.g. fetch programs) in
   # a non persistent way:
-  SASUtil <- newCode(project = SASProject, 
-                     server = server, 
-                     program = noteUtil, 
-                     name = "garbage")
-  dbms <- character(0)
-  new_cnx <- new("SASEGConnection", 
-             profile = profile, 
-             server = server, 
-             SASProject = SASProject, 
-             SASUtil = SASUtil, 
-             dbms = dbms,
-             isValid = state_generator(init = TRUE),
-             drv = drv
-             )
+  infos$SASUtil <- newCode(project = SASProject, 
+                           server = server, 
+                           program = noteUtil, 
+                           name = "garbage"
+                           )
+  infos$SASProject <- SASProject
+  infos$dbms <- character(0)
+  new_cnx <- new("SASEGConnection", infos = infos)
+  on.exit(reg.finalizer(infos, finalize_cnx, onexit = TRUE))
   # Add the new connection to the list of connections of the driver:
   cnx(drv) <- new_cnx
   return(new_cnx)
 })
 
+#' @export
+setMethod("dbConnect", "SASEGConnection", function(drv, ...) {
+  dbConnect(drv(drv), getProfile(drv), server(drv))
+})
+
 setMethod("show", "SASEGConnection", function(object) {
   cat(
     "<SASEGConnection>\n",
-    "Used Profile in Active Connection: ", object@profile, "\n",
-    "SAS Server to Run Programs in Active Connection: ", object@server, "\n",
-    "DBMS SQL Pass-Through: ", if(length(object@dbms) == 0) "NONE" else object@dbms,
+    "Used Profile in Active Connection: ", getProfile(object), "\n",
+    "SAS Server to Run Programs in Active Connection: ", server(object), "\n",
+    "DBMS SQL Pass-Through: ", if(length(object@infos$dbms) == 0) "NONE" 
+                               else object@infos$dbms,
     sep = ""
     )
 })
-
-#' Test if SAS EG connection is valid
-#' 
-#' \code{dbIsValid} tests if a \code{\linkS4class{SASEGConnection}} object is valid.
-#' @param dbObj An object of class \code{\linkS4class{SASEGConnection}}.
-#' @param ... Other parameters. Not used.
-#' @keywords internal
-#' @export
-setMethod("dbIsValid", "SASEGConnection", function(dbObj, ...) {
-  dbObj@isValid()
-})
-
-#' Set the value isValid of a SASEGConnection object
-#' 
-#' Value stored in slot \code{isValid} can be replaced with this method. This 
-#'     method is not exported. Only developpers may need to use it. 
-#' @param obj A \code{\linkS4class{SASEGDriver}} object.
-#' @param value A logical.
-#' @seealso dbIsValid,SASEGConnection-method
-#' @keywords internal
-setMethod("isValid<-", "SASEGConnection", function(obj, value) {
-  obj@isValid(set = value)
-  return(obj)
-}) 
 
 #' Disconnect (or close) a SAS EG connection
 #' 
@@ -552,19 +617,117 @@ setMethod("isValid<-", "SASEGConnection", function(obj, value) {
 #' @export
 setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, ...) {
   if(dbIsValid(conn)) {
-    if(!is.null(projectPath)) saveAs(conn@SASProject, projectPath)
+    if(!is.null(projectPath)) saveAs(project(conn), projectPath)
     # Detach current connection from the list of connections of the driver:
     drv <- drv(conn)
     cnx(drv) <- NULL
     # Close SASEGProject:
-    terminate(conn@SASProject)
+    terminate(project(conn))
     # Unvalidate connection:
     isValid(conn) <- FALSE
   } else {
-    warning("Connection already disconnected.")
+    warning("Connection already disconnected.", immediate. = TRUE)
   }
   invisible(TRUE)
 })
+
+setMethod("dbGetInfo", "SASEGConnection", function(dbObj, ...) {
+  profile <- getProfile(dbObj)
+  
+  list_avail_profl <- dbGetInfo(drv(dbObj))$available.profiles
+  is.profile <- vapply(list_avail_profl, function(x) x$profilename == profile, logical(1))
+  profileinfos <- list_avail_profl[is.profile][[1]]
+  host <- profileinfos$host
+  port <- profileinfos$port
+
+  # Construct a DATA STEP to retrieve db.version, dbname and username:
+  # * pick a name:
+  infosFileName <- paste0("WORK.", random_table_name())
+  # * elaborate the DATA STEP:
+  statement <- SAS(
+    paste(
+      paste0("DATA ", infosFileName, ";"),
+      '  dbversion=SYMGET("sysver");',
+      '  dbname=GETOPTION("user");',
+      '  username=SYMGET("sysuserid");',
+      'RUN;',
+      sep = "\n"
+    )
+  )
+  # Run SAS statement and get a SASEGResult object:
+  res <- dbSendQuery(dbObj, statement, codeName = NULL, persistent = FALSE)
+  l <- getListDatasets(res@SASResult)
+  infos <- read(l[[infosFileName]])
+  db.version <- infos$dbversion
+  if(is.na(infos$dbname)) {
+    dbname <- "WORK"
+  } else {
+    if(infos$dbname == "") {dbname <- "WORK"} else {dbname <- infos$dbname}
+  }
+  username <- infos$username
+  return(list(
+    profile = profile,
+    db.version = db.version,
+    dbname = dbname,
+    username = username,
+    host = host,
+    port = port
+  ))
+})
+
+#' @export
+setMethod("dbListFields", c("SASEGConnection", "character"), function(conn, name, ...) {
+  name <- dataset(name)
+  statement <- paste(
+    'SELECT name',
+    'FROM DICTIONARY.COLUMNS',
+    paste0("WHERE libname='", stringr::str_to_upper(name@name[1]), "' AND memname='", stringr::str_to_upper(name@name[2]), "'"),
+    sep = "\n"
+  )
+  d <- dbGetQuery(conn, statement, codeName = NULL, persistent = FALSE)
+  return(as.character(d$name))
+})
+
+#' @export
+setMethod("dbListTables", "SASEGConnection", function(conn, ...) {
+  statement <- paste0(
+    'SELECT libname, memname\n',
+    'FROM DICTIONARY.TABLES'
+    )
+  d <- dbGetQuery(conn, statement, codeName = NULL, persistent = FALSE)
+  paste(d$libname, d$memname, sep = ".")
+})
+
+#' @export
+setMethod("dbExistsTable", c("SASEGConnection", "character"), function(conn, name, ...) {
+  name <- dataset(name)
+  statement <- paste(
+    'SELECT COUNT(*) AS value',
+    'FROM DICTIONARY.TABLES',
+    paste0("WHERE libname='", stringr::str_to_upper(name@name[1]), "' AND memname='", stringr::str_to_upper(name@name[2]), "'"),
+    sep = "\n"
+  )
+  d <- dbGetQuery(conn, statement, codeName = NULL, persistent = FALSE)
+  return(as.logical(d$value))
+})
+
+#' @export
+setMethod("dbListResults", "SASEGConnection", function(conn, ...) {
+  listResults <- conn@infos$listResults
+  lapply(ls(listResults), function(x) get(x, envir = listResults))
+})
+
+##### A TESTER
+
+setGeneric("dbClearListResults", function(conn, ...) standardGeneric("dbClearListResults"))
+
+setMethod("dbClearListResults", "SASEGConnection", function(conn, ...) {
+  listResults <- conn@infos$listResults
+  lapply(ls(listResults), function(x) {
+    if(!dbIsValid(get(x, envir = listResults))) rm(x, envir = listResults) 
+    })
+})
+
 
 #' Find the SAS data type associated with an R object
 #' 
@@ -695,14 +858,14 @@ setMethod(
   function(conn, statement, codeName = NULL, persistent = TRUE, ...) {
     if(persistent) {
       # Create a new SAS EG Code object with server and SAS program: 
-      SASCode <- newCode(conn@SASProject, 
-                         server = conn@server, 
+      SASCode <- newCode(project(conn), 
+                         server = server(conn), 
                          program = statement, 
                          name = codeName
                         )
     } else {
       # Use temporary SAS Code
-      SASCode <- conn@SASUtil
+      SASCode <- getUtil(conn)
       setText(SASCode, paste0(noteUtil, statement))
     }
     # Execute SAS program:
@@ -818,6 +981,11 @@ setMethod("dbGetRowCount", "SASEGSQLResult", function(res, ...) {
   res@rowsFetched()
 })
 
+#' @export
+setMethod("dbGetRowsAffected", "SASEGSQLResult", function(res, ...) {
+  res@SQLRC$sqlobs
+})
+
 #' Send an SQL query to SAS EG
 #'
 #' \code{dbSendQuery} sends an \code{\link[DBI]{SQL}} query to \code{SAS}. The 
@@ -878,6 +1046,12 @@ setMethod(
     # Read the SAS return codes:
     if(!is.na(RCFileName)) {
       SQLRC <- data.frame(read(l[[RCFileName]]))
+      if(SQLRC$sqlrc > 0 & SQLRC$sqlrc < 8) warning("SAS/PROC SQL warning: ", SQLRC$syserrortext)
+      if(SQLRC$sqlrc >= 8) {
+        on.exit(stop("SAS/PROC SQL error: ", SQLRC$syserrortext, call. = FALSE))
+        conn@infos$sqlrc <- SQLRC$sqlrc
+        conn@infos$syserrortext <- SQLRC$syserrortext
+        }
     } else {
       SQLRC <- data.frame(NULL)
     }
@@ -895,6 +1069,7 @@ setMethod(
                    SQLRC = SQLRC,
                    RCFileName = RCFileName
                    )
+    assign(random_table_name(), res_sql, envir = conn@infos$listResults)
     
     return(res_sql)
   }
@@ -957,7 +1132,7 @@ setMethod("dbFetch", "SASEGSQLResult", function(res, n = -1, ...) {
     l <- getListDatasets(res@SASResult)
     # Read only the dataset pointed by SQLResult
     d <- data.frame(read(l[[res@SQLResult]]))
-    d[is.voidstring(d)] <- NA
+    if(nrow(d) > 0) d[is.voidstring(d)] <- NA
     fetched(res) <- TRUE
   } else {
     n_min <- dbGetRowCount(res)+1
@@ -1033,7 +1208,11 @@ setMethod("dbQuoteString", c("SASEGConnection", "SQL"), function(conn, x, ...) {
 #' @export
 setMethod("dbQuoteIdentifier", c("SASEGConnection", "character"), function(conn, x, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  dbQuoteIdentifier(DBI::ANSI(), x, ...)
+  x <- strsplit(x, ".", fixed = TRUE)[[1]]
+  x <- dbQuoteIdentifier(DBI::ANSI(), x, ...)
+  x <- vapply(x, function(y) if(y == '""') NA_character_ else y, character(1))
+  x <- paste0(x, collapse = '.')
+  new("SQL", gsub('.NA.', '..', x, fixed = TRUE))
 })
 
 #' @export
@@ -1047,19 +1226,6 @@ setMethod("dbQuoteIdentifier", c("SASEGConnection", "Table"), function(conn, x, 
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
   dbQuoteIdentifier(DBI::ANSI(), x, ...)
 })
-
-#' @export
-dataset <- function(name, libname = "WORK") {
-  if(length(libname) > 1 | length(name) > 1) stop("You must provide atomic libname/name.")
-  name <- strsplit(name, ".", fixed = TRUE)[[1]]
-  if(length(name) > 2) stop('name argument cannot contain more than one "."')
-  if(length(name) == 2) return(new("Table", name = name))
-  if(grepl(pattern = ".", x = libname, fixed = TRUE)) stop('Libname cannot contain "."')
-  if(is.null(libname)) {
-    warning("Null libname, WORK is provided as libname.", immediate. = TRUE)
-    libname <- "WORK"}
-  return(new("Table", name = c(as.character(libname), as.character(name))))
-}
 
 #' @export
 setMethod("sqlData", "SASEGConnection", function(con, value, row.names = NA, ...) {

@@ -11,22 +11,11 @@ An object of class \code{SASEGConnection} can be understood a \code{SAS EG} proj
 \section{Slots}{
 
 \describe{
-\item{\code{profile}}{A character string with the profile name.}
-
-\item{\code{server}}{A character string with the server name used to run \code{SAS} 
-codes.}
-
-\item{\code{application}}{A \code{\linkS4class{SASEGApplication}} object.}
-
-\item{\code{SASProject}}{A \code{\linkS4class{SASEGProject}} object.}
-
-\item{\code{SASUtil}}{A \code{\linkS4class{SASEGCode}} object. This slot is used to 
-run codes (eg. fetch programs) in a non persistent way.}
-
-\item{\code{dbms}}{A character string to store informations for \code{SAS/ACCESS} 
-connector. Not used yet.}
-
-\item{\code{isValid}}{A closure.}
+\item{\code{infos}}{An environment that reference all slots. This environment is 
+registered. Referenced objects are: drv (the SASEGDriver used to connect to), 
+isValid (a logical), profile (a character string), server (a character 
+string), SASProject (a SASEGProject object), SASUtil (a SASEGCode object), 
+listResults (an environment), dbms (a character string)}
 }}
 
 \keyword{internal}

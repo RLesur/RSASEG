@@ -97,3 +97,4 @@ terminate(app)
 \seealso{
 \code{\linkS4class{SASEGProject}}
 }
+\keyword{internal}

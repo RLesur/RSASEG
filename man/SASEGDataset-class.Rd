@@ -100,3 +100,4 @@ terminate(app)
 \seealso{
 \code{\linkS4class{SASEGCode}}
 }
+\keyword{internal}

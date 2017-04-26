@@ -25,3 +25,4 @@ path <- "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScrip
 loadSASEGScripting(path)
 }
 }
+\keyword{internal}

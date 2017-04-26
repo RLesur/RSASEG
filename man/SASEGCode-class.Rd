@@ -111,3 +111,4 @@ terminate(app)
 \seealso{
 \code{\linkS4class{SASEGProject}}, \code{\linkS4class{SASEGDataset}}
 }
+\keyword{internal}

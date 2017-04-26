@@ -23,6 +23,7 @@ NULL
 #' path <- "C:\\Program Files\\SAS94\\SASEnterpriseGuide\\7.1\\SASEGScripting.dll"
 #' loadSASEGScripting(path)
 #' }
+#' @keywords internal
 #' @export
 loadSASEGScripting <- function(DLLFilePath) {
   rClr::clrLoadAssembly(DLLFilePath)
@@ -178,6 +179,7 @@ setMethod("clrSet", "SASObjRef", function(objOrType, name, value) {
 #'
 #' The \code{SASEGApplication} class is an S4 class to represent a 
 #' \code{SAS EG Scripting Application} object.
+#' @keywords internal
 setClass("SASEGApplication", contains = "SASObjRef")
 
 #' A finalizer function for SASEGApplication
@@ -410,6 +412,7 @@ setMethod("terminate", "SASEGApplication", function(object) {
 #' terminate(app)
 #' }
 #' @seealso \code{\linkS4class{SASEGApplication}}, \code{\linkS4class{SASEGCode}}
+#' @keywords internal
 setClass("SASEGProject", contains = "SASObjRef")
 
 #' Create a new project in an application
@@ -507,6 +510,7 @@ setMethod("terminate", "SASEGProject", function(object) {
 #' terminate(app)
 #' }
 #' @seealso \code{\linkS4class{SASEGProject}}, \code{\linkS4class{SASEGDataset}}
+#' @keywords internal
 setClass("SASEGCode", contains = "SASObjRef")
 
 #' Set the server
@@ -720,6 +724,7 @@ setMethod("getSourceCode", "SASEGCode", function(code) {
 #' terminate(app)
 #' }
 #' @seealso \code{\linkS4class{SASEGCode}}
+#' @keywords internal
 setClass("SASEGDataset", contains = "SASObjRef")
 
 #' Get the filename of an object

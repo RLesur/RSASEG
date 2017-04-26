@@ -864,15 +864,28 @@ setMethod("dbListResults", "SASEGConnection", function(conn, ...) {
   lapply(ls(listResults), function(x) get(x, envir = listResults))
 })
 
-##### A TESTER
-
+#' Clear list of results
+#' 
+#' This method removes invalid results from the list of results.
+#' @param conn An object.
+#' @param ... Other parameters passed on to method.
+#' @keywords internal
 setGeneric("dbClearListResults", function(conn, ...) standardGeneric("dbClearListResults"))
 
+#' Clear list of results
+#' 
+#' This method removes invalid \code{\linkS4class{SASEGSQLResults}} of the list 
+#' of results referenced in a \code{\linkS4class{SASEGConnection}} object.
+#' @param conn A \code{\linkS4class{SASEGConnection}} object.
+#' @param ... Other parameters passed on to method. Not used.
+#' @return \code{TRUE}, invisibly.
+#' @keywords internal
 setMethod("dbClearListResults", "SASEGConnection", function(conn, ...) {
   listResults <- conn@infos$listResults
   lapply(ls(listResults), function(x) {
-    if(!dbIsValid(get(x, envir = listResults))) rm(x, envir = listResults) 
+    if(!dbIsValid(get(x, envir = listResults))) eval(call("rm", as.name(x), envir = listResults)) 
     })
+  invisible(TRUE)
 })
 
 
@@ -1237,6 +1250,7 @@ setMethod("dbGetRowsAffected", "SASEGSQLResult", function(res, ...) {
 
 #' @export
 setMethod("dbClearResult", "SASEGSQLResult", function(res, ...) {
+  on.exit(dbClearListResults(res@conn))
   # If RCFileName dataset exists, drop it:
   if(!is.na(res@RCFileName)) {
     statement <- paste0("DROP TABLE ", res@RCFileName, ";\n")
@@ -1253,7 +1267,7 @@ setMethod("dbClearResult", "SASEGSQLResult", function(res, ...) {
   if(any(!is.na(c(res@RCFileName, res@SQLResult)))) dbSendStatement(res@conn, statement, codeName = NULL, persistent = FALSE)
   # In all cases, set isValid to FALSE:
   isValid(res) <- FALSE
-  
+
   invisible(TRUE)
 })
 

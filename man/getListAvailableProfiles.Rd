@@ -9,7 +9,7 @@ getListAvailableProfiles(object, ...)
 \arguments{
 \item{object}{An object.}
 
-\item{...}{Other parameters passed to method.}
+\item{...}{Other parameters passed on to method.}
 }
 \description{
 Get a list of available profiles.

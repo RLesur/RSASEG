@@ -20,7 +20,7 @@
 \arguments{
 \item{obj}{A \code{SASEGDriver} object.}
 
-\item{...}{Other parameters passed to method. Not used.}
+\item{...}{Other parameters passed on to method. Not used.}
 
 \item{value}{A value to replace for.}
 

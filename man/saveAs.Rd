@@ -9,7 +9,7 @@ saveAs(object, ...)
 \arguments{
 \item{object}{An object to save.}
 
-\item{...}{Other parameters passed to method, including filepath.}
+\item{...}{Other parameters passed on to method, including filepath.}
 }
 \description{
 A generic that save an object as...

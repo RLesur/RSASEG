@@ -30,7 +30,7 @@ temporary directory of the session is used.}
 \item{type}{Optional, a character with the file format (\code{"csv"}, 
 \code{"tab"} or \code{"txt"}). \code{tab} is used by default.}
 
-\item{fsep}{Optional, a character with a path separator passed to 
+\item{fsep}{Optional, a character with a path separator passed on to 
 \code{\link[base]{file.path}}. As \code{SAS EG} is a \code{Windows} 
 application, "\\" is used by default.}
 

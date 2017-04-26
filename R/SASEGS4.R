@@ -238,7 +238,7 @@ SASEGApplication <- function() {
 #' 
 #' Get the name of an object.
 #' @param object An object.
-#' @param ... Other parameters passed to method.
+#' @param ... Other parameters passed on to method.
 #' @keywords internal
 #' @exportMethod getName
 setGeneric("getName", function(object, ...) standardGeneric("getName"))
@@ -259,7 +259,7 @@ setMethod("getName", "SASEGApplication", function(object, ...) {
 #' 
 #' Get the version of an object.
 #' @param object An object.
-#' @param ... Other parameters passed to method.
+#' @param ... Other parameters passed on to method.
 #' @keywords internal
 #' @exportMethod getVersion
 setGeneric("getVersion", function(object, ...) standardGeneric("getVersion"))
@@ -280,7 +280,7 @@ setMethod("getVersion", "SASEGApplication", function(object, ...) {
 #' 
 #' Get a list of available profiles.
 #' @param object An object.
-#' @param ... Other parameters passed to method.
+#' @param ... Other parameters passed on to method.
 #' @keywords internal
 #' @exportMethod getListAvailableProfiles
 setGeneric(
@@ -437,7 +437,7 @@ setMethod("newProject", "SASEGApplication", function(application) {
 #' 
 #' A generic that save an object as...
 #' @param object An object to save.
-#' @param ... Other parameters passed to method, including filepath.
+#' @param ... Other parameters passed on to method, including filepath.
 #' @keywords internal
 #' @exportMethod saveAs
 setGeneric("saveAs", function(object, ...) standardGeneric("saveAs"))
@@ -451,7 +451,7 @@ setGeneric("saveAs", function(object, ...) standardGeneric("saveAs"))
 #' @param filepath A character string with a valid path.
 #'   \strong{Be careful: \code{saveAs} method overwrites existing files 
 #'   without confirmation.}
-#' @param ... Other parameters passed to method (not used).
+#' @param ... Other parameters passed on to method (not used).
 #' @rdname SASEGProject-class
 #' @export
 setMethod("saveAs", "SASEGProject", function(object, filepath, ...) {
@@ -725,7 +725,7 @@ setClass("SASEGDataset", contains = "SASObjRef")
 #' Get the filename of an object
 #' 
 #' \code{getFileName} method is used to get the filename of an object.
-#' @param ... Other parameters passed to method.
+#' @param ... Other parameters passed on to method.
 #' @keywords internal
 #' @exportMethod getFileName
 setGeneric("getFileName", function(object, ...) standardGeneric("getFileName"))
@@ -795,7 +795,7 @@ setMethod("getName", "SASEGDataset", function(object) {
 #'     \code{NULL}, the name of the dataset is used.
 #' @param type Optional, a character with the file format (\code{"csv"}, 
 #'     \code{"tab"} or \code{"txt"}). \code{tab} is used by default.
-#' @param fsep Optional, a character with a path separator passed to 
+#' @param fsep Optional, a character with a path separator passed on to 
 #'     \code{\link[base]{file.path}}. As \code{SAS EG} is a \code{Windows} 
 #'     application, "\\" is used by default.
 #' @inheritParams getName-method
@@ -817,7 +817,7 @@ setMethod("saveAs",
 #' 
 #' Read an object.
 #' @param object An object.
-#' @param ... Other parameters passed to method.
+#' @param ... Other parameters passed on to method.
 #' @keywords internal
 setGeneric("read", function(object, ...) standardGeneric("read"))
 

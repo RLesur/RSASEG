@@ -9,7 +9,7 @@ getVersion(object, ...)
 \arguments{
 \item{object}{An object.}
 
-\item{...}{Other parameters passed to method.}
+\item{...}{Other parameters passed on to method.}
 }
 \description{
 Get the version of an object.

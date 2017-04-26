@@ -3,19 +3,95 @@
 \docType{class}
 \name{SASEGConnection-class}
 \alias{SASEGConnection-class}
+\alias{drv,SASEGConnection-method}
+\alias{isValid<-,SASEGConnection-method}
+\alias{app,SASEGConnection-method}
+\alias{getProfile,SASEGConnection-method}
+\alias{server,SASEGConnection-method}
+\alias{project,SASEGConnection-method}
+\alias{getUtil,SASEGConnection-method}
 \title{SAS EG connection class}
+\usage{
+\S4method{drv}{SASEGConnection}(obj, ...)
+
+\S4method{isValid}{SASEGConnection}(obj) <- value
+
+\S4method{app}{SASEGConnection}(obj, ...)
+
+\S4method{getProfile}{SASEGConnection}(obj)
+
+\S4method{server}{SASEGConnection}(obj)
+
+\S4method{project}{SASEGConnection}(obj)
+
+\S4method{getUtil}{SASEGConnection}(obj)
+}
+\arguments{
+\item{obj}{An object of class \code{SASEGconnection}.}
+
+\item{...}{Other parameters passed on to method. Not used.}
+
+\item{value}{A logical.}
+}
+\value{
+\code{drv} returns a \code{\linkS4class{SASEGDriver}} object.
+
+\code{app} returns a \code{\linkS4class{SASEGApplication}} object.
+
+\code{getProfile} returns a character string.
+
+\code{server} method returns a character string.
+
+\code{project} method returns a \code{\linkS4class{SASEGProject}} object.
+
+\code{getUtil} method returns a \code{\linkS4class{SASEGCode}} object.
+}
 \description{
 This class inherits from \code{\link[DBI]{DBIConnection-class}}.
 An object of class \code{SASEGConnection} can be understood a \code{SAS EG} project.
+
+\code{drv} method access to the \code{\linkS4class{SASEGDriver}} object 
+    referenced in a \code{SASEGConnection} object. This method 
+    is not exported.
+
+\code{`isValid<-`} method is used to replace the referenced object \code{isValid}. 
+    This method is not exported.
+
+\code{app} method is a getter to the \code{\linkS4class{SASEGApplication}} 
+    object referenced in a \code{SASEGConnection} object. This 
+    method is not exported.
+
+\code{getProfile} method is used to get the profile used in a connection. 
+    This method is not exported.
+
+\code{server} method is used to get the server used in a connection. 
+    This method is not exported.
+
+\code{project} method is used to get the \code{\linkS4class{SASEGProject}}
+    referenced in a connection. This method is not exported.
+
+\code{getUtil} method is used to get the \code{\linkS4class{SASEGCode}}
+    object used in a connection to run utils codes. This method is not exported.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{infos}}{An environment that reference all slots. This environment is 
-registered. Referenced objects are: drv (the SASEGDriver used to connect to), 
-isValid (a logical), profile (a character string), server (a character 
-string), SASProject (a SASEGProject object), SASUtil (a SASEGCode object), 
-listResults (an environment), dbms (a character string)}
+\item{\code{infos}}{An environment that reference different objects. This environment is 
+registered. Referenced objects are: \itemize{
+\item \code{drv} (the \code{\linkS4class{SASEGDriver}} object used to connect to), 
+\item \code{isValid} (a logical), 
+\item \code{profile} (a character string), 
+\item \code{server} (a character string), 
+\item \code{SASProject} (a \code{\linkS4class{SASEGProject}} object), 
+\item \code{SASUtil} (a \code{\linkS4class{SASEGCode}} object), 
+\item \code{listResults} (an environment), 
+\item \code{dbms} (a character string) for \code{SAS/ACCESS} connection. 
+    Not yet implemented. }}
 }}
 
+\seealso{
+\code{\link[=dbGetException,SASEGConnection-method]{dbGetException}}
+
+\code{\link[=dbIsValid,SASEGConnection-method]{dbIsValid}}
+}
 \keyword{internal}

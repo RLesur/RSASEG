@@ -39,7 +39,7 @@ setClass(
 #' 
 #' Method to access a slot named \code{app}.
 #' @param obj An object with a slot named \code{app}.
-#' @param ... Other parameters passed to method.
+#' @param ... Other parameters passed on to method.
 #' @keywords internal
 #' @seealso \code{\link{app,SASEGDriver-method}}, 
 #'     \code{\link{app,SASEGConnection-method}}
@@ -50,7 +50,7 @@ setGeneric("app", function(obj, ...) standardGeneric("app"))
 #' \code{app()} access to the slot \code{app} of a \code{SASEGDriver} object. 
 #'     This method is not exported. Only developpers may need to use it.
 #' @param obj A \code{SASEGDriver} object.
-#' @param ... Other parameters passed to method. Not used.
+#' @param ... Other parameters passed on to method. Not used.
 #' @rdname SASEGDriver-class
 #' @keywords internal
 setMethod("app", "SASEGDriver", function(obj, ...) {
@@ -296,7 +296,7 @@ setGeneric("SAS", function(x, ...) standardGeneric("SAS"))
 #' This method quotes a character string as a \code{SAS} program.
 #' This method is very similar to \code{\link[DBI]{SQL}} method for class \code{character}.
 #' @param x A character string.
-#' @param ... Other parameters passed to methods.
+#' @param ... Other parameters passed on to methods.
 #' @return An object of class \code{SAS}.
 #' @keywords internal
 #' @family SAS-methods
@@ -347,6 +347,18 @@ setMethod("show", "SAS", function(object) {
   cat(paste0("<SAS> ", object@.Data, collapse = "\n"))
 })
 
+#' Refer to a SAS dataset
+#' 
+#' \code{dataset} function is used to refer to a \code{SAS} dataset.
+#' @param name A character string with the dataset name. Compulsory.
+#' @param libname A character string with the libname. Optional.
+#' @return \code{dataset} function returns a \code{\link[DBI]{Table-class}} object.
+#' @examples
+#' dataset("SASHELP.CLASS")
+#' dataset(libname = "SASHELP", name = "CLASS")
+#' 
+#' # For a dataset in WORK library, you can use:
+#' dataset("TEST")
 #' @export
 dataset <- function(name, libname = "WORK") {
   if(length(libname) > 1 | length(name) > 1) stop("You must provide atomic libname/name.")
@@ -370,11 +382,18 @@ dataset <- function(name, libname = "WORK") {
 #' This class inherits from \code{\link[DBI]{DBIConnection-class}}.
 #' An object of class \code{SASEGConnection} can be understood a \code{SAS EG} project.
 #' @exportClass SASEGConnection
-#' @slot infos An environment that reference all slots. This environment is 
-#'     registered. Referenced objects are: drv (the SASEGDriver used to connect to), 
-#'     isValid (a logical), profile (a character string), server (a character 
-#'     string), SASProject (a SASEGProject object), SASUtil (a SASEGCode object), 
-#'     listResults (an environment), dbms (a character string)
+#' @slot infos An environment that reference different objects. This environment is 
+#'     registered. Referenced objects are: \itemize{
+#'     \item \code{drv} (the \code{\linkS4class{SASEGDriver}} object used to connect to), 
+#'     \item \code{isValid} (a logical), 
+#'     \item \code{profile} (a character string), 
+#'     \item \code{server} (a character string), 
+#'     \item \code{SASProject} (a \code{\linkS4class{SASEGProject}} object), 
+#'     \item \code{SASUtil} (a \code{\linkS4class{SASEGCode}} object), 
+#'     \item \code{listResults} (an environment), 
+#'     \item \code{dbms} (a character string) for \code{SAS/ACCESS} connection. 
+#'         Not yet implemented. }
+#' @seealso \code{\link[=dbGetException,SASEGConnection-method]{dbGetException}}
 #' @keywords internal
 setClass("SASEGConnection",
          contains = "DBIConnection",
@@ -385,17 +404,19 @@ setClass("SASEGConnection",
 #' 
 #' A generic accessor to a slot named \code{drv}.
 #' @param obj An object.
-#' @param ... Other parameters passed to method.
+#' @param ... Other parameters passed on to method.
 #' @keywords internal
 setGeneric("drv", function(obj, ...) standardGeneric("drv"))
 
-#' Access to slot drv of a SASEGConnection object
+#' Get the driver referenced in a SASEGConnection object
 #' 
-#' \code{drv()} method access to the slot \code{drv} of a 
-#'     \code{\linkS4class{SASEGConnection}} object.
-#' @param obj An object of class \code{\linkS4class{SASEGconnection}}.
-#' @param ... Other parameters passed to method. Not used.
-#' @return A \code{\linkS4class{SASEGDriver}} object.
+#' \code{drv} method access to the \code{\linkS4class{SASEGDriver}} object 
+#'     referenced in a \code{SASEGConnection} object. This method 
+#'     is not exported.
+#' @param obj An object of class \code{SASEGconnection}.
+#' @param ... Other parameters passed on to method. Not used.
+#' @return \code{drv} returns a \code{\linkS4class{SASEGDriver}} object.
+#' @rdname SASEGConnection-class
 #' @keywords internal
 setMethod("drv", "SASEGConnection", function(obj, ...) {
   env <- obj@infos
@@ -407,7 +428,7 @@ setMethod("drv", "SASEGConnection", function(obj, ...) {
 #' \code{dbIsValid} tests if a \code{\linkS4class{SASEGConnection}} object is valid.
 #' @param dbObj An object of class \code{\linkS4class{SASEGConnection}}.
 #' @param ... Other parameters. Not used.
-#' @keywords internal
+#' @family SASEGConnection class methods
 #' @export
 setMethod("dbIsValid", "SASEGConnection", function(dbObj, ...) {
   env <- dbObj@infos
@@ -416,11 +437,12 @@ setMethod("dbIsValid", "SASEGConnection", function(dbObj, ...) {
 
 #' Set the value isValid of a SASEGConnection object
 #' 
-#' Value stored in slot \code{isValid} can be replaced with this method. This 
-#'     method is not exported. Only developpers may need to use it. 
-#' @param obj A \code{\linkS4class{SASEGDriver}} object.
+#' \code{`isValid<-`} method is used to replace the referenced object \code{isValid}. 
+#'     This method is not exported. 
+#' @inheritParams drv,SASEGConnection-method
 #' @param value A logical.
-#' @seealso dbIsValid,SASEGConnection-method
+#' @seealso \code{\link[=dbIsValid,SASEGConnection-method]{dbIsValid}}
+#' @rdname SASEGConnection-class
 #' @keywords internal
 setMethod("isValid<-", "SASEGConnection", function(obj, value) {
   env <- obj@infos
@@ -428,55 +450,121 @@ setMethod("isValid<-", "SASEGConnection", function(obj, value) {
   return(obj)
 }) 
 
-#' Access to the SASEGApplication object stored in a SASEGConnection object
+#' Get the application object referenced in a SASEGConnection object
 #' 
-#' \code{app()} method access to the \code{\linkS4class{SASEGApplication}} 
-#'     object stored in a \code{\linkS4class{SASEGConnection}} object. This 
-#'     method is not exported. Only developpers may need to use it. 
-#' @param obj An object of class \code{\linkS4class{SASEGConnection}}.
-#' @param ... Other parameters passed to method. Not used.
-#' @return A \code{\linkS4class{SASEGApplication}} object.
+#' \code{app} method is a getter to the \code{\linkS4class{SASEGApplication}} 
+#'     object referenced in a \code{SASEGConnection} object. This 
+#'     method is not exported. 
+#' @inheritParams drv,SASEGConnection-method
+#' @return \code{app} returns a \code{\linkS4class{SASEGApplication}} object.
+#' @rdname SASEGConnection-class
 #' @keywords internal
 setMethod("app", "SASEGConnection", function(obj, ...) {
   app(drv(obj))
 })
 
+#' Get the profile of an object
+#' 
+#' Methods to get profile of an object.
+#' @param obj An object.
+#' @keywords internal
 setGeneric("getProfile", function(obj) standardGeneric("getProfile"))
 
+#' Get the profile used in a connection
+#' 
+#' \code{getProfile} method is used to get the profile used in a connection. 
+#'     This method is not exported.
+#' @inheritParams drv,SASEGConnection-method
+#' @return \code{getProfile} returns a character string.
+#' @rdname SASEGConnection-class
 setMethod("getProfile", "SASEGConnection", function(obj) {
   env <- obj@infos
   env$profile
 })
 
+#' Get the server of an object
+#' 
+#' Methods to get server of an object.
+#' @param obj An object.
+#' @keywords internal
 setGeneric("server", function(obj) standardGeneric("server"))
 
+#' Get the server used in a connection
+#' 
+#' \code{server} method is used to get the server used in a connection. 
+#'     This method is not exported.
+#' @inheritParams drv,SASEGConnection-method
+#' @return \code{server} method returns a character string.
+#' @rdname SASEGConnection-class
 setMethod("server", "SASEGConnection", function(obj) {
   env <- obj@infos
   env$server
 })
 
+#' Get the project of an object
+#' 
+#' Methods to get project of an object.
+#' @param obj An object.
+#' @keywords internal
 setGeneric("project", function(obj) standardGeneric("project"))
 
+#' Get the project associated with a connection
+#' 
+#' \code{project} method is used to get the \code{\linkS4class{SASEGProject}}
+#'     referenced in a connection. This method is not exported.
+#' @inheritParams drv,SASEGConnection-method
+#' @return \code{project} method returns a \code{\linkS4class{SASEGProject}} object.
+#' @rdname SASEGConnection-class
 setMethod("project", "SASEGConnection", function(obj) {
   env <- obj@infos
   env$SASProject
 })
 
+#' Get Util of an object
+#' 
+#' Methods to get Util of an object.
+#' @param obj An object.
+#' @keywords internal
 setGeneric("getUtil", function(obj) standardGeneric("getUtil"))
 
+#' Get the util code referenced in a connection
+#' 
+#' \code{getUtil} method is used to get the \code{\linkS4class{SASEGCode}}
+#'     object used in a connection to run utils codes. This method is not exported.
+#' @inheritParams drv,SASEGConnection-method
+#' @return \code{getUtil} method returns a \code{\linkS4class{SASEGCode}} object.
+#' @rdname SASEGConnection-class
 setMethod("getUtil", "SASEGConnection", function(obj) {
   env <- obj@infos
   env$SASUtil
 })
 
+#' Get SAS/PROC SQL exceptions
+#' 
+#' Get the last \code{SAS/PROC SQL} exception.
+#' 
+#' \code{errorMsg} and \code{errorMsg} are given by the \code{SAS} automatic
+#'     macro variables \code{SQLRC} and \code{SYSERRORTEXT}.
+#' @param conn An object created by \code{\link[=dbConnect,SASEGDriver-method]{dbConnect}}.
+#' @return A list with elements \code{errorNum} (an integer error number) and 
+#'     \code{errorMsg} (a character string) describing the last error in the 
+#'     connection \code{conn}.
+#' @family SASEGConnection class methods
 #' @export
 setMethod("dbGetException", "SASEGConnection", function(conn, ...) {
   list(
-    errornum = conn@infos$sqlrc,
+    errorNum = conn@infos$sqlrc,
     errorMsg = conn@infos$syserrortext
   )
 })
 
+#' A finalizer function for SASEGConnection
+#' 
+#' A finaliser function for \code{\linkS4class{SASEGConnection}} objects.
+#' @param e An environment. This is the \code{infos} slot of a 
+#'     \code{\linkS4class{SASEGConnection}} object.
+#' @return \code{NULL}, invisibly. 
+#' @keywords internal
 finalize_cnx <- function(e) {
   cnx <- new("SASEGConnection", infos = e)
   if(dbIsValid(cnx)) {
@@ -526,7 +614,7 @@ finalize_cnx <- function(e) {
 #' dbUnloadDriver(drv)
 #' 
 #' dbIsValid(drv)}
-#' @seealso \code{\link[=dbDisconnect,SASEGConnection-method]{dbDisconnect}}
+#' @family SASEGConnection class methods
 setMethod("dbConnect", "SASEGDriver", function(drv, profile, server, ...) {
   if(!dbIsValid(drv)) stop("invalid driver.")
   
@@ -566,6 +654,20 @@ setMethod("dbConnect", "SASEGDriver", function(drv, profile, server, ...) {
   return(new_cnx)
 })
 
+#' Replicate a connection
+#' 
+#' \code{dbConnect} method replicates a connection. As 
+#' \code{\linkS4class{SASEGDriver}} objects allow a single connection per 
+#' driver object, the behavior of \code{dbConnect} is the following: 
+#' \itemize{
+#' \item If the \code{\linkS4class{SASEGConnection}} object passed in argument 
+#' is active, \code{dbConnect} returns this object. 
+#' \item If the \code{\linkS4class{SASEGConnection}} object passed in argument 
+#' is inactive, \code{dbConnect} returns a new valid connection with same 
+#' profile and server.}
+#' @param drv An object created with \code{\link[=dbConnect,SASEGDriver-method]{dbConnect()}}.
+#' @return A \code{\linkS4class{SASEGConnection}} object.
+#' @family SASEGConnection class methods
 #' @export
 setMethod("dbConnect", "SASEGConnection", function(drv, ...) {
   dbConnect(drv(drv), getProfile(drv), server(drv))
@@ -613,7 +715,7 @@ setMethod("show", "SASEGConnection", function(object) {
 #' RSASEG_project <- paste(normalizePath("~"), "RSASEG.egp", sep = "\\")
 #' dbDisconnect(conn, projectPath = RSASEG_project)
 #' }
-#' @seealso \code{\link[=dbConnect,SASEGDriver-method]{dbConnect}}
+#' @family SASEGConnection class methods
 #' @export
 setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, ...) {
   if(dbIsValid(conn)) {
@@ -631,6 +733,22 @@ setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, 
   invisible(TRUE)
 })
 
+#' Get informations about a connection
+#' 
+#' \code{dbGetInfo} returns informations about a \code{\linkS4class{SASEGConnection}}
+#' object:
+#' \itemize{
+#' \item \code{profile}: profile used in connection.
+#' \item \code{db.version}: version number of \code{SAS} (this is the 
+#'     \code{SYSVER} \code{SAS} macro variable).
+#' \item \code{dbname}: \code{USER} libname, default: \code{WORK} (this is the 
+#'     \code{SAS} \code{USER} option).
+#' \item \code{username}: username on \code{SAS} server (this is the 
+#'     \code{SYSUSERID} \code{SAS} macro variable).
+#' \item \code{host}: host name.
+#' \item \code{port}: port number.}
+#' @family SASEGConnection class methods
+#' @export
 setMethod("dbGetInfo", "SASEGConnection", function(dbObj, ...) {
   profile <- getProfile(dbObj)
   
@@ -675,6 +793,16 @@ setMethod("dbGetInfo", "SASEGConnection", function(dbObj, ...) {
   ))
 })
 
+#' List columns of a dataset
+#' 
+#' List column names of a remote dataset.
+#' @param conn An object returned by \code{\link[=dbConnect,SASEGDriver-method]{dbConnect()}}.
+#' @param name A character string with the name of a dataset (one-level or 
+#'     two-levels names). One-level dataset names are interpreted as \code{WORK} 
+#'     library datasets.
+#' @param ... Other parameters passed on. Not used.
+#' @return A character vector.
+#' @family SASEGConnection class methods
 #' @export
 setMethod("dbListFields", c("SASEGConnection", "character"), function(conn, name, ...) {
   name <- dataset(name)
@@ -688,6 +816,13 @@ setMethod("dbListFields", c("SASEGConnection", "character"), function(conn, name
   return(as.character(d$name))
 })
 
+#' List datasets available on a SAS server
+#' 
+#' List datasets available on a \code{SAS} server.
+#' @param conn An object returned by \code{\link[=dbConnect,SASEGDriver-method]{dbConnect()}}.
+#' @param ... Other parameters passed on. Not used.
+#' @return A character vector.
+#' @family SASEGConnection class methods
 #' @export
 setMethod("dbListTables", "SASEGConnection", function(conn, ...) {
   statement <- paste0(
@@ -698,6 +833,12 @@ setMethod("dbListTables", "SASEGConnection", function(conn, ...) {
   paste(d$libname, d$memname, sep = ".")
 })
 
+#' Does a dataset exist on a SAS server ?
+#' 
+#' \code{dbExistsTable} is used to test if a dataset exists on a \code{SAS} server.
+#' @inheritParams dbListFields,SASEGConnection,character-method
+#' @return A logical.
+#' @family SASEGConnection class methods
 #' @export
 setMethod("dbExistsTable", c("SASEGConnection", "character"), function(conn, name, ...) {
   name <- dataset(name)
@@ -711,6 +852,12 @@ setMethod("dbExistsTable", c("SASEGConnection", "character"), function(conn, nam
   return(as.logical(d$value))
 })
 
+#' List results
+#' 
+#' List valid \code{\linkS4class{SASEGSQLResult}} objects.
+#' @inheritParams dbListTables,SASEGConnection-method
+#' @return A list of \code{\linkS4class{SASEGSQLResult}} objects.
+#' @family SASEGConnection class methods
 #' @export
 setMethod("dbListResults", "SASEGConnection", function(conn, ...) {
   listResults <- conn@infos$listResults
@@ -923,7 +1070,7 @@ setMethod("dbClearResult", "SASEGResult", function(res, ...) {
 #' 
 #' \code{dbGetLog} does not belong to the \code{DBI} specification.
 #' @param res An object.
-#' @param ... Other parameters passed to method.
+#' @param ... Other parameters passed on to method.
 #' @keywords internal
 setGeneric("dbGetLog", function(res, ...) standardGeneric("dbGetLog"))
 

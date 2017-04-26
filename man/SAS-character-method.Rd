@@ -10,7 +10,7 @@
 \arguments{
 \item{x}{A character string.}
 
-\item{...}{Other parameters passed to methods.}
+\item{...}{Other parameters passed on to methods.}
 }
 \value{
 An object of class \code{SAS}.

@@ -7,7 +7,7 @@
 getFileName(object, ...)
 }
 \arguments{
-\item{...}{Other parameters passed to method.}
+\item{...}{Other parameters passed on to method.}
 }
 \description{
 \code{getFileName} method is used to get the filename of an object.

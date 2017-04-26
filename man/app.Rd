@@ -9,7 +9,7 @@ app(obj, ...)
 \arguments{
 \item{obj}{An object with a slot named \code{app}.}
 
-\item{...}{Other parameters passed to method.}
+\item{...}{Other parameters passed on to method.}
 }
 \description{
 Method to access a slot named \code{app}.

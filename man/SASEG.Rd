@@ -100,5 +100,13 @@ dbUnloadDriver(drv)
 dbIsValid(drv)}
 }
 \seealso{
-\code{\link[=dbDisconnect,SASEGConnection-method]{dbDisconnect}}
+Other SASEGConnection class methods: \code{\link{dbConnect,SASEGConnection-method}},
+  \code{\link{dbDisconnect,SASEGConnection-method}},
+  \code{\link{dbExistsTable,SASEGConnection,character-method}},
+  \code{\link{dbGetException,SASEGConnection-method}},
+  \code{\link{dbGetInfo,SASEGConnection-method}},
+  \code{\link{dbIsValid,SASEGConnection-method}},
+  \code{\link{dbListFields,SASEGConnection,character-method}},
+  \code{\link{dbListResults,SASEGConnection-method}},
+  \code{\link{dbListTables,SASEGConnection-method}}
 }

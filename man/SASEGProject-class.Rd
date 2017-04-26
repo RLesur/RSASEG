@@ -22,7 +22,7 @@
 \strong{Be careful: \code{saveAs} method overwrites existing files 
 without confirmation.}}
 
-\item{...}{Other parameters passed to method (not used).}
+\item{...}{Other parameters passed on to method (not used).}
 
 \item{project}{A \code{SASEGProject} object.}
 

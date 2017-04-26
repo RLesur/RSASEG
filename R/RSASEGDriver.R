@@ -1127,6 +1127,7 @@ setClass(
   contains = "SASEGResult",
   slots = list(
     SQLResult = "character",
+    statement = "character",
     rowsFetched = "function",
     SQLRC = "data.frame",
     RCFileName = "character"
@@ -1144,6 +1145,11 @@ setMethod("dbGetRowCount", "SASEGSQLResult", function(res, ...) {
 #' @export
 setMethod("dbGetRowsAffected", "SASEGSQLResult", function(res, ...) {
   res@SQLRC$sqlobs
+})
+
+#' @export
+setMethod("dbGetStatement", "SASEGSQLResult", function(res, ...) {
+  res@statement
 })
 
 #' Send an SQL query to SAS EG
@@ -1165,6 +1171,9 @@ setMethod(
   "dbSendQuery", 
   c("SASEGConnection", "character"), 
   function(conn, statement, codeName = NULL, persistent = TRUE, query = TRUE, ...) {
+    # Keep original statement:
+    sql_statement <- statement
+    
     if(query) {
       # Choose a new dataset name to store the result of SQL query:
       SQLResult <- paste0("WORK.", random_table_name()) 
@@ -1225,6 +1234,7 @@ setMethod(
     res_sql <- new("SASEGSQLResult",
                    res,
                    SQLResult = SQLResult,
+                   statement = as.character(sql_statement),
                    rowsFetched = count_generator(init = 0),
                    SQLRC = SQLRC,
                    RCFileName = RCFileName
@@ -1245,7 +1255,7 @@ setMethod(
 
 #' @export
 setMethod("dbGetRowsAffected", "SASEGSQLResult", function(res, ...) {
-  res@SQLRC$sqlobs
+  as.numeric(res@SQLRC$sqlobs)
 })
 
 #' @export
@@ -1264,7 +1274,7 @@ setMethod("dbClearResult", "SASEGSQLResult", function(res, ...) {
     statement <- paste0(statement, "")
   } 
   # If necessary, run drop statement:
-  if(any(!is.na(c(res@RCFileName, res@SQLResult)))) dbSendStatement(res@conn, statement, codeName = NULL, persistent = FALSE)
+  if(any(!is.na(c(res@RCFileName, res@SQLResult)))) dbExecute(res@conn, statement, codeName = NULL, persistent = FALSE)
   # In all cases, set isValid to FALSE:
   isValid(res) <- FALSE
 

@@ -1379,10 +1379,10 @@ setMethod("dbQuoteString", c("SASEGConnection", "SQL"), function(conn, x, ...) {
 #' @export
 setMethod("dbQuoteIdentifier", c("SASEGConnection", "character"), function(conn, x, ...) {
   # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  x <- strsplit(x, ".", fixed = TRUE)[[1]]
-  x <- dbQuoteIdentifier(DBI::ANSI(), x, ...)
-  x <- vapply(x, function(y) if(y == '""') NA_character_ else y, character(1))
-  x <- paste0(x, collapse = '.')
+  x <- strsplit(x, ".", fixed = TRUE)
+  x <- lapply(x, function(obj) dbQuoteIdentifier(DBI::ANSI(), obj))
+  x <- lapply(x, function(obj) vapply(obj, function(y) if(y == '""') NA_character_ else y, character(1)))
+  x <- vapply(x, function(obj) paste0(obj, collapse = '.'), character(1))
   new("SQL", gsub('.NA.', '..', x, fixed = TRUE))
 })
 

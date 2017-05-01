@@ -66,7 +66,7 @@ SASDateTimeConstant <- function(x) {
 SASTimeConstant <- function(x, unit) {
   if(is.null(x)) return(NULL)
   if(is.na(x)) return(NA_character_)
-  x <- as.difftime(x, unit = unit)
+  x <- as.difftime(x, units = unit)
   units(x) <- "hours"
   if(x >= 100) warning("A difftime is greater or equal than 100 hours: values returned by SAS will be false.", immediate. = TRUE)
   h <- as.character(floor(x))

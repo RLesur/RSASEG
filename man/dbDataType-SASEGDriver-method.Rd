@@ -22,7 +22,8 @@ or \code{\link[=dbConnect,SASEGDriver-method]{dbConnect()}}.}
 A character string or a character vector.
 }
 \description{
-\code{dbDataType} method finds the \code{SAS} data type associated with an \code{R} object.
+\code{dbDataType} method finds the \code{SAS} data type associated with an 
+\code{R} object.
 
 Methods are implemented for \code{\linkS4class{SASEGDriver}} and 
     \code{\linkS4class{SASEGConnection}} classes.

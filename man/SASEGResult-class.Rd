@@ -3,23 +3,23 @@
 \docType{class}
 \name{SASEGResult-class}
 \alias{SASEGResult-class}
-\alias{dbHasCompleted,SASEGResult-method}
 \alias{fetched<-,SASEGResult-method}
-\alias{dbIsValid,SASEGResult-method}
 \alias{isValid<-,SASEGResult-method}
-\alias{dbFetch,SASEGResult-method}
+\alias{dbIsValid,SASEGResult-method}
+\alias{dbHasCompleted,SASEGResult-method}
+\alias{dbFetchAll,SASEGResult-method}
 \alias{dbGetLog,SASEGResult-method}
 \title{SASEGResult class}
 \usage{
-\S4method{dbHasCompleted}{SASEGResult}(res, ...)
-
 \S4method{fetched}{SASEGResult}(res) <- value
-
-\S4method{dbIsValid}{SASEGResult}(dbObj, ...)
 
 \S4method{isValid}{SASEGResult}(obj) <- value
 
-\S4method{dbFetch}{SASEGResult}(res, n = -1, ...)
+\S4method{dbIsValid}{SASEGResult}(dbObj, ...)
+
+\S4method{dbHasCompleted}{SASEGResult}(res, ...)
+
+\S4method{dbFetchAll}{SASEGResult}(res, ...)
 
 \S4method{dbGetLog}{SASEGResult}(res, ...)
 }
@@ -27,44 +27,41 @@
 \item{res}{An object of class \code{SASEGResult} or inheriting from this 
 class, as \code{\linkS4class{SASEGSQLResult}}.}
 
-\item{...}{Other parameters. Not used.}
-
 \item{value}{A logical.}
-
-\item{dbObj}{An object of class \code{SASEGResult} or inheriting from this 
-class, as \code{\linkS4class{SASEGSQLResult}}.}
 
 \item{obj}{An object of class \code{SASEGResult} or inheriting from this 
 class, as \code{\linkS4class{SASEGSQLResult}}.}
 
-\item{n}{An integer, \bold{not used}. All rows of all datasets are fetched.}
+\item{dbObj}{An object of class \code{SASEGResult} or inheriting from this 
+class, as \code{\linkS4class{SASEGSQLResult}}.}
+
+\item{...}{Other parameters. Not used.}
 }
 \value{
+\code{dbIsValid} returns a logical.
+
 \code{dbHasCompleted} returns a logical: \code{TRUE}, if all rows are 
     fetched; \code{FALSE}, if there is some rows to be fetched.
 
-\code{dbIsValid} returns a logical.
-
-\code{dbFetch} returns a named (with filenames) list of 
-    \code{\link[data.table]{data.table}}. In case of a single table, a 
-    \code{\link[data.table]{data.table}} object is returned.
+\code{dbFetchAll} returns a named (with filenames) list of 
+    \code{\link[data.table]{data.table}}.
 
 \code{dbGetLog} returns a character string with the \code{SAS log}.
 }
 \description{
 \code{SASEGResult} class inherits from \code{\link[DBI]{DBIResult-class}}. 
    This class represents results of \emph{any} \code{SAS} program. A 
-   \code{SASEGResult} results from a call to 
+   \code{SASEGResult} object results from a call to 
    \code{\link[=dbSendQuery,SASEGConnection,SAS-method]{dbSendQuery}} with a 
    \code{\linkS4class{SAS}} statement.  It is extended by 
-   \code{\linkS4class{SASEGSQLResult}} for \code{\link[DBI]{SQL}} results.
-
-\code{dbHasCompleted} method is used to test if a result is totally fetched.
+   \code{\linkS4class{SASEGSQLResult}} for \code{\link[DBI]{SQL}} statements.
 
 \code{dbIsValid} method tests if a \code{SASEGResult} is valid.
 \code{TRUE} is returned if the object is valid.
 
-\code{dbFetch} method retrieve all datasets (with all rows) created by a 
+\code{dbHasCompleted} method is used to test if a result is totally fetched.
+
+\code{dbFetchAll} method retrieves all datasets (with all rows) created by a 
     \code{SAS} statement. It returns a named list of 
     \code{\link[data.table]{data.table}}. If there is a single fetched 
     dataset, a \code{\link[data.table]{data.table}} is returned.
@@ -97,10 +94,10 @@ program. \code{dbGetLog} does not belong to the \code{DBI} specification.
 
 \seealso{
 \code{\linkS4class{SASEGSQLResult}}, 
-    \code{\link[dbSendQuery,SASEGConnection,SAS-method]{dbSendQuery}}
-
-Generic: \code{\link[DBI]{dbHasCompleted}}.
+    \code{\link[=dbSendQuery,SASEGConnection,SAS-method]{dbSendQuery}}
 
 Generic: \code{\link[DBI]{dbIsValid}}.
+
+Generic: \code{\link[DBI]{dbHasCompleted}}.
 }
 \keyword{internal}

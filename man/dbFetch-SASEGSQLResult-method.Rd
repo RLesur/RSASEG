@@ -3,10 +3,27 @@
 \docType{methods}
 \name{dbFetch,SASEGSQLResult-method}
 \alias{dbFetch,SASEGSQLResult-method}
-\title{Retrieve records from SAS EG SQL query}
+\title{Retrieve records from a SQL query}
 \usage{
 \S4method{dbFetch}{SASEGSQLResult}(res, n = -1, ...)
 }
+\arguments{
+\item{res}{An object resulting from a call to 
+\code{\link[=dbSendQuery,SASEGConnection,character-method]{dbSendQuery}}.}
+
+\item{n}{Number of rows to retrieve. Use \code{n = -1} or \code{n = Inf} to
+retrieve all pending rows.}
+
+\item{...}{Other parameters passed on to method. Not used.}
+}
+\value{
+A \code{data.frame} object.
+}
 \description{
-Retrieve records from SAS EG SQL query
+Fetch the next \code{n} rows from the result of a 
+\code{\link[=dbSendQuery,SASEGConnection,character-method]{dbSendQuery}} and
+return them as a \code{data.frame}.
+}
+\seealso{
+Generic: \code{\link[DBI]{dbFetch}}
 }

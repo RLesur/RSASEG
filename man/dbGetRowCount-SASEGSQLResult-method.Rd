@@ -7,6 +7,18 @@
 \usage{
 \S4method{dbGetRowCount}{SASEGSQLResult}(res, ...)
 }
+\arguments{
+\item{res}{An object resulting from a call to 
+\code{\link[=dbSendQuery,SASEGConnection,character-method]{dbSendQuery}}.}
+
+\item{...}{Other parameters passed on to method. Not used.}
+}
+\value{
+Number of fetched rows.
+}
 \description{
 \code{dbGetRowCount} returns the number of rows that was fetched.
+}
+\seealso{
+Generic: \code{\link[DBI]{dbGetRowCount}}.
 }

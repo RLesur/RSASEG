@@ -16,7 +16,7 @@
 \code{TRUE}, invisibly.
 }
 \description{
-This method removes invalid \code{\linkS4class{SASEGSQLResults}} of the list 
+This method removes invalid \code{\linkS4class{SASEGSQLResult}} of the list 
 of results referenced in a \code{\linkS4class{SASEGConnection}} object.
 }
 \keyword{internal}

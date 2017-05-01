@@ -19,7 +19,7 @@
 Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbConnect,SASEGConnection-method}},
   \code{\link{dbDisconnect,SASEGConnection-method}},
-  \code{\link{dbExistsTable,SASEGConnection,character-method}},
+  \code{\link{dbExistsTable,SASEGConnection-method}},
   \code{\link{dbGetException,SASEGConnection-method}},
   \code{\link{dbGetInfo,SASEGConnection-method}},
   \code{\link{dbListFields,SASEGConnection,character-method}},

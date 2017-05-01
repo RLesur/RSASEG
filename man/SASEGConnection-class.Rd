@@ -48,7 +48,8 @@
 }
 \description{
 This class inherits from \code{\link[DBI]{DBIConnection-class}}.
-An object of class \code{SASEGConnection} can be understood a \code{SAS EG} project.
+An object of class \code{SASEGConnection} can be understood a \code{SAS EG} 
+project.
 
 \code{drv} method access to the \code{\linkS4class{SASEGDriver}} object 
     referenced in a \code{SASEGConnection} object. This method 

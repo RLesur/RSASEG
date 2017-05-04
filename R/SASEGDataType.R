@@ -65,7 +65,6 @@ setMethod("getSASType", "list", function(obj) {
   }
 })
 
-# Test fonction pour dbColumnInfo
 SAS2RDataType <- function(columnInfo) {
   data.type <- vector("character", nrow(columnInfo))
   data.type[grepl("char", columnInfo$field.type, fixed = TRUE)] <- "character"

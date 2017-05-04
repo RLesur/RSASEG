@@ -1301,7 +1301,7 @@ setMethod("dbFetchAll", "SASEGResult", function(res, ...) {
 #' of result datasets.
 #' 
 #' @inheritParams dbSendQuery,SASEGConnection,SAS-method
-#' @return \code{dbFetchAll} returns a named (with filenames) list of 
+#' @return \code{dbGetQuery} returns a named (with filenames) list of 
 #'     \code{\link[data.table]{data.table}}.
 #' @export
 setMethod(
@@ -1331,7 +1331,7 @@ setGeneric("dbGetLog", function(res, ...) standardGeneric("dbGetLog"))
 #' 
 #' \code{dbGetLog} method retrieves the log of the \code{\linkS4class{SAS}} 
 #' program. \code{dbGetLog} does not belong to the \code{DBI} specification.
-#' @inheritParams dbHasCompleted,SASEGResult-class
+#' @inheritParams dbHasCompleted,SASEGResult-method
 #' @return \code{dbGetLog} returns a character string with the \code{SAS log}.
 #' @rdname SASEGResult-class
 #' @export
@@ -1344,6 +1344,8 @@ setMethod("dbGetLog", "SASEGResult", function(res, ...) {
 #' Get the statement that was sent to SAS
 #' 
 #' \code{dbGetStatement} collect the program that was sent to \code{SAS}.
+#' @inheritParams dbHasCompleted,SASEGResult-method
+#' @return A character string with the \code{SAS} code.
 #' @export
 setMethod("dbGetStatement", "SASEGResult", function(res, ...) {
   getSourceCode(res@SASResult)
@@ -1861,7 +1863,7 @@ setMethod("dbWriteTable", "SASEGConnection", function(conn,
 #' @export
 setMethod(
   "dbReadTable", 
-  "SASEGConnection", 
+  c("SASEGConnection", "character"), 
   function(conn, name, ..., row.names = NA, check.names = TRUE) {
     quoted_name <- dbQuoteIdentifier(conn, name)
     stopifnot(length(quoted_name) == 1)
@@ -1871,7 +1873,7 @@ setMethod(
     stopifnot(length(check.names) == 1L)
     stopifnot(is.logical(check.names))
     stopifnot(!is.na(check.names))
-  
+  # TBD : create temporary=FALSE argument
     stopifnot(dbExistsTable(conn, name))
   
     quoted_name <- dbQuoteIdentifier(conn, dataset(quoted_name))

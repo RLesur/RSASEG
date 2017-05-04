@@ -3,7 +3,7 @@
 \docType{methods}
 \name{dbGetInfo,SASEGConnection-method}
 \alias{dbGetInfo,SASEGConnection-method}
-\title{Get informations about a connection}
+\title{Informations about a connection}
 \usage{
 \S4method{dbGetInfo}{SASEGConnection}(dbObj, ...)
 }
@@ -22,6 +22,8 @@ object:
 \item \code{port}: port number.}
 }
 \seealso{
+Generic: \code{\link[DBI]{dbGetInfo}}.
+
 Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbConnect,SASEGConnection-method}},
   \code{\link{dbDisconnect,SASEGConnection-method}},
@@ -30,5 +32,6 @@ Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbIsValid,SASEGConnection-method}},
   \code{\link{dbListFields,SASEGConnection,character-method}},
   \code{\link{dbListResults,SASEGConnection-method}},
-  \code{\link{dbListTables,SASEGConnection-method}}
+  \code{\link{dbListTables,SASEGConnection-method}},
+  \code{\link{dbRemoveTable,SASEGConnection-method}}
 }

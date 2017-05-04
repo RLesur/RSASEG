@@ -19,6 +19,8 @@ A list of \code{\linkS4class{SASEGSQLResult}} objects.
 List valid \code{\linkS4class{SASEGSQLResult}} objects.
 }
 \seealso{
+Generic: \code{\link[DBI]{dbListResults}}.
+
 Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbConnect,SASEGConnection-method}},
   \code{\link{dbDisconnect,SASEGConnection-method}},
@@ -27,5 +29,6 @@ Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbGetInfo,SASEGConnection-method}},
   \code{\link{dbIsValid,SASEGConnection-method}},
   \code{\link{dbListFields,SASEGConnection,character-method}},
-  \code{\link{dbListTables,SASEGConnection-method}}
+  \code{\link{dbListTables,SASEGConnection-method}},
+  \code{\link{dbRemoveTable,SASEGConnection-method}}
 }

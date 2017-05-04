@@ -23,6 +23,8 @@ A character vector.
 List column names of a remote dataset.
 }
 \seealso{
+Generic: \code{\link[DBI]{dbListFields}}.
+
 Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbConnect,SASEGConnection-method}},
   \code{\link{dbDisconnect,SASEGConnection-method}},
@@ -31,5 +33,6 @@ Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbGetInfo,SASEGConnection-method}},
   \code{\link{dbIsValid,SASEGConnection-method}},
   \code{\link{dbListResults,SASEGConnection-method}},
-  \code{\link{dbListTables,SASEGConnection-method}}
+  \code{\link{dbListTables,SASEGConnection-method}},
+  \code{\link{dbRemoveTable,SASEGConnection-method}}
 }

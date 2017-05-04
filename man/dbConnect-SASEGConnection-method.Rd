@@ -15,7 +15,7 @@ A \code{\linkS4class{SASEGConnection}} object.
 }
 \description{
 \code{dbConnect} method replicates a connection. As 
-\code{\linkS4class{SASEGDriver}} objects allow a single connection per 
+\code{\linkS4class{SASEGDriver}} class allows a single connection per 
 driver object, the behavior of \code{dbConnect} is the following: 
 \itemize{
 \item If the \code{\linkS4class{SASEGConnection}} object passed in argument 
@@ -25,6 +25,8 @@ is inactive, \code{dbConnect} returns a new valid connection with same
 profile and server.}
 }
 \seealso{
+Generic: \code{\link[DBI]{dbConnect}}.
+
 Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbDisconnect,SASEGConnection-method}},
   \code{\link{dbExistsTable,SASEGConnection-method}},
@@ -33,5 +35,6 @@ Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbIsValid,SASEGConnection-method}},
   \code{\link{dbListFields,SASEGConnection,character-method}},
   \code{\link{dbListResults,SASEGConnection-method}},
-  \code{\link{dbListTables,SASEGConnection-method}}
+  \code{\link{dbListTables,SASEGConnection-method}},
+  \code{\link{dbRemoveTable,SASEGConnection-method}}
 }

@@ -14,6 +14,7 @@ finalize_cnx(e)
 \code{NULL}, invisibly.
 }
 \description{
-A finaliser function for \code{\linkS4class{SASEGConnection}} objects.
+A finaliser function for \code{\linkS4class{SASEGConnection}} objects. 
+This function is not exported.
 }
 \keyword{internal}

@@ -6,7 +6,6 @@
 \alias{app,SASEGDriver-method}
 \alias{cnx<-,SASEGDriver-method}
 \alias{isValid<-,SASEGDriver-method}
-\alias{dbGetInfo,SASEGDriver-method}
 \title{Driver class for SAS Enterprise Guide}
 \usage{
 \S4method{app}{SASEGDriver}(obj, ...)
@@ -14,8 +13,6 @@
 \S4method{cnx}{SASEGDriver}(obj) <- value
 
 \S4method{isValid}{SASEGDriver}(obj) <- value
-
-\S4method{dbGetInfo}{SASEGDriver}(dbObj, ...)
 }
 \arguments{
 \item{obj}{A \code{SASEGDriver} object.}
@@ -23,8 +20,6 @@
 \item{...}{Other parameters passed on to method. Not used.}
 
 \item{value}{A value to replace for.}
-
-\item{dbObj}{A \code{SASEGDriver} object.}
 }
 \description{
 This a driver class for \code{SAS Enterprise Guide}. The \code{SASEGDriver} 
@@ -44,15 +39,6 @@ This a driver class for \code{SAS Enterprise Guide}. The \code{SASEGDriver}
 
 Value stored in slot \code{isValid} can be replaced with \code{`isValid<-`}. This 
     method is not exported. Only developpers may need to use it.
-
-\code{dbGetInfo} method is called to get:
-\itemize{
-    \item \code{driver.version}: version of \code{RSASEG} package.
-    \item \code{client.version}: version of \code{SAS Enterprise Guide}.
-    \item \code{max.connections}: equals to 1.
-    \item \code{available.profiles}: a list with informations about 
-        available profiles.
-}
 }
 \section{Slots}{
 
@@ -68,15 +54,12 @@ can be accessed with
 \code{\link[=dbIsValid,SASEGDriver-method]{dbIsValid}}.}
 }}
 
-\examples{
-\dontrun{
-library(DBI)
-library(rClr)
-
-# Modify the path below following your install:
-path <- "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScripting.dll"
-drv <- RSASEG::SASEG(path)
-
-dbGetInfo(drv)}
+\seealso{
+\code{SASEGDriver} methods: 
+    \code{\link[=dbGetInfo,SASEGDriver-method]{dbGetInfo}},
+    \code{\link[=dbIsValid,SASEGDriver-method]{dbIsValid}},
+    \code{\link[=dbListConnections,SASEGDriver-method]{dbListConnections}},
+    \code{\link[=dbUnloadDriver,SASEGDriver-method]{dbUnloadDriver}},
+    \code{\link[=dbDataType,SASEGDriver-method]{dbDataType}}
 }
 \keyword{internal}

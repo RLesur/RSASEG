@@ -8,7 +8,7 @@
 \S4method{dbIsValid}{SASEGConnection}(dbObj, ...)
 }
 \arguments{
-\item{dbObj}{An object of class \code{\linkS4class{SASEGConnection}}.}
+\item{dbObj}{An object created with \code{\link[=dbConnect,SASEGDriver-method]{dbConnect()}}.}
 
 \item{...}{Other parameters. Not used.}
 }
@@ -16,6 +16,8 @@
 \code{dbIsValid} tests if a \code{\linkS4class{SASEGConnection}} object is valid.
 }
 \seealso{
+Generic: \code{\link[DBI]{dbIsValid}}.
+
 Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbConnect,SASEGConnection-method}},
   \code{\link{dbDisconnect,SASEGConnection-method}},
@@ -24,5 +26,6 @@ Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbGetInfo,SASEGConnection-method}},
   \code{\link{dbListFields,SASEGConnection,character-method}},
   \code{\link{dbListResults,SASEGConnection-method}},
-  \code{\link{dbListTables,SASEGConnection-method}}
+  \code{\link{dbListTables,SASEGConnection-method}},
+  \code{\link{dbRemoveTable,SASEGConnection-method}}
 }

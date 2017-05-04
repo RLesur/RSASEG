@@ -19,6 +19,8 @@ A character vector.
 List datasets available on a \code{SAS} server.
 }
 \seealso{
+Generic: \code{\link[DBI]{dbListTables}}.
+
 Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbConnect,SASEGConnection-method}},
   \code{\link{dbDisconnect,SASEGConnection-method}},
@@ -27,5 +29,6 @@ Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbGetInfo,SASEGConnection-method}},
   \code{\link{dbIsValid,SASEGConnection-method}},
   \code{\link{dbListFields,SASEGConnection,character-method}},
-  \code{\link{dbListResults,SASEGConnection-method}}
+  \code{\link{dbListResults,SASEGConnection-method}},
+  \code{\link{dbRemoveTable,SASEGConnection-method}}
 }

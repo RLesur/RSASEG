@@ -34,7 +34,7 @@ drv <- RSASEG::SASEG(path)
 my_profile <- "PROFILE"
 my_server <- "SASPROD"
 conn <- dbConnect(drv, my_profile, my_server)
-show(conn)
+
 dbWriteTable(conn, "mtcars", mtcars)
 dbGetQuery(conn, "SELECT * FROM mtcars WHERE cyl = 4")
 
@@ -45,6 +45,8 @@ dbDisconnect(conn, projectPath = RSASEG_project)
 }
 }
 \seealso{
+Generic: \code{\link[DBI]{dbDisconnect}}.
+
 Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbConnect,SASEGConnection-method}},
   \code{\link{dbExistsTable,SASEGConnection-method}},
@@ -53,5 +55,6 @@ Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbIsValid,SASEGConnection-method}},
   \code{\link{dbListFields,SASEGConnection,character-method}},
   \code{\link{dbListResults,SASEGConnection-method}},
-  \code{\link{dbListTables,SASEGConnection-method}}
+  \code{\link{dbListTables,SASEGConnection-method}},
+  \code{\link{dbRemoveTable,SASEGConnection-method}}
 }

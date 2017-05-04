@@ -3,46 +3,27 @@
 \docType{methods}
 \name{SASEG}
 \alias{SASEG}
-\alias{dbListConnections,SASEGDriver-method}
-\alias{dbIsValid,SASEGDriver-method}
-\alias{dbUnloadDriver,SASEGDriver-method}
 \alias{dbConnect,SASEGDriver-method}
 \title{A driver for SAS Enterprise Guide}
 \usage{
 
   SASEG(DLLPath = "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScripting.dll")
 
-\S4method{dbListConnections}{SASEGDriver}(drv, ...)
-
-\S4method{dbIsValid}{SASEGDriver}(dbObj, ...)
-
-\S4method{dbUnloadDriver}{SASEGDriver}(drv, ...)
-
 \S4method{dbConnect}{SASEGDriver}(drv, profile, server, ...)
 }
 \arguments{
 \item{DLLPath}{A character string with the path to file \code{SASEGScripting.dll}.}
 
-\item{drv}{An object created by a call to \code{SASEG()}.}
-
-\item{...}{Other parameters. Not used.}
-
-\item{dbObj}{An object created by a call to \code{SASEG()}.}
+\item{drv}{An object created by a call to \code{\link[=SASEG]{SASEG()}}.}
 
 \item{profile}{A character string with the \code{SAS EG} profile name.}
 
 \item{server}{A character string with the \code{SAS} server name to run programs.}
+
+\item{...}{Other parameters. Not used.}
 }
 \value{
 \code{SASEG()} returns a \code{\linkS4class{SASEGDriver}} object.
-
-\code{dbListConnections} returns an empty list if there is no active
-    connection or a list with a single \code{\linkS4class{SASEGConnection}} 
-    object.
-
-\code{dbIsValid} returns a \code{logical}.
-
-\code{dbUnloadDriver} method returns \code{TRUE}.
 
 \code{dbConnect} returns an object of class \code{\linkS4class{SASEGConnection}}.
 }
@@ -52,21 +33,10 @@
     your installation of \code{SAS Enterprise Guide}. A \code{SASEGDriver} 
     object can be understood as a \code{SAS EG} application.
 
-\code{dbListConnections} method is used to retrieve the list of active 
-    connections. Since \code{SASEGDriver} allows a single connection, the 
-    list contains either a single element or is empty.
-
-\code{dbIsValid} tests if a \code{SASEGDriver} object is still valid. A call
-    to \code{dbUnloadDriver} invalidates the object.
-
-\code{dbUnloadDriver} usage is recommended for \code{SASEGDriver} objects. 
-    Since this method is deprecated, a finalizer is registered upon garbage
-    collector and at the end of the \code{R} session. The finalizer sends an 
-    informative message to the user.
-
 Use \code{dbConnect} to create a new connection to a \code{SAS} 
     server through \code{SAS Enterprise Guide}. A single connection is 
-    allowed by a \code{SASEGDriver} object.
+    allowed by a \code{SASEGDriver} object. If needed, use multiple driver 
+    objects instead of multiple connections.
 }
 \examples{
 \dontrun{
@@ -76,13 +46,10 @@ library(rClr)
 # Modify the path below following your install:
 path <- "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScripting.dll"
 drv <- RSASEG::SASEG(path)
-show(drv)
-dbListConnections(drv)
 
 my_profile <- "PROFILE"
 my_server <- "SASPROD"
 conn <- dbConnect(drv, my_profile, my_server)
-dbListConnections(drv)
 
 dbWriteTable(conn, "mtcars", mtcars)
 dbGetQuery(conn, "SELECT * FROM mtcars WHERE cyl = 4")
@@ -95,11 +62,16 @@ dbGetQuery(conn, "SELECT * FROM mtcars WHERE cyl = 4")
 
 RSASEG_project <- paste(normalizePath("~"), "RSASEG.egp", sep = "\\\\")
 dbDisconnect(conn, projectPath = RSASEG_project)
-dbUnloadDriver(drv)
-
-dbIsValid(drv)}
+dbUnloadDriver(drv)}
 }
 \seealso{
+\code{SASEGDriver} methods: 
+    \code{\link[=dbGetInfo,SASEGDriver-method]{dbGetInfo}},
+    \code{\link[=dbIsValid,SASEGDriver-method]{dbIsValid}},
+    \code{\link[=dbListConnections,SASEGDriver-method]{dbListConnections}},
+    \code{\link[=dbUnloadDriver,SASEGDriver-method]{dbUnloadDriver}},
+    \code{\link[=dbDataType,SASEGDriver-method]{dbDataType}}
+
 Other SASEGConnection class methods: \code{\link{dbConnect,SASEGConnection-method}},
   \code{\link{dbDisconnect,SASEGConnection-method}},
   \code{\link{dbExistsTable,SASEGConnection-method}},
@@ -108,5 +80,6 @@ Other SASEGConnection class methods: \code{\link{dbConnect,SASEGConnection-metho
   \code{\link{dbIsValid,SASEGConnection-method}},
   \code{\link{dbListFields,SASEGConnection,character-method}},
   \code{\link{dbListResults,SASEGConnection-method}},
-  \code{\link{dbListTables,SASEGConnection-method}}
+  \code{\link{dbListTables,SASEGConnection-method}},
+  \code{\link{dbRemoveTable,SASEGConnection-method}}
 }

@@ -19,10 +19,12 @@ A list with elements \code{errorNum} (an integer error number) and
 Get the last \code{SAS/PROC SQL} exception.
 }
 \details{
-\code{errorMsg} and \code{errorMsg} are given by the \code{SAS} automatic
+\code{errorNum} and \code{errorMsg} are given by the \code{SAS} automatic
     macro variables \code{SQLRC} and \code{SYSERRORTEXT}.
 }
 \seealso{
+Generic: \code{\link[DBI]{dbGetException}}.
+
 Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbConnect,SASEGConnection-method}},
   \code{\link{dbDisconnect,SASEGConnection-method}},
@@ -31,5 +33,6 @@ Other SASEGConnection class methods: \code{\link{SASEG}},
   \code{\link{dbIsValid,SASEGConnection-method}},
   \code{\link{dbListFields,SASEGConnection,character-method}},
   \code{\link{dbListResults,SASEGConnection-method}},
-  \code{\link{dbListTables,SASEGConnection-method}}
+  \code{\link{dbListTables,SASEGConnection-method}},
+  \code{\link{dbRemoveTable,SASEGConnection-method}}
 }

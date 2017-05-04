@@ -24,6 +24,12 @@ NULL
 #' @slot isValid A closure in which the status of the object is stored. Value 
 #'     can be accessed with 
 #'     \code{\link[=dbIsValid,SASEGDriver-method]{dbIsValid}}.
+#' @seealso \code{SASEGDriver} methods: 
+#'     \code{\link[=dbGetInfo,SASEGDriver-method]{dbGetInfo}},
+#'     \code{\link[=dbIsValid,SASEGDriver-method]{dbIsValid}},
+#'     \code{\link[=dbListConnections,SASEGDriver-method]{dbListConnections}},
+#'     \code{\link[=dbUnloadDriver,SASEGDriver-method]{dbUnloadDriver}},
+#'     \code{\link[=dbDataType,SASEGDriver-method]{dbDataType}}
 #' @keywords internal
 setClass(
   "SASEGDriver", 
@@ -118,6 +124,12 @@ setMethod("isValid<-", "SASEGDriver", function(obj, value) {
 #'     object can be understood as a \code{SAS EG} application.
 #' @param DLLPath A character string with the path to file \code{SASEGScripting.dll}.
 #' @return \code{SASEG()} returns a \code{\linkS4class{SASEGDriver}} object.
+#' @seealso \code{SASEGDriver} methods: 
+#'     \code{\link[=dbGetInfo,SASEGDriver-method]{dbGetInfo}},
+#'     \code{\link[=dbIsValid,SASEGDriver-method]{dbIsValid}},
+#'     \code{\link[=dbListConnections,SASEGDriver-method]{dbListConnections}},
+#'     \code{\link[=dbUnloadDriver,SASEGDriver-method]{dbUnloadDriver}},
+#'     \code{\link[=dbDataType,SASEGDriver-method]{dbDataType}}
 #' @export
 SASEG <- function(DLLPath = "C:\\Program Files\\SAS94\\SASEnterpriseGuide\\7.1\\SASEGScripting.dll") {
   if(!file.exists(DLLPath)) stop("cannot find file ", DLLPath)
@@ -136,7 +148,7 @@ SASEG <- function(DLLPath = "C:\\Program Files\\SAS94\\SASEnterpriseGuide\\7.1\\
 #             /methods ---------------------------------------------------------
 #                     //dbGetInfo -----------------------------------------------
 
-#' Get informations for a SASEGDriver object.
+#' Informations about a SASEGDriver
 #' 
 #' \code{dbGetInfo} method is called to get:
 #' \itemize{
@@ -146,8 +158,7 @@ SASEG <- function(DLLPath = "C:\\Program Files\\SAS94\\SASEnterpriseGuide\\7.1\\
 #'     \item \code{available.profiles}: a list with informations about 
 #'         available profiles.
 #' }
-#' @rdname SASEGDriver-class
-#' @param dbObj A \code{SASEGDriver} object.
+#' @param dbObj An object created by a call to \code{\link[=SASEG]{SASEG()}}.
 #' @inheritParams app,SASEGDriver-method
 #' @examples
 #' \dontrun{
@@ -158,8 +169,13 @@ SASEG <- function(DLLPath = "C:\\Program Files\\SAS94\\SASEnterpriseGuide\\7.1\\
 #' path <- "C:\\Program Files\\SAS94\\SASEnterpriseGuide\\7.1\\SASEGScripting.dll"
 #' drv <- RSASEG::SASEG(path)
 #' 
-#' dbGetInfo(drv)}
-#' @keywords internal
+#' dbGetInfo(drv)
+#' dbUnloadDriver(drv)}
+#' @seealso \code{SASEGDriver} methods: 
+#'     \code{\link[=dbIsValid,SASEGDriver-method]{dbIsValid}},
+#'     \code{\link[=dbListConnections,SASEGDriver-method]{dbListConnections}},
+#'     \code{\link[=dbUnloadDriver,SASEGDriver-method]{dbUnloadDriver}},
+#'     \code{\link[=dbDataType,SASEGDriver-method]{dbDataType}}
 #' @export
 setMethod("dbGetInfo", "SASEGDriver", function(dbObj, ...) {
   if(!dbIsValid(dbObj)) stop("Invalid driver")
@@ -179,12 +195,36 @@ setMethod("dbGetInfo", "SASEGDriver", function(dbObj, ...) {
 #' \code{dbListConnections} method is used to retrieve the list of active 
 #'     connections. Since \code{SASEGDriver} allows a single connection, the 
 #'     list contains either a single element or is empty.
-#' @param drv An object created by a call to \code{SASEG()}.
+#' @param drv An object created by a call to \code{\link[=SASEG]{SASEG()}}.
 #' @param ... Other parameters. Not used.
 #' @return \code{dbListConnections} returns an empty list if there is no active
 #'     connection or a list with a single \code{\linkS4class{SASEGConnection}} 
 #'     object.
-#' @rdname SASEG
+#' @examples
+#' \dontrun{
+#' library(DBI)
+#' library(rClr)
+#' 
+#' # Modify the path below following your install:
+#' path <- "C:\\Program Files\\SAS94\\SASEnterpriseGuide\\7.1\\SASEGScripting.dll"
+#' drv <- RSASEG::SASEG(path)
+#' 
+#' dbListConnections(drv)
+#' 
+#' my_profile <- "PROFILE"
+#' my_server <- "SASPROD"
+#' conn <- dbConnect(drv, my_profile, my_server)
+#' dbListConnections(drv)
+#' 
+#' dbDisconnect(conn)
+#' dbListConnections(drv)
+#' 
+#' dbUnloadDriver(drv)}
+#' @seealso \code{SASEGDriver} methods: 
+#'     \code{\link[=dbGetInfo,SASEGDriver-method]{dbGetInfo}},
+#'     \code{\link[=dbIsValid,SASEGDriver-method]{dbIsValid}},
+#'     \code{\link[=dbUnloadDriver,SASEGDriver-method]{dbUnloadDriver}},
+#'     \code{\link[=dbDataType,SASEGDriver-method]{dbDataType}}
 #' @export
 setMethod("dbListConnections", "SASEGDriver", function(drv, ...) {
   if(!dbIsValid(drv)) stop("invalid driver.")
@@ -197,11 +237,27 @@ setMethod("dbListConnections", "SASEGDriver", function(drv, ...) {
 #' Is this SASEGDriver still valid ?
 #' 
 #' \code{dbIsValid} tests if a \code{SASEGDriver} object is still valid. A call
-#'     to \code{dbUnloadDriver} invalidates the object.
-#' @param dbObj An object created by a call to \code{SASEG()}.
-#' @inheritParams dbListConnections,SASEGDriver-method
+#'     to \code{\link[=dbUnloadDriver,SASEGDriver-method]{dbUnloadDriver}} 
+#'     invalidates the object.
+#' @inheritParams dbGetInfo,SASEGDriver-method
 #' @return \code{dbIsValid} returns a \code{logical}.
-#' @rdname SASEG
+#' @seealso \code{SASEGDriver} methods: 
+#'     \code{\link[=dbGetInfo,SASEGDriver-method]{dbGetInfo}},
+#'     \code{\link[=dbListConnections,SASEGDriver-method]{dbListConnections}},
+#'     \code{\link[=dbUnloadDriver,SASEGDriver-method]{dbUnloadDriver}},
+#'     \code{\link[=dbDataType,SASEGDriver-method]{dbDataType}}
+#' @examples
+#' \dontrun{
+#' library(DBI)
+#' library(rClr)
+#' 
+#' # Modify the path below following your install:
+#' path <- "C:\\Program Files\\SAS94\\SASEnterpriseGuide\\7.1\\SASEGScripting.dll"
+#' drv <- RSASEG::SASEG(path)
+#' dbIsValid(drv)
+#' 
+#' dbUnloadDriver(drv)
+#' dbIsValid(drv)}
 #' @export
 setMethod("dbIsValid", "SASEGDriver", function(dbObj, ...) {
   dbObj@isValid()
@@ -217,7 +273,35 @@ setMethod("dbIsValid", "SASEGDriver", function(dbObj, ...) {
 #'     informative message to the user.
 #' @inheritParams dbListConnections,SASEGDriver-method
 #' @return \code{dbUnloadDriver} method returns \code{TRUE}.
-#' @rdname SASEG
+#' @seealso \code{SASEGDriver} methods: 
+#'     \code{\link[=dbGetInfo,SASEGDriver-method]{dbGetInfo}},
+#'     \code{\link[=dbIsValid,SASEGDriver-method]{dbIsValid}},
+#'     \code{\link[=dbListConnections,SASEGDriver-method]{dbListConnections}},
+#'     \code{\link[=dbDataType,SASEGDriver-method]{dbDataType}}
+#' @examples
+#' \dontrun{
+#' library(DBI)
+#' library(rClr)
+#' 
+#' # Modify the path below following your install:
+#' path <- "C:\\Program Files\\SAS94\\SASEnterpriseGuide\\7.1\\SASEGScripting.dll"
+#' drv <- RSASEG::SASEG(path)
+#' 
+#' my_profile <- "PROFILE"
+#' my_server <- "SASPROD"
+#' conn <- dbConnect(drv, my_profile, my_server)
+#' 
+#' dbWriteTable(conn, "mtcars", mtcars)
+#' dbGetQuery(conn, "SELECT * FROM mtcars WHERE cyl = 4")
+#' 
+#' # Important: you have to disconnect from SAS EG and
+#' #            unload driver.
+#' # 
+#' # When disconnecting, you also can save your work to 
+#' # a SAS EG Project file.
+#' 
+#' dbDisconnect(conn)
+#' dbUnloadDriver(drv)}
 #' @export
 setMethod("dbUnloadDriver", "SASEGDriver", function(drv, ...) {
   if(dbIsValid(drv)) {
@@ -278,7 +362,11 @@ setMethod("dbUnloadDriver", "SASEGDriver", function(drv, ...) {
 #' dbDisconnect(conn, projectPath = RSASEG_project)
 #' dbUnloadDriver(drv)}
 #' @seealso Generic: \code{\link[DBI]{dbDataType}}.
-#' @keywords internal
+#' @seealso \code{SASEGDriver} methods: 
+#'     \code{\link[=dbGetInfo,SASEGDriver-method]{dbGetInfo}},
+#'     \code{\link[=dbIsValid,SASEGDriver-method]{dbIsValid}},
+#'     \code{\link[=dbListConnections,SASEGDriver-method]{dbListConnections}},
+#'     \code{\link[=dbUnloadDriver,SASEGDriver-method]{dbUnloadDriver}}
 #' @export
 setMethod("dbDataType", "SASEGDriver", function(dbObj, obj, ...) {
   getSASType(obj)
@@ -360,18 +448,18 @@ setMethod("show", "SAS", function(object) {
 
 #' Refer to a SAS dataset
 #' 
-#' \code{dataset} function is used to refer to a \code{SAS} dataset. 
-#' \code{\link[DBI]{SQL-class}} objects and \code{\link[DBI]{Table-class}} 
-#' objects are escaped.
-#' @param name A dataset name. Compulsory.
+#' \code{dataset} method is used to refer to a \code{SAS} dataset. 
+#' @param name A dataset name. Either a character string (unquoted or quoted by
+#'     \code{\link[DBI]{dbQuoteIdentifier}}) or a \code{\link[DBI]{Table-class}}
+#'     object.
 #' @param ... Other argument passed on to method.
+#' @keywords internal
 setGeneric("dataset", function(name, ...) standardGeneric("dataset"))
 
 #' @rdname dataset
 #' @inheritParams dataset
-#' @param libname A character string with the libname. Optional.
-#' @return \code{dataset} function returns a \code{\link[DBI]{Table-class}} 
-#'     object when \code{param} is a character string.
+#' @param libname A character string with the libname.
+#' @return \code{dataset} function returns a \code{\link[DBI]{Table-class}} object.
 #' @examples
 #' dataset("SASHELP.CLASS")
 #' dataset(libname = "SASHELP", name = "CLASS")
@@ -389,7 +477,8 @@ setMethod("dataset", "character", function(name, libname = "WORK") {
     warning("Null libname, WORK is provided as libname.", immediate. = TRUE)
     libname <- "WORK"
   }
-  return(new("Table", name = c(as.character(libname), as.character(name))))
+  
+  new("Table", name = c(as.character(libname), as.character(name)))
 })
 
 #' @rdname dataset
@@ -397,6 +486,7 @@ setMethod("dataset", "character", function(name, libname = "WORK") {
 #' @export
 setMethod("dataset", "Table", function(name, ...) {
   stopifnot(length(name@name) %in% 1:2)
+  
   if(length(name@name) == 2) {
     return(name)
   } else {
@@ -416,6 +506,7 @@ setMethod("dataset", "SQL", function(name, ...) {
     name <- substr(name, 2, nchar(name) - 1)
     name <- gsub(pattern = '"."', replacement = '.', name, fixed = TRUE)
   } 
+  
   dataset(name)
 })
 
@@ -426,7 +517,7 @@ setMethod("dataset", "SQL", function(name, ...) {
 #' SAS EG connection class
 #'
 #' This class inherits from \code{\link[DBI]{DBIConnection-class}}.
-#' An object of class \code{SASEGConnection} can be understood a \code{SAS EG} 
+#' An object of class \code{SASEGConnection} can be understood as a \code{SAS EG} 
 #' project.
 #' @exportClass SASEGConnection
 #' @slot infos An environment that reference different objects. This environment is 
@@ -437,10 +528,13 @@ setMethod("dataset", "SQL", function(name, ...) {
 #'     \item \code{server} (a character string), 
 #'     \item \code{SASProject} (a \code{\linkS4class{SASEGProject}} object), 
 #'     \item \code{SASUtil} (a \code{\linkS4class{SASEGCode}} object), 
-#'     \item \code{listResults} (an environment), 
+#'     \item \code{listResults} (an environment),
+#'     \item \code{sqlrc} (a numeric) for \code{SAS PROC SQL} return code,
+#'     \item \code{syserrortext} (a character string) for \code{SAS PROC SQL} error message, 
 #'     \item \code{dbms} (a character string) for \code{SAS/ACCESS} connection. 
 #'         Not yet implemented. }
-#' @seealso \code{\link[=dbGetException,SASEGConnection-method]{dbGetException}}
+#' @seealso \code{\link[=dbGetException,SASEGConnection-method]{dbGetException}}, 
+#'     \code{\link[=dbIsValid,SASEGConnection-method]{dbIsValid}}.
 #' @keywords internal
 setClass("SASEGConnection",
          contains = "DBIConnection",
@@ -476,13 +570,13 @@ setMethod("drv", "SASEGConnection", function(obj, ...) {
 #'     This method is not exported. 
 #' @inheritParams drv,SASEGConnection-method
 #' @param value A logical.
-#' @seealso \code{\link[=dbIsValid,SASEGConnection-method]{dbIsValid}}
 #' @rdname SASEGConnection-class
 #' @keywords internal
 setMethod("isValid<-", "SASEGConnection", function(obj, value) {
   env <- obj@infos
   env$isValid <- value
-  return(obj)
+  
+  obj
 }) 
 
 #' Get the application object referenced in a SASEGConnection object
@@ -596,7 +690,8 @@ setGeneric("dbClearListResults", function(conn, ...) standardGeneric("dbClearLis
 #' Clear list of results
 #' 
 #' This method removes invalid \code{\linkS4class{SASEGSQLResult}} of the list 
-#' of results referenced in a \code{\linkS4class{SASEGConnection}} object.
+#' of results referenced in a \code{\linkS4class{SASEGConnection}} object. This
+#' method is not exported.
 #' @param conn A \code{\linkS4class{SASEGConnection}} object.
 #' @param ... Other parameters passed on to method. Not used.
 #' @return \code{TRUE}, invisibly.
@@ -616,7 +711,8 @@ setMethod("dbClearListResults", "SASEGConnection", function(conn, ...) {
 
 #' A finalizer function for SASEGConnection
 #' 
-#' A finaliser function for \code{\linkS4class{SASEGConnection}} objects.
+#' A finaliser function for \code{\linkS4class{SASEGConnection}} objects. 
+#' This function is not exported.
 #' @param e An environment. This is the \code{infos} slot of a 
 #'     \code{\linkS4class{SASEGConnection}} object.
 #' @return \code{NULL}, invisibly. 
@@ -633,7 +729,8 @@ finalize_cnx <- function(e) {
 
 #' @description Use \code{dbConnect} to create a new connection to a \code{SAS} 
 #'     server through \code{SAS Enterprise Guide}. A single connection is 
-#'     allowed by a \code{SASEGDriver} object. 
+#'     allowed by a \code{SASEGDriver} object. If needed, use multiple driver 
+#'     objects instead of multiple connections.
 #' @param profile A character string with the \code{SAS EG} profile name.
 #' @param server A character string with the \code{SAS} server name to run programs.
 #' @inheritParams dbListConnections,SASEGDriver-method
@@ -648,13 +745,10 @@ finalize_cnx <- function(e) {
 #' # Modify the path below following your install:
 #' path <- "C:\\Program Files\\SAS94\\SASEnterpriseGuide\\7.1\\SASEGScripting.dll"
 #' drv <- RSASEG::SASEG(path)
-#' show(drv)
-#' dbListConnections(drv)
 #' 
 #' my_profile <- "PROFILE"
 #' my_server <- "SASPROD"
 #' conn <- dbConnect(drv, my_profile, my_server)
-#' dbListConnections(drv)
 #' 
 #' dbWriteTable(conn, "mtcars", mtcars)
 #' dbGetQuery(conn, "SELECT * FROM mtcars WHERE cyl = 4")
@@ -667,9 +761,7 @@ finalize_cnx <- function(e) {
 #' 
 #' RSASEG_project <- paste(normalizePath("~"), "RSASEG.egp", sep = "\\")
 #' dbDisconnect(conn, projectPath = RSASEG_project)
-#' dbUnloadDriver(drv)
-#' 
-#' dbIsValid(drv)}
+#' dbUnloadDriver(drv)}
 #' @family SASEGConnection class methods
 setMethod("dbConnect", "SASEGDriver", function(drv, profile, server, ...) {
   if(!dbIsValid(drv)) stop("invalid driver.")
@@ -707,7 +799,8 @@ setMethod("dbConnect", "SASEGDriver", function(drv, profile, server, ...) {
   on.exit(reg.finalizer(infos, finalize_cnx, onexit = TRUE))
   # Add the new connection to the list of connections of the driver:
   cnx(drv) <- new_cnx
-  return(new_cnx)
+  
+  new_cnx
 })
 
 # Connection Class -------------------------------------------------------------
@@ -717,7 +810,7 @@ setMethod("dbConnect", "SASEGDriver", function(drv, profile, server, ...) {
 #' Replicate a connection
 #' 
 #' \code{dbConnect} method replicates a connection. As 
-#' \code{\linkS4class{SASEGDriver}} objects allow a single connection per 
+#' \code{\linkS4class{SASEGDriver}} class allows a single connection per 
 #' driver object, the behavior of \code{dbConnect} is the following: 
 #' \itemize{
 #' \item If the \code{\linkS4class{SASEGConnection}} object passed in argument 
@@ -727,6 +820,7 @@ setMethod("dbConnect", "SASEGDriver", function(drv, profile, server, ...) {
 #' profile and server.}
 #' @param drv An object created with \code{\link[=dbConnect,SASEGDriver-method]{dbConnect()}}.
 #' @return A \code{\linkS4class{SASEGConnection}} object.
+#' @seealso Generic: \code{\link[DBI]{dbConnect}}.
 #' @family SASEGConnection class methods
 #' @export
 setMethod("dbConnect", "SASEGConnection", function(drv, ...) {
@@ -737,8 +831,9 @@ setMethod("dbConnect", "SASEGConnection", function(drv, ...) {
 #' Test if SAS EG connection is valid
 #' 
 #' \code{dbIsValid} tests if a \code{\linkS4class{SASEGConnection}} object is valid.
-#' @param dbObj An object of class \code{\linkS4class{SASEGConnection}}.
+#' @param dbObj An object created with \code{\link[=dbConnect,SASEGDriver-method]{dbConnect()}}.
 #' @param ... Other parameters. Not used.
+#' @seealso Generic: \code{\link[DBI]{dbIsValid}}.
 #' @family SASEGConnection class methods
 #' @export
 setMethod("dbIsValid", "SASEGConnection", function(dbObj, ...) {
@@ -752,12 +847,13 @@ setMethod("dbIsValid", "SASEGConnection", function(dbObj, ...) {
 #' 
 #' Get the last \code{SAS/PROC SQL} exception.
 #' 
-#' \code{errorMsg} and \code{errorMsg} are given by the \code{SAS} automatic
+#' \code{errorNum} and \code{errorMsg} are given by the \code{SAS} automatic
 #'     macro variables \code{SQLRC} and \code{SYSERRORTEXT}.
 #' @param conn An object created by \code{\link[=dbConnect,SASEGDriver-method]{dbConnect}}.
 #' @return A list with elements \code{errorNum} (an integer error number) and 
 #'     \code{errorMsg} (a character string) describing the last error in the 
 #'     connection \code{conn}.
+#' @seealso Generic: \code{\link[DBI]{dbGetException}}.
 #' @family SASEGConnection class methods
 #' @export
 setMethod("dbGetException", "SASEGConnection", function(conn, ...) {
@@ -791,7 +887,7 @@ setMethod("dbGetException", "SASEGConnection", function(conn, ...) {
 #' my_profile <- "PROFILE"
 #' my_server <- "SASPROD"
 #' conn <- dbConnect(drv, my_profile, my_server)
-#' show(conn)
+#' 
 #' dbWriteTable(conn, "mtcars", mtcars)
 #' dbGetQuery(conn, "SELECT * FROM mtcars WHERE cyl = 4")
 #' 
@@ -800,6 +896,7 @@ setMethod("dbGetException", "SASEGConnection", function(conn, ...) {
 #' RSASEG_project <- paste(normalizePath("~"), "RSASEG.egp", sep = "\\")
 #' dbDisconnect(conn, projectPath = RSASEG_project)
 #' }
+#' @seealso Generic: \code{\link[DBI]{dbDisconnect}}.
 #' @family SASEGConnection class methods
 #' @export
 setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, ...) {
@@ -820,7 +917,7 @@ setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, 
 
 #                         //dbGetInfo ------------------------------------------
 
-#' Get informations about a connection
+#' Informations about a connection
 #' 
 #' \code{dbGetInfo} returns informations about a \code{\linkS4class{SASEGConnection}}
 #' object:
@@ -834,6 +931,7 @@ setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, 
 #'     \code{SYSUSERID} \code{SAS} macro variable).
 #' \item \code{host}: host name.
 #' \item \code{port}: port number.}
+#' @seealso Generic: \code{\link[DBI]{dbGetInfo}}.
 #' @family SASEGConnection class methods
 #' @export
 setMethod("dbGetInfo", "SASEGConnection", function(dbObj, ...) {
@@ -891,6 +989,7 @@ setMethod("dbGetInfo", "SASEGConnection", function(dbObj, ...) {
 #'     library datasets.
 #' @param ... Other parameters passed on. Not used.
 #' @return A character vector.
+#' @seealso Generic: \code{\link[DBI]{dbListFields}}.
 #' @family SASEGConnection class methods
 #' @export
 setMethod("dbListFields", c("SASEGConnection", "character"), function(conn, name, ...) {
@@ -921,6 +1020,7 @@ setMethod("dbListFields", c("SASEGConnection", "character"), function(conn, name
 #' @param conn An object returned by \code{\link[=dbConnect,SASEGDriver-method]{dbConnect()}}.
 #' @param ... Other parameters passed on. Not used.
 #' @return A character vector.
+#' @seealso Generic: \code{\link[DBI]{dbListTables}}.
 #' @family SASEGConnection class methods
 #' @export
 setMethod("dbListTables", "SASEGConnection", function(conn, ...) {
@@ -939,6 +1039,7 @@ setMethod("dbListTables", "SASEGConnection", function(conn, ...) {
 #' List valid \code{\linkS4class{SASEGSQLResult}} objects.
 #' @inheritParams dbListTables,SASEGConnection-method
 #' @return A list of \code{\linkS4class{SASEGSQLResult}} objects.
+#' @seealso Generic: \code{\link[DBI]{dbListResults}}.
 #' @family SASEGConnection class methods
 #' @export
 setMethod("dbListResults", "SASEGConnection", function(conn, ...) {
@@ -954,7 +1055,6 @@ setMethod("dbListResults", "SASEGConnection", function(conn, ...) {
 #'     \code{\linkS4class{SASEGConnection}} classes.
 #' @rdname dbDataType-SASEGDriver-method
 #' @inheritParams dbDataType,SASEGDriver-method
-#' @keywords internal
 #' @export
 setMethod("dbDataType", "SASEGConnection", function(dbObj, obj, ...) {
   dbDataType(drv(dbObj), obj)
@@ -967,6 +1067,7 @@ setMethod("dbDataType", "SASEGConnection", function(dbObj, obj, ...) {
 #' \code{dbExistsTable} is used to test if a dataset exists on a \code{SAS} server.
 #' @inheritParams dbListFields,SASEGConnection,character-method
 #' @return A logical.
+#' @seealso Generic: \code{\link[DBI]{dbExistsTable}}.
 #' @family SASEGConnection class methods
 #' @export
 setMethod("dbExistsTable", "SASEGConnection", function(conn, name, ...) {
@@ -991,6 +1092,14 @@ setMethod("dbExistsTable", "SASEGConnection", function(conn, name, ...) {
 
 #                         //dbRemoveTable --------------------------------------
 
+#' Remove a dataset on a SAS server
+#' 
+#' \code{dbRemoveTable} method is used to drop a dataset.
+#' @inheritParams dbListFields,SASEGConnection,character-method
+#' @inheritParams dbSendQuery,SASEGConnection,character-method
+#' @return \code{TRUE}, invisibly.
+#' @seealso Generic: \code{\link[DBI]{dbRemoveTable}}.
+#' @family SASEGConnection class methods
 #' @export
 setMethod(
   "dbRemoveTable", 
@@ -1002,6 +1111,8 @@ setMethod(
     name <- dbQuoteIdentifier(conn, dataset(name))
     statement <- paste0("DROP TABLE ", name)
     dbExecute(conn, statement, codeName, persistent)
+    
+    invisible(TRUE)
 })
 
 
@@ -1045,7 +1156,7 @@ setGeneric("fetched<-", function(res, value) standardGeneric("fetched<-"))
 #' \code{`fetched<-`} sets the slot \code{fetched} of a \code{SASEGResult} 
 #'     object as \code{TRUE} or \code{FALSE}. This method is not exported. Only 
 #'     developpers may need to use it.
-#' @param res An object of class \code{SASEGResult} or inheriting from this 
+#' @param dbObj,obj,res An object of class \code{SASEGResult} or inheriting from this 
 #'     class, as \code{\linkS4class{SASEGSQLResult}}.
 #' @param value A logical.
 #' @rdname SASEGResult-class
@@ -1058,8 +1169,6 @@ setMethod("fetched<-", "SASEGResult", function(res, value) {
 #' @section Replacement methods:
 #' \code{`isValid<-`} method sets the value \code{isValid}. This method is not 
 #'     exported. Only developpers may need to use it. 
-#' @param obj An object of class \code{SASEGResult} or inheriting from this 
-#'     class, as \code{\linkS4class{SASEGSQLResult}}.
 #' @inheritParams fetched-set,SASEGResult-method
 #' @rdname SASEGResult-class
 #' @keywords internal
@@ -1127,9 +1236,7 @@ setMethod(
 #' 
 #' \code{dbIsValid} method tests if a \code{SASEGResult} is valid.
 #' \code{TRUE} is returned if the object is valid.
-#' @param dbObj An object of class \code{SASEGResult} or inheriting from this 
-#'     class, as \code{\linkS4class{SASEGSQLResult}}.
-#' @inheritParams dbHasCompleted,SASEGResult-method
+#' @inheritParams fetched-set,SASEGResult-method
 #' @return \code{dbIsValid} returns a logical.
 #' @seealso Generic: \code{\link[DBI]{dbIsValid}}.
 #' @rdname SASEGResult-class
@@ -1170,8 +1277,7 @@ setGeneric("dbFetchAll", function(res, ...) standardGeneric("dbFetchAll"))
 #' 
 #' \code{dbFetchAll} method retrieves all datasets (with all rows) created by a 
 #'     \code{SAS} statement. It returns a named list of 
-#'     \code{\link[data.table]{data.table}}. If there is a single fetched 
-#'     dataset, a \code{\link[data.table]{data.table}} is returned.
+#'     \code{\link[data.table]{data.table}}. 
 #' @inheritParams dbHasCompleted,SASEGResult-method
 #' @return \code{dbFetchAll} returns a named (with filenames) list of 
 #'     \code{\link[data.table]{data.table}}.
@@ -1181,13 +1287,22 @@ setMethod("dbFetchAll", "SASEGResult", function(res, ...) {
   l <- getListDatasets(res@SASResult)
   d <- lapply(l, read)
   fetched(res) <- TRUE
-  return(d)
+  
+  d
 })
 
 # Connection Class -------------------------------------------------------------
 #                 /methods -----------------------------------------------------
 #                         //dbGetQuery (SAS query)------------------------------
 
+#' Send a SAS program and get result datasets
+#' 
+#' \code{dbGetQuery} method is used to send a \code{SAS} program and get a list 
+#' of result datasets.
+#' 
+#' @inheritParams dbSendQuery,SASEGConnection,SAS-method
+#' @return \code{dbFetchAll} returns a named (with filenames) list of 
+#'     \code{\link[data.table]{data.table}}.
 #' @export
 setMethod(
   "dbGetQuery", 

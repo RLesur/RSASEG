@@ -48,7 +48,7 @@
 }
 \description{
 This class inherits from \code{\link[DBI]{DBIConnection-class}}.
-An object of class \code{SASEGConnection} can be understood a \code{SAS EG} 
+An object of class \code{SASEGConnection} can be understood as a \code{SAS EG} 
 project.
 
 \code{drv} method access to the \code{\linkS4class{SASEGDriver}} object 
@@ -85,14 +85,15 @@ registered. Referenced objects are: \itemize{
 \item \code{server} (a character string), 
 \item \code{SASProject} (a \code{\linkS4class{SASEGProject}} object), 
 \item \code{SASUtil} (a \code{\linkS4class{SASEGCode}} object), 
-\item \code{listResults} (an environment), 
+\item \code{listResults} (an environment),
+\item \code{sqlrc} (a numeric) for \code{SAS PROC SQL} return code,
+\item \code{syserrortext} (a character string) for \code{SAS PROC SQL} error message, 
 \item \code{dbms} (a character string) for \code{SAS/ACCESS} connection. 
     Not yet implemented. }}
 }}
 
 \seealso{
-\code{\link[=dbGetException,SASEGConnection-method]{dbGetException}}
-
-\code{\link[=dbIsValid,SASEGConnection-method]{dbIsValid}}
+\code{\link[=dbGetException,SASEGConnection-method]{dbGetException}}, 
+    \code{\link[=dbIsValid,SASEGConnection-method]{dbIsValid}}.
 }
 \keyword{internal}

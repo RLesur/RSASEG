@@ -24,15 +24,9 @@
 \S4method{dbGetLog}{SASEGResult}(res, ...)
 }
 \arguments{
-\item{res}{An object of class \code{SASEGResult} or inheriting from this 
-class, as \code{\linkS4class{SASEGSQLResult}}.}
-
 \item{value}{A logical.}
 
-\item{obj}{An object of class \code{SASEGResult} or inheriting from this 
-class, as \code{\linkS4class{SASEGSQLResult}}.}
-
-\item{dbObj}{An object of class \code{SASEGResult} or inheriting from this 
+\item{dbObj, obj, res}{An object of class \code{SASEGResult} or inheriting from this 
 class, as \code{\linkS4class{SASEGSQLResult}}.}
 
 \item{...}{Other parameters. Not used.}
@@ -63,8 +57,7 @@ class, as \code{\linkS4class{SASEGSQLResult}}.}
 
 \code{dbFetchAll} method retrieves all datasets (with all rows) created by a 
     \code{SAS} statement. It returns a named list of 
-    \code{\link[data.table]{data.table}}. If there is a single fetched 
-    dataset, a \code{\link[data.table]{data.table}} is returned.
+    \code{\link[data.table]{data.table}}.
 
 \code{dbGetLog} method retrieves the log of the \code{\linkS4class{SAS}} 
 program. \code{dbGetLog} does not belong to the \code{DBI} specification.

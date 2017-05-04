@@ -17,6 +17,7 @@
 }
 \description{
 This method removes invalid \code{\linkS4class{SASEGSQLResult}} of the list 
-of results referenced in a \code{\linkS4class{SASEGConnection}} object.
+of results referenced in a \code{\linkS4class{SASEGConnection}} object. This
+method is not exported.
 }
 \keyword{internal}

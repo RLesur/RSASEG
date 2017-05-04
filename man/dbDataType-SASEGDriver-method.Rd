@@ -68,5 +68,10 @@ dbUnloadDriver(drv)}
 }
 \seealso{
 Generic: \code{\link[DBI]{dbDataType}}.
+
+\code{SASEGDriver} methods: 
+    \code{\link[=dbGetInfo,SASEGDriver-method]{dbGetInfo}},
+    \code{\link[=dbIsValid,SASEGDriver-method]{dbIsValid}},
+    \code{\link[=dbListConnections,SASEGDriver-method]{dbListConnections}},
+    \code{\link[=dbUnloadDriver,SASEGDriver-method]{dbUnloadDriver}}
 }
-\keyword{internal}

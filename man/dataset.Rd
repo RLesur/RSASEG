@@ -17,20 +17,19 @@ dataset(name, ...)
 \S4method{dataset}{SQL}(name, ...)
 }
 \arguments{
-\item{name}{A dataset name. Compulsory.}
+\item{name}{A dataset name. Either a character string (unquoted or quoted by
+\code{\link[DBI]{dbQuoteIdentifier}}) or a \code{\link[DBI]{Table-class}}
+object.}
 
 \item{...}{Other argument passed on to method.}
 
-\item{libname}{A character string with the libname. Optional.}
+\item{libname}{A character string with the libname.}
 }
 \value{
-\code{dataset} function returns a \code{\link[DBI]{Table-class}} 
-    object when \code{param} is a character string.
+\code{dataset} function returns a \code{\link[DBI]{Table-class}} object.
 }
 \description{
-\code{dataset} function is used to refer to a \code{SAS} dataset. 
-\code{\link[DBI]{SQL-class}} objects and \code{\link[DBI]{Table-class}} 
-objects are escaped.
+\code{dataset} method is used to refer to a \code{SAS} dataset.
 }
 \examples{
 dataset("SASHELP.CLASS")
@@ -39,3 +38,4 @@ dataset(libname = "SASHELP", name = "CLASS")
 # For a dataset in WORK library, you can use:
 dataset("TEST")
 }
+\keyword{internal}

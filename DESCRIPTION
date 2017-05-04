@@ -4,8 +4,9 @@ Title: DBI Driver for SAS Enterprise Guide
 Version: 0.0.9000
 Author: Romain Lesur
 Maintainer: Romain Lesur <romain.lesur@justice.gouv.fr>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: RSASEG package provides a DBI compliant interface to
+    SAS using SAS Enterprise Guide. SQL statements are wrapped 
+    in a SAS/PROC SQL and run on your SAS server.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

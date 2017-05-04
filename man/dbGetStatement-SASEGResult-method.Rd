@@ -7,6 +7,15 @@
 \usage{
 \S4method{dbGetStatement}{SASEGResult}(res, ...)
 }
+\arguments{
+\item{res}{An object of class \code{SASEGResult} or inheriting from this 
+class, as \code{\linkS4class{SASEGSQLResult}}.}
+
+\item{...}{Other parameters. Not used.}
+}
+\value{
+A character string with the \code{SAS} code.
+}
 \description{
 \code{dbGetStatement} collect the program that was sent to \code{SAS}.
 }

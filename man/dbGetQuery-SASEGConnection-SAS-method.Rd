@@ -20,7 +20,7 @@
 \code{FALSE}, \code{garbage} code is used.}
 }
 \value{
-\code{dbFetchAll} returns a named (with filenames) list of 
+\code{dbGetQuery} returns a named (with filenames) list of 
     \code{\link[data.table]{data.table}}.
 }
 \description{

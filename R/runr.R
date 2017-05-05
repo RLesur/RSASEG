@@ -2,8 +2,14 @@
 #' @include RSASEGDriver.R
 NULL
 
+#' Runr proc
+#' 
+#' Function to use \code{SAS} engine with runr.
+#' @inheritParams SASEG
+#' @inheritParams dbConnect,SASEGDriver-method
+#' @keywords internal
 #' @export
-proc_saseg <- function(DLLFilePath, profile, server, projectpath = NULL, ...) {
+proc_saseg <- function(DLLPath, profile, server, projectpath = NULL, ...) {
   # Init a void connection:
   conn <- new("SASEGConnection")
   sep = runr:::rand_string()
@@ -13,7 +19,7 @@ proc_saseg <- function(DLLFilePath, profile, server, projectpath = NULL, ...) {
     code = as.character(paste0(c(...), collapse = "\n"))
     result <- dbSendQuery(conn = conn, statement = SAS(code), codeName = codeName)
     if(!is.null(out.df)) {
-      out <- dbFetch(result)
+      out <- dbFetchAll(result)
       assign(out.df, out, envir = globalenv())
     }
     log <- dbGetLog(result)
@@ -26,7 +32,7 @@ proc_saseg <- function(DLLFilePath, profile, server, projectpath = NULL, ...) {
         warning('SAS EG program is already started')
         return(invisible())
       }
-      conn <<- dbConnect(SASEG(), DLLFilePath = DLLFilePath, profile = profile, server = server)
+      conn <<- dbConnect(SASEG(DLLPath = DLLPath), profile = profile, server = server)
       started <<- TRUE
       invisible()
     },

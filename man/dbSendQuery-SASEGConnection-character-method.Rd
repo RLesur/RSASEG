@@ -24,7 +24,7 @@ or an \code{\link[DBI]{SQL}} class object.}
 \code{FALSE} indicate a data transformation statement.}
 }
 \value{
-A \code{SASEGSQLResult} object.
+A \code{\linkS4class{SASEGSQLResult}} object.
 }
 \description{
 \code{dbSendQuery} sends an \code{\link[DBI]{SQL}} query to \code{SAS}. The 

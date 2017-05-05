@@ -1393,7 +1393,7 @@ setClass(
 #' @param query A logical. \code{TRUE} indicates a \code{SELECT} query. 
 #'     \code{FALSE} indicate a data transformation statement. 
 #' @inheritParams dbSendQuery,SASEGConnection,SAS-method 
-#' @return A \code{SASEGSQLResult} object.
+#' @return A \code{\linkS4class{SASEGSQLResult}} object.
 #' @seealso Generic: \code{\link[DBI]{dbSendQuery}}
 #' @export
 #' @examples
@@ -1480,6 +1480,15 @@ setMethod(
 
 #                         //dbSendStatement ------------------------------------
 
+#' Send an SQL statement to SAS EG
+#'
+#' \code{dbSendStatement} sends an \code{\link[DBI]{SQL}} data manipulation 
+#'     statement to \code{SAS}. The query is first embedded in a 
+#'     \code{PROC SQL} and sent to \code{SAS}. 
+#' @inheritParams dbSendQuery,SASEGConnection,character-method
+#' @seealso \code{\link[=dbSendQuery,SASEGConnection,character-method]{dbSendQuery()}}
+#' @seealso Generic: \code{\link[DBI]{dbSendStatement}}
+#' @return A \code{\linkS4class{SASEGSQLResult}} object.
 #' @export
 setMethod(
   "dbSendStatement", 
@@ -1490,6 +1499,14 @@ setMethod(
 
 #                         //dbGetQuery -----------------------------------------
 
+#' Send an SQL query to SAS EG and get results
+#'
+#' \code{dbGetQuery} sends an \code{\link[DBI]{SQL}} query to \code{SAS} and
+#'     retrieve results. The query is first embedded in a \code{PROC SQL} and 
+#'     sent to \code{SAS}. \code{dbGetQuery} is used to send \code{SELECT ...} 
+#'     queries.
+#' @inheritParams dbSendQuery,SASEGConnection,character-method
+#' @return A \code{data.frame} object.
 #' @export
 setMethod(
   "dbGetQuery", 

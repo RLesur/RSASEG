@@ -1110,7 +1110,7 @@ setMethod(
     if(!dbExistsTable(conn, name)) stop("cannot remove dataset; dataset does not exist.", call. = FALSE)
     name <- dbQuoteIdentifier(conn, dataset(name))
     statement <- paste0("DROP TABLE ", name)
-    dbExecute(conn, statement, codeName, persistent)
+    dbExecute(conn, statement, codeName = codeName, persistent = persistent)
     
     invisible(TRUE)
 })
@@ -1308,7 +1308,7 @@ setMethod(
   "dbGetQuery", 
   c("SASEGConnection", "SAS"), 
   function(conn, statement, codeName = NULL, persistent = TRUE, ...) {
-    res <- dbSendQuery(conn, statement, codeName, persistent)
+    res <- dbSendQuery(conn, statement, codeName = codeName, persistent = persistent)
     dbFetchAll(res)
     isValid(res) <- FALSE
 })
@@ -1441,7 +1441,7 @@ setMethod(
     # Merge with main statement:
     statement <- SAS(paste(statement, statement_RC, sep = "\n\n"))
     # Run SAS statement and get a SASEGResult object:
-    res <- dbSendQuery(conn, statement, codeName, persistent)
+    res <- dbSendQuery(conn, statement, codeName = codeName, persistent = persistent)
     # Get the list of output datasets:
     l <- getListDatasets(res@SASResult)
     # Read the SAS return codes:
@@ -1485,7 +1485,7 @@ setMethod(
   "dbSendStatement", 
   c("SASEGConnection", "character"), 
   function(conn, statement, codeName = NULL, persistent = TRUE, ...) {
-  dbSendQuery(conn, statement, codeName, persistent, query = FALSE)
+  dbSendQuery(conn, statement, codeName = codeName, persistent = persistent, query = FALSE)
 })
 
 #                         //dbGetQuery -----------------------------------------
@@ -1495,7 +1495,11 @@ setMethod(
   "dbGetQuery", 
   c("SASEGConnection", "character"), 
   function(conn, statement, codeName = NULL, persistent = TRUE, ...) {
-    res <- dbSendQuery(conn, statement, codeName = codeName, persistent = persistent, query = TRUE)
+    res <- dbSendQuery(conn, 
+                       statement, 
+                       codeName = codeName, 
+                       persistent = persistent, 
+                       query = TRUE)
     on.exit(dbClearResult(res))
     d <- dbFetch(res, n = -1)
     return(d)

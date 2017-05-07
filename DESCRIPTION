@@ -13,21 +13,22 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Depends:
-  rClr
+    rClr
 Imports:
-  data.table,
-  DBI (>= 0.3.0),
-  dplyr,
-  fasttime,
-  methods,
-  runr,
-  stringr,
-  utils
+    data.table,
+    DBI (>= 0.3.0),
+    dbplyr (>= 0.0.0.9001),
+    dplyr (>= 0.5.0.9004),
+    fasttime,
+    methods,
+    runr,
+    stringr,
+    utils
 Suggests:
-  DBItest, 
-  testthat
+    DBItest, 
+    testthat
 SystemRequirements:
-  SAS Enterprise Guide(>= 4.3)
+    SAS Enterprise Guide(>= 4.3)
 Collate: 
     'utils.R'
     'SASEGDataType.R'
@@ -36,3 +37,5 @@ Collate:
     'dplyr.R'
     'runr.R'
 RoxygenNote: 6.0.1
+Remotes:
+    tidyverse/dbplyr

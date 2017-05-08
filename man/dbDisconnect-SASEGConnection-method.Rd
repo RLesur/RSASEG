@@ -13,6 +13,8 @@
 \item{projectPath}{A character string with the path to save the project 
 created by \code{RSASEG}. \strong{Be careful: \code{dbDisconnect} method 
 overwrites existing files without confirmation}. If \code{NULL}, no project is saved.}
+
+\item{...}{Other parameters passed on to method. Not used.}
 }
 \value{
 \code{dbDisconnect} returns \code{TRUE}, invisibly.

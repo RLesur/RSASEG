@@ -18,6 +18,8 @@
 \item{persistent}{A logical. If \code{TRUE}, a new 
 \code{\linkS4class{SASEGCode}} is created in the \code{SASEGProject}. If 
 \code{FALSE}, \code{garbage} code is used.}
+
+\item{...}{Other parameters passed on to methods. Not used.}
 }
 \value{
 A \code{\linkS4class{SASEGResult}} object.

@@ -804,6 +804,154 @@ setMethod("dbConnect", "SASEGDriver", function(drv, profile, server, ...) {
 })
 
 # Connection Class -------------------------------------------------------------
+#                 /SQL methods -------------------------------------------------
+#                             /dbQuoteString -----------------------------------
+
+#' Quote literal strings
+#' 
+#' Quote literal strings. 
+#' @param conn A \code{\linkS4class{SASEGConnection}} object.
+#' @inheritParams DBI::dbQuoteString
+#' @return An object that can be coerced to character of the same length as the 
+#'     input.
+#' @seealso Generic: \code{\link[DBI]{dbQuoteString}}.
+#' @export
+setMethod("dbQuoteString", c("SASEGConnection", "character"), function(conn, x, ...) {
+  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
+  dbQuoteString(DBI::ANSI(), x, ...)
+})
+
+
+#' @rdname dbQuoteString-SASEGConnection-character-method
+#' @export
+setMethod("dbQuoteString", c("SASEGConnection", "SQL"), function(conn, x, ...) {
+  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
+  dbQuoteString(DBI::ANSI(), x, ...)
+})
+
+#                             /dbQuoteIdentifier -------------------------------
+
+#' Quote identifiers
+#' 
+#' Quote identifiers.
+#' @param conn A \code{\linkS4class{SASEGConnection}} object.
+#' @inheritParams DBI::dbQuoteIdentifier
+#' @return An object that can be coerced to character of the same length as the 
+#'     input.
+#' @seealso Generic: \code{\link[DBI]{dbQuoteIdentifier}}.
+#' @export
+setMethod("dbQuoteIdentifier", c("SASEGConnection", "character"), function(conn, x, ...) {
+  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
+  dbQuoteIdentifier(DBI::ANSI(), x, ...)
+})
+
+#' @rdname dbQuoteIdentifier-SASEGConnection-character-method
+#' @export
+setMethod("dbQuoteIdentifier", c("SASEGConnection", "SQL"), function(conn, x, ...) {
+  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
+  dbQuoteIdentifier(DBI::ANSI(), x, ...)
+})
+
+#' @rdname dbQuoteIdentifier-SASEGConnection-character-method
+#' @export
+setMethod("dbQuoteIdentifier", c("SASEGConnection", "Table"), function(conn, x, ...) {
+  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
+  dbQuoteIdentifier(DBI::ANSI(), x, ...)
+})
+
+#                             /sqlData -----------------------------------------
+
+#' Convert a data frame into form suitable for upload to SAS
+#' 
+#' Convert a data frame into form suitable for upload to \code{SAS}.
+#' 
+#' \code{sqlData}:\itemize{
+#' \item Converts factors to characters
+#' \item Quote all strings
+#' \item Converts logical as integers
+#' \item Convert dates as \code{SAS DATE9} format
+#' \item Convert datetimes as \code{SAS DATETIME} format
+#' \item Convert difftimes as \code{SAS TIME} format
+#' \item Replaces \code{NA} with \code{NULL}
+#' }
+#' 
+#' @param con A \code{\linkS4class{SASEGConnection}} object.
+#' @inheritParams DBI::sqlData
+#' @return A data frame with suitable values for \code{SAS}.
+#' @seealso Generic: \code{\link[DBI]{sqlData}}.
+#' @keywords internal
+#' @export
+setMethod("sqlData", "SASEGConnection", function(con, value, row.names = NA, ...) {
+  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
+  value <- DBI::sqlRownamesToColumn(value, row.names)
+  
+  # Convert factors to strings
+  is_factor <- vapply(value, is.factor, logical(1))
+  value[is_factor] <- lapply(value[is_factor], as.character)
+  
+  # Quote all strings
+  is_char <- vapply(value, is.character, logical(1))
+  value[is_char] <- lapply(value[is_char], function(x) {
+    enc2utf8(dbQuoteString(con, x))
+  })  
+  
+  # Convert logical 
+  is_logical <- vapply(value, is.logical, logical(1))
+  value[is_logical] <- lapply(value[is_logical], SASFormat)
+  
+  # Convert dates as SAS DATE9. format
+  is_Date <- vapply(value, is.Date, logical(1))
+  value[is_Date] <- lapply(value[is_Date], SASFormat)
+  
+  # Convert datetimes as SAS DATETIME. format
+  is_DateTime <- vapply(value, is.DateTime, logical(1))
+  value[is_DateTime] <- lapply(value[is_DateTime], SASFormat)
+  
+  # Convert difftimes as SAS TIME. format
+  is_difftime <- vapply(value, is.difftime, logical(1))
+  value[is_difftime] <- lapply(value[is_difftime], SASFormat)
+  
+  # Convert everything to character and turn NAs into NULL
+  value[] <- lapply(value, as.character)
+  value[is.na(value)] <- "NULL"
+  
+  value
+})
+
+#                             /sqlAppendTable ----------------------------------
+
+#' Insert rows into a dataset
+#' 
+#' \code{sqlAppendTable} generates a single \code{SQL} string that inserts a data 
+#'     frame into an existing \code{SAS} dataset.
+#' @param table Name of the dataset.
+#' @inheritParams sqlData,SASEGConnection-method
+#' @inheritParams DBI::sqlAppendTable
+#' @return An \code{\link[DBI]{SQL}} object with \code{SQL} code.
+#' @export
+setMethod("sqlAppendTable", "SASEGConnection", function(con, table, values, row.names = NA, ...) {
+  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
+  stopifnot(is.data.frame(values))
+  
+  sql_values <- sqlData(con, values, row.names)
+  table <- dbQuoteIdentifier(con, table)
+  fields <- dbQuoteIdentifier(con, names(sql_values))
+  
+  # Convert fields into a character matrix
+  rows <- do.call(paste, c(sql_values, sep = ", "))
+  
+  # SAS PROC SQL INSERT INTO statement has its own syntax. 
+  # One row is inserted for each VALUES clause.
+  # Multiple VALUES clauses are not separated by commas.
+  DBI::SQL(paste0(
+    "INSERT INTO ", table, "\n",
+    "  (", paste(fields, collapse = ", "), ")\n",
+    paste0("  VALUES(", rows, ")", collapse = "\n")
+  ))
+}
+)
+
+
 #                 /methods -----------------------------------------------------
 #                         //dbConnect ------------------------------------------
 
@@ -819,6 +967,7 @@ setMethod("dbConnect", "SASEGDriver", function(drv, profile, server, ...) {
 #' is inactive, \code{dbConnect} returns a new valid connection with same 
 #' profile and server.}
 #' @param drv An object created with \code{\link[=dbConnect,SASEGDriver-method]{dbConnect()}}.
+#' @param ... Other parameters passed on to method. Not used.
 #' @return A \code{\linkS4class{SASEGConnection}} object.
 #' @seealso Generic: \code{\link[DBI]{dbConnect}}.
 #' @family SASEGConnection class methods
@@ -850,6 +999,7 @@ setMethod("dbIsValid", "SASEGConnection", function(dbObj, ...) {
 #' \code{errorNum} and \code{errorMsg} are given by the \code{SAS} automatic
 #'     macro variables \code{SQLRC} and \code{SYSERRORTEXT}.
 #' @param conn An object created by \code{\link[=dbConnect,SASEGDriver-method]{dbConnect}}.
+#' @inheritParams dbConnect,SASEGConnection-method
 #' @return A list with elements \code{errorNum} (an integer error number) and 
 #'     \code{errorMsg} (a character string) describing the last error in the 
 #'     connection \code{conn}.
@@ -874,6 +1024,7 @@ setMethod("dbGetException", "SASEGConnection", function(conn, ...) {
 #' @param projectPath A character string with the path to save the project 
 #'     created by \code{RSASEG}. \strong{Be careful: \code{dbDisconnect} method 
 #'     overwrites existing files without confirmation}. If \code{NULL}, no project is saved.
+#' @inheritParams dbConnect,SASEGConnection-method
 #' @return \code{dbDisconnect} returns \code{TRUE}, invisibly.
 #' @examples
 #' \dontrun{
@@ -931,6 +1082,7 @@ setMethod("dbDisconnect", "SASEGConnection", function(conn, projectPath = NULL, 
 #'     \code{SYSUSERID} \code{SAS} macro variable).
 #' \item \code{host}: host name.
 #' \item \code{port}: port number.}
+#' @inheritParams dbIsValid,SASEGConnection-method
 #' @seealso Generic: \code{\link[DBI]{dbGetInfo}}.
 #' @family SASEGConnection class methods
 #' @export
@@ -1194,6 +1346,7 @@ setMethod("isValid<-", "SASEGResult", function(obj, value) {
 #' @param persistent A logical. If \code{TRUE}, a new 
 #'     \code{\linkS4class{SASEGCode}} is created in the \code{SASEGProject}. If 
 #'     \code{FALSE}, \code{garbage} code is used.
+#' @param ... Other parameters passed on to methods. Not used.
 #' @return A \code{\linkS4class{SASEGResult}} object.
 #' @keywords internal
 #' @export
@@ -1522,6 +1675,174 @@ setMethod(
     return(d)
   })
 
+#                         //dbWriteTable ---------------------------------------
+
+#' Copy data frames to SAS datasets
+#' 
+#' Writes, overwrites or appends a data frame to a \code{SAS} dataset, 
+#' optionally converting row names to a column and specifying \code{SAS} data
+#' types for fields.
+#' @param conn An object returned by 
+#'     \code{\link[=dbConnect,SASEGDriver-method]{dbConnect()}}.
+#' @param name A character string specifying the unquoted dataset name, or the 
+#'     result of a call to 
+#'     \code{\link[=dbQuoteIdentifier,SASEGConnection,character-method]{dbQuoteIdentifier()}}
+#' @param overwrite A logical. If \code{TRUE}, an existing dataset of the same 
+#'     name will be overwritten.
+#' @param append A logical. If \code{TRUE}, the rows in an existing table are 
+#'     preserved, and the new data are appended.
+#' @param field.types A named character vector with \code{SAS} data types.
+#' @param temporary A logical. This is part of the \code{DBI} specification. 
+#'     However, this functionality is not supported: one-level named datasets
+#'     are created in \code{SAS WORK}. Use two-levels names to permanently save
+#'     a dataset.
+#' @inheritParams dbSendStatement,SASEGConnection,character-method
+#' @inheritParams DBI::dbWriteTable
+#' @inheritParams DBI::sqlCreateTable
+#' @return \code{TRUE}, invisibly.
+#' @seealso Generic: \code{\link[DBI]{dbWriteTable}}.
+#' @export
+setMethod(
+  "dbWriteTable", 
+  "SASEGConnection", 
+  function(conn, 
+           name, 
+           value, 
+           row.names = NA, 
+           overwrite = FALSE, 
+           append = FALSE,
+           field.types = NULL,
+           temporary = FALSE,
+           persistent = TRUE, 
+           ...) {
+    stopifnot(is.data.frame(value))
+    stopifnot(length(row.names) == 1)
+    stopifnot(is.null(row.names) || is.logical(row.names) || is.character(row.names))
+    stopifnot(length(overwrite) == 1)
+    stopifnot(is.logical(overwrite))
+    stopifnot(length(append) == 1)
+    stopifnot(is.logical(append))
+    stopifnot(length(temporary) == 1)
+    stopifnot(is.logical(temporary))
+    if(!is.null(field.types)) {
+      stopifnot(length(field.types) == length(value))
+      stopifnot(!is.null(names(field.types)))
+      stopifnot(names(field.types) == names(value))
+    }
+    
+    if(overwrite && append) stop("overwrite and append cannot be both TRUE.", call. = FALSE)
+    
+    quoted_name <- dbQuoteIdentifier(conn, name)
+    stopifnot(length(quoted_name) == 1)
+    
+    table_name <- dataset(quoted_name)
+    libref <- stringr::str_to_upper(table_name@name[1])
+    if(temporary && libref != "WORK") {
+      stop("dataset ", table_name@name[2], 
+           " cannot be temporary copied in library ", table_name@name[1], 
+           call. = FALSE
+      )
+    }
+    
+    # Non-temporary one-level named datasets raise a warning.
+    # But they are copied in WORK library. 
+    if(!temporary && libref == "WORK") {
+      warning("Dataset ", table_name@name[2], " is created in ", libref, " library.\n",
+              "Use a two-level name to create non-temporary dataset.")
+    }
+    
+    quoted_name <- dbQuoteIdentifier(conn, table_name)
+    
+    exist <- dbExistsTable(conn, quoted_name)
+    if(exist && !append && !overwrite) {
+      stop("dataset ", table_name@name[2], 
+           " already exists in library ", table_name@name[1], 
+           call. = FALSE
+      )
+    }
+    
+    if(exist && overwrite) dbRemoveTable(conn, quoted_name, persistent = FALSE)
+    
+    if(!exist || overwrite) {
+      if (is.null(field.types)) {
+        statement <- DBI::sqlCreateTable(con = conn, 
+                                         table = quoted_name, 
+                                         fields = value, 
+                                         row.names = row.names, 
+                                         temporary = FALSE
+        )
+        
+      } else {
+        statement <- DBI::sqlCreateTable(con = conn, 
+                                         table = quoted_name, 
+                                         fields = field.types, 
+                                         row.names = row.names, 
+                                         temporary = FALSE
+        )
+      }
+      
+      dbExecute(conn, 
+                statement, 
+                codeName = if(persistent) paste("Create dataset", name) else NULL, 
+                persistent = persistent
+      )
+    }
+    
+    if(nrow(value) > 0) {
+      statement <- sqlAppendTable(con = conn, 
+                                  table = quoted_name, 
+                                  values = value, 
+                                  row.names = row.names, 
+                                  ...
+      )
+      dbExecute(conn, 
+                statement, 
+                codeName = if(persistent) paste("Insert values to dataset", name) else NULL, 
+                persistent = persistent
+      )
+    }
+    
+    invisible(TRUE)
+  })
+
+#                         //dbReadTable ----------------------------------------
+
+#' Copy data frames from SAS dataset
+#' 
+#' Reads a \code{SAS} dataset to a data frame, optionally converting a column 
+#' to row names and converting the column names to valid \code{R} identifiers.
+#' 
+#' @inheritParams DBI::sqlColumnToRownames
+#' @inheritParams dbWriteTable,SASEGConnection-method
+#' @param check.names A logical. Check if column names are valid \code{R} identifiers.
+#' @seealso Generic: \code{\link[DBI]{dbReadTable}}.
+#' @export
+setMethod(
+  "dbReadTable", 
+  c("SASEGConnection", "character"), 
+  function(conn, name, ..., row.names = NA, check.names = TRUE) {
+    quoted_name <- dbQuoteIdentifier(conn, name)
+    stopifnot(length(quoted_name) == 1)
+    
+    stopifnot(length(row.names) == 1L)
+    stopifnot(is.null(row.names) || is.logical(row.names) || is.character(row.names))
+    stopifnot(length(check.names) == 1L)
+    stopifnot(is.logical(check.names))
+    stopifnot(!is.na(check.names))
+    stopifnot(dbExistsTable(conn, name))
+    
+    quoted_name <- dbQuoteIdentifier(conn, dataset(quoted_name))
+    statement <- paste("SELECT * FROM", quoted_name)
+    d <- dbGetQuery(conn, statement, codeName = NULL, persistent = FALSE)
+    d <- DBI::sqlColumnToRownames(d, row.names)
+    
+    if (check.names) {
+      names(d) <- make.names(names(d), unique = TRUE)
+    }
+    d
+  })
+
+
 # SQL Results Class ------------------------------------------------------------
 #                  /methods ----------------------------------------------------
 #                          //dbGetRowCount -------------------------------------
@@ -1705,206 +2026,4 @@ setMethod("dbColumnInfo", "SASEGSQLResult", function(res, ...) {
 })
 
 
-# SQL Methods -------------------------------------------------------------
 
-
-#' @export
-setMethod("dbQuoteString", c("SASEGConnection", "character"), function(conn, x, ...) {
-  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  dbQuoteString(DBI::ANSI(), x, ...)
-})
-
-#' @export
-setMethod("dbQuoteString", c("SASEGConnection", "SQL"), function(conn, x, ...) {
-  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  dbQuoteString(DBI::ANSI(), x, ...)
-})
-
-#' @export
-setMethod("dbQuoteIdentifier", c("SASEGConnection", "character"), function(conn, x, ...) {
-  dbQuoteIdentifier(DBI::ANSI(), x, ...)
-})
-
-#' @export
-setMethod("dbQuoteIdentifier", c("SASEGConnection", "SQL"), function(conn, x, ...) {
-  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  dbQuoteIdentifier(DBI::ANSI(), x, ...)
-})
-
-#' @export
-setMethod("dbQuoteIdentifier", c("SASEGConnection", "Table"), function(conn, x, ...) {
-  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  dbQuoteIdentifier(DBI::ANSI(), x, ...)
-})
-
-#' @export
-setMethod("sqlData", "SASEGConnection", function(con, value, row.names = NA, ...) {
-  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  value <- DBI::sqlRownamesToColumn(value, row.names)
-
-  # Convert factors to strings
-  is_factor <- vapply(value, is.factor, logical(1))
-  value[is_factor] <- lapply(value[is_factor], as.character)
-  
-  # Quote all strings
-  is_char <- vapply(value, is.character, logical(1))
-  value[is_char] <- lapply(value[is_char], function(x) {
-    enc2utf8(dbQuoteString(con, x))
-  })  
-  
-  # Convert logical 
-  is_logical <- vapply(value, is.logical, logical(1))
-  value[is_logical] <- lapply(value[is_logical], SASFormat)
-  
-  # Convert dates as SAS DATE9. format
-  is_Date <- vapply(value, is.Date, logical(1))
-  value[is_Date] <- lapply(value[is_Date], SASFormat)
-  
-  # Convert datetimes as SAS DATETIME. format
-  is_DateTime <- vapply(value, is.DateTime, logical(1))
-  value[is_DateTime] <- lapply(value[is_DateTime], SASFormat)
-  
-  # Convert difftimes as SAS TIME. format
-  is_difftime <- vapply(value, is.difftime, logical(1))
-  value[is_difftime] <- lapply(value[is_difftime], SASFormat)
-  
-  # Convert everything to character and turn NAs into NULL
-  value[] <- lapply(value, as.character)
-  value[is.na(value)] <- "NULL"
-  
-  value
-})
-
-#' @export
-setMethod("sqlAppendTable", "SASEGConnection", function(con, table, values, row.names = NA, ...) {
-  # Ce programme sera à modifier si on veut faire du SAS SQL pass-through
-  stopifnot(is.data.frame(values))
-  
-  sql_values <- sqlData(con, values, row.names)
-  table <- dbQuoteIdentifier(con, table)
-  fields <- dbQuoteIdentifier(con, names(sql_values))
-            
-  # Convert fields into a character matrix
-  rows <- do.call(paste, c(sql_values, sep = ", "))
-  
-  # SAS PROC SQL INSERT INTO statement has its own syntax. 
-  # One row is inserted for each VALUES clause.
-  # Multiple VALUES clauses are not separated by commas.
-  DBI::SQL(paste0(
-    "INSERT INTO ", table, "\n",
-    "  (", paste(fields, collapse = ", "), ")\n",
-    paste0("  VALUES(", rows, ")", collapse = "\n")
-    ))
-  }
-)
-
-#' @export
-setMethod("dbWriteTable", "SASEGConnection", function(conn, 
-                                                      name, 
-                                                      value, 
-                                                      row.names = NA, 
-                                                      overwrite = FALSE, 
-                                                      append = FALSE, 
-                                                      temporary = FALSE,
-                                                      persistent = TRUE, 
-                                                      ...) {
-    stopifnot(is.data.frame(value))
-    stopifnot(length(row.names) == 1)
-    stopifnot(is.null(row.names) || is.logical(row.names) || is.character(row.names))
-    stopifnot(length(overwrite) == 1)
-    stopifnot(is.logical(overwrite))
-    stopifnot(length(append) == 1)
-    stopifnot(is.logical(append))
-    stopifnot(length(temporary) == 1)
-    stopifnot(is.logical(temporary))
-    
-    
-    if(overwrite && append) stop("overwrite and append cannot be both TRUE.", call. = FALSE)
-    
-    quoted_name <- dbQuoteIdentifier(conn, name)
-    stopifnot(length(quoted_name) == 1)
-    
-    table_name <- dataset(quoted_name)
-    libref <- stringr::str_to_upper(table_name@name[1])
-    if(temporary && libref != "WORK") {
-      stop("dataset ", table_name@name[2], 
-           " cannot be temporary copied in library ", table_name@name[1], 
-           call. = FALSE
-           )
-    }
-    
-    # Non-temporary one-level named datasets are copied to SASUSER: 
-    if(!temporary && libref == "WORK") {
-      table_name <- dataset(libname = "SASUSER", name = table_name@name[2])
-    }
-    
-    quoted_name <- dbQuoteIdentifier(conn, table_name)
-    
-    exist <- dbExistsTable(conn, quoted_name)
-    if(exist && !append && !overwrite) {
-      stop("dataset ", table_name@name[2], 
-           " already exists in library ", table_name@name[1], 
-           call. = FALSE
-      )
-    }
-    
-    if(exist && overwrite) dbRemoveTable(conn, quoted_name, persistent = FALSE)
-    
-    if(!exist || overwrite) {
-      statement <- DBI::sqlCreateTable(con = conn, 
-                                       table = quoted_name, 
-                                       fields = value, 
-                                       row.names = row.names, 
-                                       temporary = FALSE
-                                       )
-      dbExecute(conn, 
-                statement, 
-                codeName = if(persistent) paste("Create dataset", name) else NULL, 
-                persistent = persistent
-                )
-    }
-    
-    if(nrow(value) > 0) {
-      statement <- sqlAppendTable(con = conn, 
-                                  table = quoted_name, 
-                                  values = value, 
-                                  row.names = row.names, 
-                                  ...
-                                  )
-      dbExecute(conn, 
-                statement, 
-                codeName = if(persistent) paste("Insert values to dataset", name) else NULL, 
-                persistent = persistent
-                )
-    }
-
-  invisible(TRUE)
-})
-
-#' @export
-setMethod(
-  "dbReadTable", 
-  c("SASEGConnection", "character"), 
-  function(conn, name, ..., row.names = NA, check.names = TRUE) {
-    quoted_name <- dbQuoteIdentifier(conn, name)
-    stopifnot(length(quoted_name) == 1)
-  
-    stopifnot(length(row.names) == 1L)
-    stopifnot(is.null(row.names) || is.logical(row.names) || is.character(row.names))
-    stopifnot(length(check.names) == 1L)
-    stopifnot(is.logical(check.names))
-    stopifnot(!is.na(check.names))
-  # TBD : create temporary=FALSE argument
-    stopifnot(dbExistsTable(conn, name))
-  
-    quoted_name <- dbQuoteIdentifier(conn, dataset(quoted_name))
-    statement <- paste("SELECT * FROM", quoted_name)
-    d <- dbGetQuery(conn, statement, codeName = NULL, persistent = FALSE)
-    d <- DBI::sqlColumnToRownames(d, row.names)
-    
-    if (check.names) {
-      names(d) <- make.names(names(d), unique = TRUE)
-    }
-    
-    d
-})

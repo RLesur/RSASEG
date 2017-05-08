@@ -9,6 +9,8 @@
 }
 \arguments{
 \item{drv}{An object created with \code{\link[=dbConnect,SASEGDriver-method]{dbConnect()}}.}
+
+\item{...}{Other parameters passed on to method. Not used.}
 }
 \value{
 A \code{\linkS4class{SASEGConnection}} object.

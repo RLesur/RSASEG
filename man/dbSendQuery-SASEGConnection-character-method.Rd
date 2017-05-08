@@ -22,6 +22,8 @@ or an \code{\link[DBI]{SQL}} class object.}
 
 \item{query}{A logical. \code{TRUE} indicates a \code{SELECT} query. 
 \code{FALSE} indicate a data transformation statement.}
+
+\item{...}{Other parameters passed on to methods. Not used.}
 }
 \value{
 A \code{\linkS4class{SASEGSQLResult}} object.

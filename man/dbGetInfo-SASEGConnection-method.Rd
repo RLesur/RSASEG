@@ -7,6 +7,11 @@
 \usage{
 \S4method{dbGetInfo}{SASEGConnection}(dbObj, ...)
 }
+\arguments{
+\item{dbObj}{An object created with \code{\link[=dbConnect,SASEGDriver-method]{dbConnect()}}.}
+
+\item{...}{Other parameters. Not used.}
+}
 \description{
 \code{dbGetInfo} returns informations about a \code{\linkS4class{SASEGConnection}}
 object:

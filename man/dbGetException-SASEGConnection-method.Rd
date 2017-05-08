@@ -9,6 +9,8 @@
 }
 \arguments{
 \item{conn}{An object created by \code{\link[=dbConnect,SASEGDriver-method]{dbConnect}}.}
+
+\item{...}{Other parameters passed on to method. Not used.}
 }
 \value{
 A list with elements \code{errorNum} (an integer error number) and 

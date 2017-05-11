@@ -10,6 +10,8 @@
 \alias{server,SASEGConnection-method}
 \alias{project,SASEGConnection-method}
 \alias{getUtil,SASEGConnection-method}
+\alias{getDBMS,SASEGConnection-method}
+\alias{getDBMSArgs,SASEGConnection-method}
 \title{SAS EG connection class}
 \usage{
 \S4method{drv}{SASEGConnection}(obj, ...)
@@ -25,6 +27,10 @@
 \S4method{project}{SASEGConnection}(obj)
 
 \S4method{getUtil}{SASEGConnection}(obj)
+
+\S4method{getDBMS}{SASEGConnection}(obj)
+
+\S4method{getDBMSArgs}{SASEGConnection}(obj)
 }
 \arguments{
 \item{obj}{An object of class \code{SASEGconnection}.}
@@ -45,6 +51,10 @@
 \code{project} method returns a \code{\linkS4class{SASEGProject}} object.
 
 \code{getUtil} method returns a \code{\linkS4class{SASEGCode}} object.
+
+\code{getDBMS} method returns a character string.
+
+\code{getDBMSArgs} method returns a named list of character strings.
 }
 \description{
 This class inherits from \code{\link[DBI]{DBIConnection-class}}.
@@ -73,6 +83,12 @@ project.
 
 \code{getUtil} method is used to get the \code{\linkS4class{SASEGCode}}
     object used in a connection to run utils codes. This method is not exported.
+
+\code{getDBMS} method is used to get the DBMS name used for 
+    \code{SAS/ACCESS SQL} pass-through. This method is not exported.
+
+\code{getDBMSArgs} method is used to get the DBMS arguments used for 
+    \code{SAS/ACCESS SQL} pass-through. This method is not exported.
 }
 \section{Slots}{
 
@@ -88,8 +104,11 @@ registered. Referenced objects are: \itemize{
 \item \code{listResults} (an environment),
 \item \code{sqlrc} (a numeric) for \code{SAS PROC SQL} return code,
 \item \code{syserrortext} (a character string) for \code{SAS PROC SQL} error message, 
-\item \code{dbms} (a character string) for \code{SAS/ACCESS} connection. 
-    Not yet implemented. }}
+\item \code{dbms} (a character string) with DBMS name for \code{SAS/ACCESS} connection. 
+    Not yet implemented. 
+\item \code{dbms.args} a named list with DBMS arguments for \code{SAS/ACCESS} connection. 
+    Not yet implemented. 
+    }}
 }}
 
 \seealso{

@@ -531,8 +531,11 @@ setMethod("dataset", "SQL", function(name, ...) {
 #'     \item \code{listResults} (an environment),
 #'     \item \code{sqlrc} (a numeric) for \code{SAS PROC SQL} return code,
 #'     \item \code{syserrortext} (a character string) for \code{SAS PROC SQL} error message, 
-#'     \item \code{dbms} (a character string) for \code{SAS/ACCESS} connection. 
-#'         Not yet implemented. }
+#'     \item \code{dbms} (a character string) with DBMS name for \code{SAS/ACCESS} connection. 
+#'         Not yet implemented. 
+#'     \item \code{dbms.args} a named list with DBMS arguments for \code{SAS/ACCESS} connection. 
+#'         Not yet implemented. 
+#'         }
 #' @seealso \code{\link[=dbGetException,SASEGConnection-method]{dbGetException}}, 
 #'     \code{\link[=dbIsValid,SASEGConnection-method]{dbIsValid}}.
 #' @keywords internal
@@ -668,13 +671,50 @@ setMethod("getUtil", "SASEGConnection", function(obj) {
   env$SASUtil
 })
 
+#' Get DBMS slot of an object
+#' 
+#' Methods to get DBMS slot of an object.
+#' @param obj An object.
+#' @keywords internal
+setGeneric("getDBMS", function(obj) standardGeneric("getDBMS"))
+
+#' Get the DBMS name referenced in a connection
+#' 
+#' \code{getDBMS} method is used to get the DBMS name used for 
+#'     \code{SAS/ACCESS SQL} pass-through. This method is not exported.
+#' @inheritParams drv,SASEGConnection-method
+#' @return \code{getDBMS} method returns a character string.
+#' @rdname SASEGConnection-class
+setMethod("getDBMS", "SASEGConnection", function(obj) {
+  env <- obj@infos
+  env$dbms
+})
+
+#' Get DBMS arguments slot of an object
+#' 
+#' Methods to get DBMS arguments slot of an object.
+#' @param obj An object.
+#' @keywords internal
+setGeneric("getDBMSArgs", function(obj) standardGeneric("getDBMSArgs"))
+
+#' Get the DBMS arguments referenced in a connection
+#' 
+#' \code{getDBMSArgs} method is used to get the DBMS arguments used for 
+#'     \code{SAS/ACCESS SQL} pass-through. This method is not exported.
+#' @inheritParams drv,SASEGConnection-method
+#' @return \code{getDBMSArgs} method returns a named list of character strings.
+#' @rdname SASEGConnection-class
+setMethod("getDBMSArgs", "SASEGConnection", function(obj) {
+  env <- obj@infos
+  env$dbms.args
+})
+
 setMethod("show", "SASEGConnection", function(object) {
   cat(
     "<SASEGConnection>\n",
     "Used Profile in Active Connection: ", getProfile(object), "\n",
     "SAS Server to Run Programs in Active Connection: ", server(object), "\n",
-    "DBMS SQL Pass-Through: ", if(length(object@infos$dbms) == 0) "NONE" 
-    else object@infos$dbms,
+    "DBMS SQL Pass-Through: ", if(length(getDBMS(object)) == 0) "NONE" else getDBMS(object),
     sep = ""
   )
 })
@@ -704,6 +744,41 @@ setMethod("dbClearListResults", "SASEGConnection", function(conn, ...) {
   invisible(TRUE)
 })
 
+#' Get DBMS connect string
+#' 
+#' Get DBMS connect string
+#' @param conn An object.
+#' @param ... Other parameters passed on to method.
+#' @keywords internal
+setGeneric("dbConnectString", function(conn, ...) standardGeneric("dbConnectString"))
+
+#' Get DBMS connect string for SAS/ACCESS
+#' 
+#' This method returns a character string with the connection string for 
+#' \code{SAS/ACCESS}. This method is not exported.
+#' @param conn A \code{\linkS4class{SASEGConnection}} object.
+#' @param cnx.alias A character string with the alias name for the connection.
+#' @param ... Other parameters passed on to method. Not used.
+#' @return A character string.
+#' @keywords internal
+setMethod("dbConnectString", "SASEGConnection", function(conn, cnx.alias = "CNX", ...) {
+  dbms <- getDBMS(conn)
+  if(length(dbms) == 0) {
+    return(DBI::SQL(""))
+  } else {
+    dbms.args <- getDBMSArgs(conn)
+    dbms.args <- lapply(dbms.args, dbQuoteString, conn = conn)
+    
+    return(SQL(
+      paste0(
+        "CONNECT TO ", dbms, " AS ", cnx.alias,
+        " (",
+        paste0(names(dbms.args), "=", dbms.args, collapse = " "),
+        ");\n"
+      )
+    ))
+  }
+})
 
 # Driver Class -----------------------------------------------------------------
 #             /methods ---------------------------------------------------------
@@ -733,6 +808,11 @@ finalize_cnx <- function(e) {
 #'     objects instead of multiple connections.
 #' @param profile A character string with the \code{SAS EG} profile name.
 #' @param server A character string with the \code{SAS} server name to run programs.
+#' @param dbms Optional. A character string with the DBMS name for 
+#'     \code{SAS/ACCESS SQL} pass-through.
+#' @param dbms.args A named list with the DBMS arguments for
+#'     \code{SAS/ACCESS SQL} pass-through. Compulsory if \code{dbms} argument 
+#'     is not \code{NULL}.
 #' @inheritParams dbListConnections,SASEGDriver-method
 #' @return \code{dbConnect} returns an object of class \code{\linkS4class{SASEGConnection}}.
 #' @rdname SASEG
@@ -763,7 +843,7 @@ finalize_cnx <- function(e) {
 #' dbDisconnect(conn, projectPath = RSASEG_project)
 #' dbUnloadDriver(drv)}
 #' @family SASEGConnection class methods
-setMethod("dbConnect", "SASEGDriver", function(drv, profile, server, ...) {
+setMethod("dbConnect", "SASEGDriver", function(drv, profile, server, dbms = NULL, dbms.args = NULL, ...) {
   if(!dbIsValid(drv)) stop("invalid driver.")
   
   list_cnx <- dbListConnections(drv)
@@ -773,6 +853,20 @@ setMethod("dbConnect", "SASEGDriver", function(drv, profile, server, ...) {
     if(!getProfile(cnx) == profile) warning("\n  Previous profile used: ", getProfile(cnx), immediate. = TRUE)
     if(!server(cnx) == server) warning("\n  Previous server used: ", server(cnx), immediate. = TRUE)
     return(cnx)
+  }
+  
+  if(!is.null(dbms)) {
+    stopifnot(length(dbms) == 1)
+    stopifnot(is.character(dbms))
+    stopifnot(!is.null(dbms.args))
+  }
+  
+  if(!is.null(dbms.args)) {
+    stopifnot(!is.null(dbms))
+    stopifnot(is.list(dbms.args), length(dbms.args) > 0)
+    stopifnot(!is.null(names(dbms.args)))
+    stopifnot(nchar(names(dbms.args)) > 0)
+    stopifnot(vapply(dbms.args, is.character, logical(1)))
   }
   
   infos <- new.env(parent = emptyenv())
@@ -794,7 +888,8 @@ setMethod("dbConnect", "SASEGDriver", function(drv, profile, server, ...) {
                            name = "garbage"
                            )
   infos$SASProject <- SASProject
-  infos$dbms <- character(0)
+  infos$dbms <- as.character(dbms)
+  infos$dbms.args <- as.list(dbms.args)
   new_cnx <- new("SASEGConnection", infos = infos)
   on.exit(reg.finalizer(infos, finalize_cnx, onexit = TRUE))
   # Add the new connection to the list of connections of the driver:
@@ -1558,6 +1653,25 @@ setMethod(
     # Keep original statement:
     sql_statement <- statement
     
+    if(length(getDBMS(conn)) > 0) {
+      cnx.alias <- "CNX"
+      cnx.string <- dbConnectString(conn, cnx.alias = cnx.alias)
+      if(query) {
+        statement <- paste0(cnx.string, 
+                            "SELECT * FROM CONNECTION TO ", cnx.alias, " (\n", 
+                            statement, 
+                            "\n);\nDISCONNECT FROM ", cnx.alias
+                            )
+      } else {
+        statement <- paste0(cnx.string, 
+                            "EXECUTE (\n", 
+                            statement, 
+                            "\n) BY ", cnx.alias, 
+                            ";\nDISCONNECT FROM ", cnx.alias
+                            )
+      }
+    }
+    
     if(query) {
       # Choose a new dataset name to store the result of SQL query:
       SQLResult <- paste0("WORK.", random_table_name()) 
@@ -1605,8 +1719,17 @@ setMethod(
         conn@infos$sqlrc <- SQLRC$sqlrc
         conn@infos$syserrortext <- SQLRC$syserrortext
         log <- dbGetLog(res)
-        stop("SAS/PROC SQL error: ", SQLRC$syserrortext, "\nSAS Log:\n", log, call. = FALSE)
+        stop("SAS/PROC SQL - ", SQLRC$syserrortext, "\n SAS Log:\n", log, call. = FALSE)
+      }
+      # In case of SAS/ACCESS SQL pass-through, retrieve the return codes sent by the DBMS:
+      if(length(getDBMS(conn)) > 0) {
+        if(SQLRC$sqlxrc > 0) {
+          conn@infos$sqlrc <- SQLRC$sqlxrc
+          conn@infos$syserrortext <- as.character(SQLRC$sqlxmsg)
+          log <- dbGetLog(res)
+          stop(getDBMS(conn), " SQL - ", as.character(SQLRC$sqlxmsg), "\n SAS Log:\n", log, call. = FALSE)
         }
+      }
     } else {
       SQLRC <- data.frame(NULL)
     }

@@ -9,7 +9,8 @@
 
   SASEG(DLLPath = "C:\\\\Program Files\\\\SAS94\\\\SASEnterpriseGuide\\\\7.1\\\\SASEGScripting.dll")
 
-\S4method{dbConnect}{SASEGDriver}(drv, profile, server, ...)
+\S4method{dbConnect}{SASEGDriver}(drv, profile, server, dbms = NULL,
+  dbms.args = NULL, ...)
 }
 \arguments{
 \item{DLLPath}{A character string with the path to file \code{SASEGScripting.dll}.}
@@ -19,6 +20,13 @@
 \item{profile}{A character string with the \code{SAS EG} profile name.}
 
 \item{server}{A character string with the \code{SAS} server name to run programs.}
+
+\item{dbms}{Optional. A character string with the DBMS name for 
+\code{SAS/ACCESS SQL} pass-through.}
+
+\item{dbms.args}{A named list with the DBMS arguments for
+\code{SAS/ACCESS SQL} pass-through. Compulsory if \code{dbms} argument 
+is not \code{NULL}.}
 
 \item{...}{Other parameters. Not used.}
 }

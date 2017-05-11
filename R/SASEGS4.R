@@ -838,6 +838,12 @@ setGeneric("read", function(object, ...) standardGeneric("read"))
 #' @export
 setMethod("read", "SASEGDataset", function(object) {
   path <- saveAs(object)
-  d <- data.table::fread(path, sep = "\t")
-  return(d)
+  tryCatch(
+    data.table::fread(path, sep = "\t"),
+    error = function(e) {
+      path2 <- paste0(path, "c")
+      writeLines(iconv(readLines(path, skipNul = TRUE)), path2)
+      data.table::fread(path2, sep = "\t")
+      }
+    )
 })

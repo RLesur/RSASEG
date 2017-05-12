@@ -46,7 +46,7 @@ setMethod("show", "SASEGDriver", function(object) {
     cat("<SASEGDriver>\n")
     show(app(object))
   } else {
-    warning("Invalid driver")
+    warning("Invalid driver", call. = FALSE)
   }
 })
 
@@ -308,7 +308,7 @@ setMethod("dbUnloadDriver", "SASEGDriver", function(drv, ...) {
     terminate(app(drv))
     isValid(drv) <- FALSE
   } else {
-    warning("Invalid driver")
+    warning("Invalid driver", call. = FALSE)
   }
   TRUE
 })
@@ -1343,7 +1343,7 @@ setMethod("dbExistsTable", "SASEGConnection", function(conn, name, send.dbms = T
       d <- dbGetQuery(conn, statement, codeName = NULL, persistent = FALSE, send.dbms = TRUE)
       if(nrow(d) == 0) return(FALSE) else return(TRUE)
     }
-    tryCatch(f(conn = conn, statement = statement), error = function(e) FALSE)
+    tryCatch(f(conn = conn, statement = statement), error = function(e) FALSE, warning = function(w) FALSE)
   }
 })
 
@@ -2094,7 +2094,7 @@ setMethod("dbFetch", "SASEGSQLResult", function(res, n = -1, ...) {
   if(!dbIsValid(res)) stop("cannot fetch a closed result object.")
   # If object res was created by a SQL statement then SQLResult slot is NA:
   if(is.na(res@SQLResult)) {
-    warning("No table to fetch: check that there is no error in your SQL code.")
+    warning("No table to fetch: check that there is no error in your SQL code.", call. = FALSE)
     return(data.frame(NULL))
     }
   if(dbHasCompleted(res)) message("No row to fetch: an empty data.frame is returned.") 

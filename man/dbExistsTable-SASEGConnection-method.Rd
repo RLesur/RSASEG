@@ -5,7 +5,7 @@
 \alias{dbExistsTable,SASEGConnection-method}
 \title{Does a dataset exist on a SAS server ?}
 \usage{
-\S4method{dbExistsTable}{SASEGConnection}(conn, name, ...)
+\S4method{dbExistsTable}{SASEGConnection}(conn, name, send.dbms = TRUE, ...)
 }
 \arguments{
 \item{conn}{An object returned by \code{\link[=dbConnect,SASEGDriver-method]{dbConnect()}}.}

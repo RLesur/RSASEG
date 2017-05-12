@@ -6,7 +6,8 @@
 \title{Send an SQL query to SAS EG}
 \usage{
 \S4method{dbSendQuery}{SASEGConnection,character}(conn, statement,
-  codeName = NULL, persistent = TRUE, query = TRUE, ...)
+  codeName = NULL, persistent = TRUE, query = TRUE, send.dbms = TRUE,
+  ...)
 }
 \arguments{
 \item{conn}{A \code{SASEGConnection} object.}

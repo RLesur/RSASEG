@@ -6,7 +6,7 @@
 \title{Remove a dataset on a SAS server}
 \usage{
 \S4method{dbRemoveTable}{SASEGConnection}(conn, name, codeName = NULL,
-  persistent = TRUE, ...)
+  persistent = TRUE, send.dbms = TRUE, ...)
 }
 \arguments{
 \item{conn}{An object returned by \code{\link[=dbConnect,SASEGDriver-method]{dbConnect()}}.}

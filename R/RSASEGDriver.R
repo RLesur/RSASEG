@@ -1254,7 +1254,7 @@ setMethod("dbListFields", c("SASEGConnection", "character"), function(conn, name
       ),
     sep = "\n"
   )
-  d <- dbGetQuery(conn, statement, codeName = NULL, persistent = FALSE)
+  d <- dbGetQuery(conn, statement, codeName = NULL, persistent = FALSE, send.dbms = FALSE)
   
   as.character(d$name)
 })
@@ -1275,7 +1275,7 @@ setMethod("dbListTables", "SASEGConnection", function(conn, ...) {
     'SELECT libname, memname\n',
     'FROM DICTIONARY.TABLES'
     )
-  d <- dbGetQuery(conn, statement, codeName = NULL, persistent = FALSE)
+  d <- dbGetQuery(conn, statement, codeName = NULL, persistent = FALSE, send.dbms = FALSE)
   paste(d$libname, d$memname, sep = ".")
 })
 
@@ -1317,24 +1317,34 @@ setMethod("dbDataType", "SASEGConnection", function(dbObj, obj, ...) {
 #' @seealso Generic: \code{\link[DBI]{dbExistsTable}}.
 #' @family SASEGConnection class methods
 #' @export
-setMethod("dbExistsTable", "SASEGConnection", function(conn, name, ...) {
+setMethod("dbExistsTable", "SASEGConnection", function(conn, name, send.dbms = TRUE, ...) {
   name <- dbQuoteIdentifier(conn, name)
   stopifnot(length(name) == 1)
-  name <- dataset(name)
-  statement <- paste(
-    'SELECT COUNT(*) AS value',
-    'FROM DICTIONARY.TABLES',
-    paste0(
-      "WHERE libname=", 
-      dbQuoteString(conn, stringr::str_to_upper(name@name[1])), 
-      " AND memname=", 
-      dbQuoteString(conn, stringr::str_to_upper(name@name[2]))
-    ),
-    sep = "\n"
-  )
-  d <- dbGetQuery(conn, statement, codeName = NULL, persistent = FALSE)
   
-  as.logical(d$value)
+  if(length(getDBMS(conn)) == 0 || send.dbms == FALSE) {
+    name <- dataset(name)
+    statement <- paste(
+      'SELECT COUNT(*) AS value',
+      'FROM DICTIONARY.TABLES',
+      paste0(
+        "WHERE libname=", 
+        dbQuoteString(conn, stringr::str_to_upper(name@name[1])), 
+        " AND memname=", 
+        dbQuoteString(conn, stringr::str_to_upper(name@name[2]))
+        ),
+      sep = "\n"
+      )
+    d <- dbGetQuery(conn, statement, codeName = NULL, persistent = FALSE, send.dbms = FALSE)
+    
+    return(as.logical(d$value))
+  } else {
+    statement <- paste("SELECT 1 FROM", name, "LIMIT 1;")
+    f <- function(conn, statement) {
+      d <- dbGetQuery(conn, statement, codeName = NULL, persistent = FALSE, send.dbms = TRUE)
+      if(nrow(d) == 0) return(FALSE) else return(TRUE)
+    }
+    tryCatch(f(conn = conn, statement = statement), error = function(e) FALSE)
+  }
 })
 
 #                         //dbRemoveTable --------------------------------------
@@ -1351,13 +1361,14 @@ setMethod("dbExistsTable", "SASEGConnection", function(conn, name, ...) {
 setMethod(
   "dbRemoveTable", 
   "SASEGConnection", 
-  function(conn, name, codeName = NULL, persistent = TRUE, ...) {
+  function(conn, name, codeName = NULL, persistent = TRUE, send.dbms = TRUE, ...) {
     name <- dbQuoteIdentifier(conn, name)
     stopifnot(length(name) == 1)
-    if(!dbExistsTable(conn, name)) stop("cannot remove dataset; dataset does not exist.", call. = FALSE)
+    if(!dbExistsTable(conn, name, send.dbms = send.dbms)) stop("cannot remove dataset; dataset does not exist.", call. = FALSE)
     name <- dbQuoteIdentifier(conn, dataset(name))
     statement <- paste0("DROP TABLE ", name)
-    dbExecute(conn, statement, codeName = codeName, persistent = persistent)
+    # la ligne ci-dessous ne fonctionne que dans le cas de send.dmbs=FALSE, il faut modifier
+    dbExecute(conn, statement, codeName = codeName, persistent = persistent, send.dbms = send.dbms)
     
     invisible(TRUE)
 })
@@ -1649,11 +1660,16 @@ setClass(
 setMethod(
   "dbSendQuery", 
   c("SASEGConnection", "character"), 
-  function(conn, statement, codeName = NULL, persistent = TRUE, query = TRUE, ...) {
+  function(conn, 
+           statement, 
+           codeName = NULL, 
+           persistent = TRUE, 
+           query = TRUE, 
+           send.dbms = TRUE, ...) {
     # Keep original statement:
     sql_statement <- statement
     
-    if(length(getDBMS(conn)) > 0) {
+    if(length(getDBMS(conn)) > 0 && send.dbms) {
       cnx.alias <- "CNX"
       cnx.string <- dbConnectString(conn, cnx.alias = cnx.alias)
       if(query) {
@@ -1683,7 +1699,7 @@ setMethod(
     statement <- SAS(DBI::SQL(statement), SQLResult = SQLResult)
     
     # In case of a new SAS Code, construct a DATA STEP to retrieve SAS Return Codes:
-    if(persistent){
+    if(persistent) {
       # * pick a name:
       RCFileName <- paste0("WORK.", random_table_name())
       # * elaborate the DATA STEP:
@@ -1769,8 +1785,13 @@ setMethod(
 setMethod(
   "dbSendStatement", 
   c("SASEGConnection", "character"), 
-  function(conn, statement, codeName = NULL, persistent = TRUE, ...) {
-  dbSendQuery(conn, statement, codeName = codeName, persistent = persistent, query = FALSE)
+  function(conn, statement, codeName = NULL, persistent = TRUE, send.dbms = TRUE, ...) {
+  dbSendQuery(conn, 
+              statement, 
+              codeName = codeName, 
+              persistent = persistent, 
+              query = FALSE, 
+              send.dbms = send.dbms, ...)
 })
 
 #                         //dbGetQuery -----------------------------------------
@@ -1787,12 +1808,13 @@ setMethod(
 setMethod(
   "dbGetQuery", 
   c("SASEGConnection", "character"), 
-  function(conn, statement, codeName = NULL, persistent = TRUE, ...) {
+  function(conn, statement, codeName = NULL, persistent = TRUE, send.dbms = TRUE, ...) {
     res <- dbSendQuery(conn, 
                        statement, 
                        codeName = codeName, 
                        persistent = persistent, 
-                       query = TRUE)
+                       query = TRUE,
+                       send.dbms = send.dbms)
     on.exit(dbClearResult(res))
     d <- dbFetch(res, n = -1)
     return(d)
@@ -1884,16 +1906,16 @@ setMethod(
       )
     }
     
-    if(exist && overwrite) dbRemoveTable(conn, quoted_name, persistent = FALSE)
+    if(exist && overwrite) dbRemoveTable(conn, quoted_name, persistent = FALSE, send.dbms = FALSE)
     
     if(!exist || overwrite) {
-      if (is.null(field.types)) {
+      if(is.null(field.types)) {
         statement <- DBI::sqlCreateTable(con = conn, 
                                          table = quoted_name, 
                                          fields = value, 
                                          row.names = row.names, 
                                          temporary = FALSE
-        )
+                                         )
         
       } else {
         statement <- DBI::sqlCreateTable(con = conn, 
@@ -1901,14 +1923,15 @@ setMethod(
                                          fields = field.types, 
                                          row.names = row.names, 
                                          temporary = FALSE
-        )
+                                         )
       }
       
       dbExecute(conn, 
                 statement, 
                 codeName = if(persistent) paste("Create dataset", name) else NULL, 
-                persistent = persistent
-      )
+                persistent = persistent,
+                send.dbms = FALSE
+                )
     }
     
     if(nrow(value) > 0) {
@@ -1916,13 +1939,13 @@ setMethod(
                                   table = quoted_name, 
                                   values = value, 
                                   row.names = row.names, 
-                                  ...
-      )
+                                  ...)
       dbExecute(conn, 
                 statement, 
                 codeName = if(persistent) paste("Insert values to dataset", name) else NULL, 
-                persistent = persistent
-      )
+                persistent = persistent,
+                send.dbms = FALSE
+                )
     }
     
     invisible(TRUE)
@@ -1956,7 +1979,7 @@ setMethod(
     
     quoted_name <- dbQuoteIdentifier(conn, dataset(quoted_name))
     statement <- paste("SELECT * FROM", quoted_name)
-    d <- dbGetQuery(conn, statement, codeName = NULL, persistent = FALSE)
+    d <- dbGetQuery(conn, statement, codeName = NULL, persistent = FALSE, send.dbms = TRUE)
     d <- DBI::sqlColumnToRownames(d, row.names)
     
     if (check.names) {
@@ -2044,7 +2067,7 @@ setMethod("dbClearResult", "SASEGSQLResult", function(res, ...) {
     statement <- paste0(statement, "")
   } 
   # If necessary, run drop statement:
-  if(any(!is.na(c(res@RCFileName, res@SQLResult)))) dbExecute(res@conn, statement, codeName = NULL, persistent = FALSE)
+  if(any(!is.na(c(res@RCFileName, res@SQLResult)))) dbExecute(res@conn, statement, codeName = NULL, persistent = FALSE, send.dbms = FALSE)
   # In all cases, set isValid to FALSE:
   isValid(res) <- FALSE
 
@@ -2100,7 +2123,7 @@ setMethod("dbFetch", "SASEGSQLResult", function(res, n = -1, ...) {
     }
     query <- paste0("SELECT * FROM ", res@SQLResult, "\n",
                     "WHERE MONOTONIC() ", condition)
-    d <- dbGetQuery(res@conn, query, codeName = NULL, persistent = FALSE)
+    d <- dbGetQuery(res@conn, query, codeName = NULL, persistent = FALSE, send.dbms = FALSE)
     if(nrow(d) < n || allrows) {fetched(res) <- TRUE}
   }
   res@rowsFetched(add = nrow(d))
@@ -2143,7 +2166,7 @@ setMethod("dbColumnInfo", "SASEGSQLResult", function(res, ...) {
     paste0("WHERE libname='", libname, "' AND memname='", tablename, "'"),
     sep = "\n"
   )
-  d <- dbGetQuery(res@conn, statement, codeName = NULL, persistent = FALSE)
+  d <- dbGetQuery(res@conn, statement, codeName = NULL, persistent = FALSE, send.dbms = FALSE)
   
   SAS2RDataType(d)
 })
